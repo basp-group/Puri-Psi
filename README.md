@@ -3,7 +3,7 @@
 
 ## Description
 
-This code is contains a series a MATLAB functions associated with the PURI-PSI library.
+This code contains a series a MATLAB functions associated with the PURI-PSI library.
 
 ## Authors
 
