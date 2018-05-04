@@ -33,17 +33,6 @@
 		</div>
 	</div>
 
-	<!-- <div class="row, col c11">
-		<div id="navbar" >
-			<a href="#introduction">Introduction</a>
-			<a href="#matlab">Matlab</a>
-			<a href="#referencing">Referencing</a>
-			<a href="#license">License</a>
-			<a href="#authors">Authors</a>
-		</div>
-	</div> -->
-
-
 	<div class="row">
 		<div id="sidebar", class="col c3">
 			<div id="sticker">
@@ -59,47 +48,58 @@
 		</div>
 
 		<div id="content">
-
 			<div class="row, col c9">
 
 				<a name="introduction"></a> <h2>Introduction</h2>
 
-				<p> <strong>Puri-Psi</strong> is an open-source code that provides functionality to address radio interferometric imaging problems using state-of-the-art convex optimisation algorithms. 
+				<p> <strong>Puri-Psi</strong> is an open-source code that provides functionality to address radio interferometric imaging problems using state-of-the-art optimisation. 
 				</p>
 
-				<p> <strong>Puri-Psi</strong> is currently available as a collection of independent <a href="#matlab">Matlab toolboxes</a>. A <a href="#cpp">C++ library</a> with partial Python support is currently under development and will be provided in due course. For further details on the methods currently implemented, please see the following <a href="#referencing">references</a>. 
+				<p> <strong>Puri-Psi</strong> is currently available as a collection of independent <a href="#matlab">Matlab toolboxes</a>. A <a href="#cpp">C++ library</a> with partial Python support is currently under development and will be provided in due course. For further details on the methods currently implemented, please see the <a href="#referencing">reference section</a>. 
 				</p>
 
 				<p><strong>Puri-Psi</strong> is made available under the license described <a href="#license">below</a>.
 				</p>
 
-				<!-- <p> This documentation outlines how to obtain <strong>Puri-Psi</strong>, before describing installation details, source code documentation and Matlab support. Reference, license and author information then follows. </p> -->
-
-
-				<!-- <a name="download"></a><h3>Download</h3>
-
-				<p><strong>Puri-Psi</strong> is an open-source package
-				available under the license described <a
-					href="#license">below</a>.
-				</p>
-
-				<p>The <strong>Puri-Psi</strong> code is available at <a href="https://github.com/basp-group/psi/">github</a>.
-				</p> -->
-
 
 				<a name="matlab"></a><h2>Matlab</h2>
 
 				<p> <strong>Puri-Psi</strong> is currently composed of several independent Matlab toolboxes devoted to specific radio radio-interferometric imaging problems. Further details on each of these methods can be directly found on their respective Github repository, which can be separately accessed by clicking on the following links.
-					<ul>
-						<li><a href="https://github.com/basp-group/Scalable-splitting-algorithms-for-big-data-interferometric-imaging.git">Scalable splitting algorithms for big data interferometric imaging</a></li>
-						<li><a href="https://github.com/basp-group/ppd-for-ri.git">Accelerated splitting algorithm for radio-interferometric imaging</a></li>
-						<li><a href="https://github.com/basp-group/joint-img-dde-calibration.git">Joint imaging and DDE calibration</a></li>
-						<li><a href="https://github.com/basp-group/Fourier-dimensionality-reduction-for-big-data-interferometric-imaging.git">Fourier dimensionality reduction for big data interferometric imaging</a></li>
-						<li><a href="https://github.com/basp-group/Adaptive-PPD-for-RI.git">Adaptive preconditioned primal-dual for radio-interferometry</a></li>
-						<li><a href="https://github.com/basp-group/stokes-imaging.git">Joint Stokes imaging in radio-interferometry</a></li>
-					</ul>		
 				</p>
 
+
+				<h3>Scalable monochromatic imaging</h3>
+
+				<p>
+					<ol>
+						<li><a href="http://basp-group.github.io/Scalable-splitting-algorithms-for-big-data-interferometric-imaging/">Scalable splitting algorithms for big data interferometric imaging</a></li>
+						<li><a href="http://basp-group.github.io/ppd-for-ri/">Accelerated splitting algorithm for radio-interferometric imaging</a></li>
+						<li><a href="https://github.com/basp-group/Fourier-dimensionality-reduction-for-big-data-interferometric-imaging.git">Fourier dimensionality reduction for big data interferometric imaging</a></li>
+						<li><a href="https://github.com/basp-group/Adaptive-PPD-for-RI.git">Adaptive preconditioned primal-dual for radio-interferometry</a></li>
+					</ol>
+				</p>
+
+
+				<h3>Scalable hyperspectral imaging</h3>
+
+				<p>To be updated in due time.</p>
+
+
+				<h3>Scalable polarized imaging</h3>
+
+				<p>
+					<ol>
+						<li><a href="http://basp-group.github.io/stokes-imaging/">Sparse interferometric Stokes imaging under polarization constraint (Polarized SARA)</a></li>
+					</ol>
+				</p>
+
+				<h3>Joint calibration and imaging</h3>
+
+				<p>
+					<ol>
+						<li><a href="http://basp-group.github.io/joint-img-dde-calibration/">Non-convex optimization for self-calibration of direction-dependent effects in radio interferometric imaging</a></li>
+					</ol>
+				</p>
 
 				<a name="cpp"></a><h2>C++ / Python</h2>
 
@@ -111,6 +111,8 @@
 				<p> If you use <strong>Puri-Psi</strong> for work that results in publication, please reference this site (<a href="http://basp-group.github.io/Puri-Psi/">http://basp-group.github.io/Puri-Psi/</a>) and our related academic papers:
 				</p>
 
+				<h3>Scalable monochromatic imaging</h3>
+
 				<blockquote class="highlight"> A. Onose, R. E. Carrillo, A. Repetti, J. D. McEwen, J.-P. Thiran,
 				J.-C. Pesquet, and Y. Wiaux, <a href="http://arxiv.org/abs/1601.04026">Scalable
 				splitting algorithms for big-data interferometric imaging in the SKA
@@ -121,10 +123,6 @@
 
 				<blockquote class="highlight"> A. Onose, A. Dabbech and Y. Wiaux, <a href="https://arxiv.org/abs/1701.01748">An accelerated splitting algorithm for radio-interferometric imaging: when natural and uniform weighting meet</a>, <i>Mon. Not. Roy. Astron. Soc.</i>, 469(1):938-949, 2017. <br>
 				<a href="https://arxiv.org/abs/1701.01748">ArXiv:1701.01748</a> | <a href="http://dx.doi.org/10.1093/mnras/stx755">DOI:10.1093/mnras/stx755</a>
-				</blockquote>
-
-				<blockquote class="highlight"> A. Repetti, J. Birdi, A. Dabbech and Y. Wiaux, <a href="https://arxiv.org/abs/1701.03689">Non-convex optimization for self-calibration of direction-dependent effects in radio interferometric imaging</a>, <i>Mon. Not. Roy. Astron. Soc.</i>, 470(4):3981-4006, 2017. <br>
-				<a href="https://arxiv.org/abs/1701.03689">ArXiv:1701.03689</a> | <a href="http://dx.doi.org/10.1093/mnras/stx1267">DOI:10.1093/mnras/stx1267</a>
 				</blockquote>
 
 				<blockquote class="highlight"> S. V. Kartik, R. E. Carrillo, J.-P. Thiran and Y. Wiaux, <a href="https://arxiv.org/abs/1609.02097">A Fourier dimensionality reduction model for big data interferometric imaging</a>, <i>Mon. Not. Roy. Astron. Soc.</i>, 480(2):2382-2400, 2017. <br>
@@ -139,34 +137,46 @@
 				<a href="https://arxiv.org/abs/1710.08810">ArXiv:1710.08810</a> | <a href="http://dx.doi.org/10.1093/mnras/sty372">DOI:10.1093/mnras/sty372</a>
 				</blockquote>
 
+				<h3>Scalable hyperspectral imaging</h3>
+
+				<p>To be updated in due time.</p>
+
+				<h3>Scalable polarized imaging</h3>				
+
 				<blockquote class="highlight"> J. Birdi, A. Repetti, and Y. Wiaux, <a href="https://arxiv.org/abs/1801.02417">Sparse interferometric Stokes imaging under polarization constraint (Polarized SARA)</a>, <i>to appear</i>, ..., 2018. <br>
 				<a href="https://arxiv.org/abs/1801.02417">ArXiv:1801.02417</a> | <a>DOI:...</a>
 				</blockquote>
 
+				<h3>Joint calibration and imaging</h3>
+
+				<blockquote class="highlight"> A. Repetti, J. Birdi, A. Dabbech and Y. Wiaux, <a href="https://arxiv.org/abs/1701.03689">Non-convex optimization for self-calibration of direction-dependent effects in radio interferometric imaging</a>, <i>Mon. Not. Roy. Astron. Soc.</i>, 470(4):3981-4006, 2017. <br>
+				<a href="https://arxiv.org/abs/1701.03689">ArXiv:1701.03689</a> | <a href="http://dx.doi.org/10.1093/mnras/stx1267">DOI:10.1093/mnras/stx1267</a>
+				</blockquote>
+
 				<a name="license"></a><h2>License</h2>
 				<blockquote>
-					<p>
-					Puri-Psi<br>
-					Copyright (C) 2018 Yves Wiaux
-					</p>
+				<p>
+				Puri-Psi<br>
+				Copyright (C) 2018 Yves Wiaux
+				</p>
 
-					<p>
-					This program is free software; you can redistribute it and/or modify
-					it under the terms of the GNU General Public License as published by
-					the Free Software Foundation; either version 2 of the License, or (at
-					your option) any later version.
-					</p>
+				<p>
+				This program is free software; you can redistribute it and/or modify
+				it under the terms of the GNU General Public License as published by
+				the Free Software Foundation; either version 2 of the License, or (at
+				your option) any later version.
+				</p>
 
-					<p>
-					This program is distributed in the hope that it will be useful, but
-					WITHOUT ANY WARRANTY; without even the implied warranty of
-					MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-					General Public License for more details (<a href="license.txt">license.txt</a>).
-					</p>
+				<p>
+				This program is distributed in the hope that it will be useful, but
+				WITHOUT ANY WARRANTY; without even the implied warranty of
+				MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+				General Public License for more details (<a href="license.txt">license.txt</a>).
+				</p>
 
-					<p>
-					You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-					</p>
+				<p>
+				You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+				</p>
 				</blockquote>
 
 				
