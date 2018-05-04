@@ -10,7 +10,8 @@
 	<script type="text/javascript" src="jquery.sticky.js"></script>
 	<script>
 	  $(window).load(function(){
-		$("#sticker").sticky({ topSpacing: 5,});
+		$("#sticker").sticky({ topSpacing: 5})
+		$("#sticker").stick_in_parent();
 	  });
 	</script>
 	<title>Puri-Psi open-source library</title>
@@ -44,8 +45,8 @@
 
 
 	<div class="row">
-		<div id="sidebar" class="col c3">
-			<div id="sticker" class="col c3">
+		<div id="sidebar", class="col c3">
+			<div id="sticker">
 				<ul class="menu">
 					<li><a href="#introduction">Introduction</a></li>
 					<li><a href="#matlab">Matlab</a></li>
