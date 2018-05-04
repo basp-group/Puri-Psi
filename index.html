@@ -1,0 +1,203 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<meta name="description" content="Your description goes here" />
+	<meta name="keywords" content="BASP group, radio-interferometry, parallel, sparse imaging" />
+	<meta name="author" content="BASP group" />
+	<link rel="stylesheet" type="text/css" href="the-grid-v2.css" title="Psi" media="all" />
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+	<script type="text/javascript" src="jquery.sticky.js"></script>
+	<script>
+	  $(window).load(function(){
+		$("#sticker").sticky({ topSpacing: 5,});
+	  });
+	</script>
+	<title>Psi open-source library</title>
+</head>
+
+<body>
+<div id="layout">
+
+	<div id="header" class="row">
+		<div class="col c12">
+			<h1><a href="index.html">Puri-Psi</a></h1>
+			<!-- <p class="slogan larger">Parallel proximal Sparse Imaging.</p> -->
+		</div>
+	</div>
+
+	<div class="row">
+		<div id="headerimage" class="col c12">
+			<p><a href="index.html"><img src="images/header.png" alt="The Grid template" /></a></p>
+		</div>
+	</div>
+
+	<!-- <div class="row, col c11">
+		<div id="navbar" >
+			<a href="#introduction">Introduction</a>
+			<a href="#matlab">Matlab</a>
+			<a href="#referencing">Referencing</a>
+			<a href="#license">License</a>
+			<a href="#authors">Authors</a>
+		</div>
+	</div> -->
+
+
+	<div class="row">
+		<div id="sidebar" class="col c3">
+			<div id="sticker" class="col c3">
+				<ul class="menu">
+					<li><a href="#introduction">Introduction</a></li>
+					<li><a href="#matlab">Matlab</a></li>
+					<li><a href="#cpp">C++ / Python</a></li>
+					<li><a href="#referencing">Referencing</a></li>
+					<li><a href="#license">License</a></li>
+					<li><a href="#authors">Authors</a></li>
+				</ul>
+			</div>
+		</div>
+
+		<div id="content">
+
+			<div class="row, col c9">
+
+				<a name="introduction"></a> <h2>Introduction</h2>
+
+				<p> <strong>Puri-Psi</strong> is an open-source code that provides functionality to address radio interferometric imaging problems using state-of-the-art convex optimisation algorithms. 
+				</p>
+
+				<p> <strong>Puri-Psi</strong> is currently available as a collection of independent <a href="#matlab">Matlab toolboxes</a>. A <a href="#cpp">C++ library</a> with partial Python support is currently under development and will be provided in due course. For further details on the methods currently implemented, please see the following <a href="#referencing">references</a>. 
+				</p>
+
+				<p><strong>Puri-Psi</strong> is made available under the license described <a href="#license">below</a>.
+				</p>
+
+				<!-- <p> This documentation outlines how to obtain <strong>Puri-Psi</strong>, before describing installation details, source code documentation and Matlab support. Reference, license and author information then follows. </p> -->
+
+
+				<!-- <a name="download"></a><h3>Download</h3>
+
+				<p><strong>Puri-Psi</strong> is an open-source package
+				available under the license described <a
+					href="#license">below</a>.
+				</p>
+
+				<p>The <strong>Puri-Psi</strong> code is available at <a href="https://github.com/basp-group/psi/">github</a>.
+				</p> -->
+
+
+				<a name="matlab"></a><h2>Matlab</h2>
+
+				<p> <strong>Puri-Psi</strong> is currently composed of several independent Matlab toolboxes devoted to specific radio radio-interferometric imaging problems. Further details on each of these methods can be directly found on their respective Github repository, which can be separately accessed by clicking on the following links.
+					<ul>
+						<li><a href="https://github.com/basp-group/Scalable-splitting-algorithms-for-big-data-interferometric-imaging.git">Scalable splitting algorithms for big data interferometric imaging</a></li>
+						<li><a href="https://github.com/basp-group/ppd-for-ri.git">Accelerated splitting algorithm for radio-interferometric imaging</a></li>
+						<li><a href="https://github.com/basp-group/joint-img-dde-calibration.git">Joint imaging and DDE calibration</a></li>
+						<li><a href="https://github.com/basp-group/Fourier-dimensionality-reduction-for-big-data-interferometric-imaging.git">Fourier dimensionality reduction for big data interferometric imaging</a></li>
+						<li><a href="https://github.com/basp-group/Adaptive-PPD-for-RI.git">Adaptive preconditioned primal-dual for radio-interferometry</a></li>
+						<li><a href="https://github.com/basp-group/stokes-imaging.git">Joint Stokes imaging in radio-interferometry</a></li>
+					</ul>		
+				</p>
+
+
+				<a name="cpp"></a><h2>C++ / Python</h2>
+
+				<p>A C++ implementation of the Puri-Psi library is currently under development, and will be made available on this page in due course.</p>
+
+
+				<a name="referencing"></a><h2>Referencing</h2>
+
+				<p> If you use <strong>Puri-Psi</strong> for work that results in publication, please reference this site (<a href="http://basp-group.github.io/Puri-Psi/">http://basp-group.github.io/Puri-Psi/</a>) and our related academic papers:
+				</p>
+
+				<blockquote class="highlight"> A. Onose, R. E. Carrillo, A. Repetti, J. D. McEwen, J.-P. Thiran,
+				J.-C. Pesquet, and Y. Wiaux, <a href="http://arxiv.org/abs/1601.04026">Scalable
+				splitting algorithms for big-data interferometric imaging in the SKA
+				era</a>, <i>Mon. Not. Roy. Astron. Soc.</i>, 462(4):4314-4335, 2016. <br>
+				<a href="http://arxiv.org/abs/1601.04026">ArXiv:1601.04026</a>
+				| <a href="http://dx.doi.org/10.1093/mnras/stw1859">DOI:10.1093/mnras/stw1859</a>
+				</blockquote>
+
+				<blockquote class="highlight"> A. Onose, A. Dabbech and Y. Wiaux, <a href="https://arxiv.org/abs/1701.01748">An accelerated splitting algorithm for radio-interferometric imaging: when natural and uniform weighting meet</a>, <i>Mon. Not. Roy. Astron. Soc.</i>, 469(1):938-949, 2017. <br>
+				<a href="https://arxiv.org/abs/1701.01748">ArXiv:1701.01748</a> | <a href="http://dx.doi.org/10.1093/mnras/stx755">DOI:10.1093/mnras/stx755</a>
+				</blockquote>
+
+				<blockquote class="highlight"> A. Repetti, J. Birdi, A. Dabbech and Y. Wiaux, <a href="https://arxiv.org/abs/1701.03689">Non-convex optimization for self-calibration of direction-dependent effects in radio interferometric imaging</a>, <i>Mon. Not. Roy. Astron. Soc.</i>, 470(4):3981-4006, 2017. <br>
+				<a href="https://arxiv.org/abs/1701.03689">ArXiv:1701.03689</a> | <a href="http://dx.doi.org/10.1093/mnras/stx1267">DOI:10.1093/mnras/stx1267</a>
+				</blockquote>
+
+				<blockquote class="highlight"> S. V. Kartik, R. E. Carrillo, J.-P. Thiran and Y. Wiaux, <a href="https://arxiv.org/abs/1609.02097">A Fourier dimensionality reduction model for big data interferometric imaging</a>, <i>Mon. Not. Roy. Astron. Soc.</i>, 480(2):2382-2400, 2017. <br>
+				<a href="https://arxiv.org/abs/1609.02097">ArXiv:1609.02097</a> | <a href="http://dx.doi.org/10.1093/mnras/stx531">DOI:10.1093/mnras/stx531</a>
+				</blockquote>
+
+				<blockquote class="highlight"> A. Dabbech, L. Wolz, L. Pratley, J. D. McEwen and Y. Wiaux, <a href="https://arxiv.org/abs/1702.05009">The w-effect in interferometric imaging: from a fast sparse measurement operator to superresolution</a>, <i>Mon. Not. Roy. Astron. Soc.</i>, 471(4):4300-4313, 2017. <br>
+				<a href="https://arxiv.org/abs/1702.05009">ArXiv:1702.05009</a> | <a href="http://dx.doi.org/10.1093/mnras/stx1775">DOI:10.1093/mnras/stx1775</a>
+				</blockquote>
+
+				<blockquote class="highlight"> A. Dabbech, A. Onose, A. Abdulaziz, R. A. Perley, O. M. Smirnov, Y. Wiaux, <a href="https://arxiv.org/abs/1710.08810">Cygnus A super-resolved via convex optimization from VLA data</a>, <i>Mon. Not. Roy. Astron. Soc.</i>, 476(3):2853-2866, 2018. <br>
+				<a href="https://arxiv.org/abs/1710.08810">ArXiv:1710.08810</a> | <a href="http://dx.doi.org/10.1093/mnras/sty372">DOI:10.1093/mnras/sty372</a>
+				</blockquote>
+
+				<blockquote class="highlight"> J. Birdi, A. Repetti, and Y. Wiaux, <a href="https://arxiv.org/abs/1801.02417">Sparse interferometric Stokes imaging under polarization constraint (Polarized SARA)</a>, <i>to appear</i>, ..., 2018. <br>
+				<a href="https://arxiv.org/abs/1801.02417">ArXiv:1801.02417</a> | <a>DOI:...</a>
+				</blockquote>
+
+				<a name="license"></a><h2>License</h2>
+				<blockquote>
+					<p>
+					Puri-Psi<br>
+					Copyright (C) 2018 Yves Wiaux
+					</p>
+
+					<p>
+					This program is free software; you can redistribute it and/or modify
+					it under the terms of the GNU General Public License as published by
+					the Free Software Foundation; either version 2 of the License, or (at
+					your option) any later version.
+					</p>
+
+					<p>
+					This program is distributed in the hope that it will be useful, but
+					WITHOUT ANY WARRANTY; without even the implied warranty of
+					MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+					General Public License for more details (<a href="license.txt">license.txt</a>).
+					</p>
+
+					<p>
+					You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+					</p>
+				</blockquote>
+
+				
+				<a name="authors"></a><h2>Authors</h2>
+
+				<p> <strong>Puri-Psi</strong> results from the research conducted within the <a href="https://www.hw.ac.uk/schools/engineering-physical-sciences/institutes/sensors-signals-systems/basp.htm">BASP group (Biomedical and Astronomical Signal Processing)</a> under the direction of Pr. Yves Wiaux.
+				</p>
+		</div>
+	</div>
+
+	<div id="footer" class="row">
+		<div class="col c12">
+			<p>&copy; 2018, BASP group<br />
+			<a href="http://andreasviklund.com/templates/the-grid-v2/">Template design</a> by <a href="http://andreasviklund.com/">Andreas Viklund</a></p>
+		</div>
+	</div>
+</div>
+
+<!-- <script>
+window.onscroll = function() {myFunction()};
+
+var navbar = document.getElementById("navbar");
+var sticky = navbar.offsetTop;
+
+function myFunction() {
+	if (window.pageYOffset >= sticky) {
+	navbar.classList.add("sticky")
+	} else {
+	navbar.classList.remove("sticky");
+	}
+}
+</script> -->
+
+</body>
+</html>

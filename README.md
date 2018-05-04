@@ -1,14 +1,1 @@
-
-# PURI-PSI
-
-## Description
-
-This code contains a series a MATLAB functions associated with the PURI-PSI library.
-
-## Authors
-
-## References
-
-## License
-
-# Notes
+# Puri-Psi webpage
