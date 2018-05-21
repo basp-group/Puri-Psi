@@ -6,14 +6,14 @@
 	<meta name="keywords" content="BASP group, radio-interferometry, parallel, sparse imaging" />
 	<meta name="author" content="BASP group" />
 	<link rel="stylesheet" type="text/css" href="the-grid-v2.css" title="Psi" media="all" />
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+	<!-- <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 	<script type="text/javascript" src="jquery.sticky.js"></script>
 	<script>
 	  $(window).load(function(){
 		$("#sticker").sticky({ topSpacing: 5})
 		$("#sticker").stick_in_parent();
 	  });
-	</script>
+	</script> -->
 	<title>Puri-Psi open-source library</title>
 </head>
 
@@ -24,18 +24,21 @@
 		<div class="col c12">
 			<h1><a href="index.html">Puri-Psi</a></h1>
 			<!-- <p class="slogan larger">Parallel proximal Sparse Imaging.</p> -->
+			<div id="headerimage">
+			<p><a href="index.html"><img src="images/header.png" alt="The Grid template" /></a></p>
+			</div>
 		</div>
 	</div>
 
-	<div class="row">
+	<!-- <div class="row">
 		<div id="headerimage" class="col c12">
 			<p><a href="index.html"><img src="images/header.png" alt="The Grid template" /></a></p>
 		</div>
-	</div>
+	</div> -->
 
 	<div class="row">
-		<div id="sidebar", class="col c3">
-			<div id="sticker">
+		<div id="sidebar", class="col c3, stuck_c3">
+			<!-- <div id="sticker"> -->
 				<ul class="menu">
 					<li><a href="#introduction">Introduction</a></li>
 					<li><a href="#matlab">Matlab</a></li>
@@ -44,15 +47,16 @@
 					<li><a href="#license">License</a></li>
 					<li><a href="#authors">Authors</a></li>
 				</ul>
-			</div>
+				<a href= "https://www.hw.ac.uk/schools/engineering-physical-sciences/institutes/sensors-signals-systems/basp.htm"><img src="images/logo_BASP_transp.png" alt="BASP group logo" style="width: 50%";/></a>
+			<!-- </div> -->
 		</div>
 
 		<div id="content">
-			<div class="row, col c9">
+			<div class="row, col c9, not-stuck">
 
 				<a name="introduction"></a> <h2>Introduction</h2>
 
-				<p> <strong>Puri-Psi</strong> is an open-source code that provides functionality to address radio interferometric imaging problems using state-of-the-art optimisation. 
+				<p> <strong>Puri-Psi</strong> is an open-source code developed within the <a href="https://www.hw.ac.uk/schools/engineering-physical-sciences/institutes/sensors-signals-systems/basp.htm">BASP group (Biomedical and Astronomical Signal Processing)</a> that provides functionality to address radio interferometric imaging problems using state-of-the-art optimisation. 
 				</p>
 
 				<p> <strong>Puri-Psi</strong> is currently available as a collection of independent <a href="#matlab">Matlab toolboxes</a>. A <a href="#cpp">C++ library</a> with partial Python support is currently under development and will be provided in due course. For further details on the methods currently implemented, please see the <a href="#referencing">reference section</a>. 
@@ -75,7 +79,7 @@
 						<li><a href="http://basp-group.github.io/Scalable-splitting-algorithms-for-big-data-interferometric-imaging/">Scalable splitting algorithms for big data interferometric imaging</a></li>
 						<li><a href="http://basp-group.github.io/ppd-for-ri/">Accelerated splitting algorithm for radio-interferometric imaging</a></li>
 						<li><a href="https://github.com/basp-group/Fourier-dimensionality-reduction-for-big-data-interferometric-imaging.git">Fourier dimensionality reduction for big data interferometric imaging</a></li>
-						<li><a href="https://github.com/basp-group/Adaptive-PPD-for-RI.git">Adaptive preconditioned primal-dual for radio-interferometry</a></li>
+						<li><a href="https://basp-group.github.io/Adaptive-PPD-for-RI/">Adaptive preconditioned primal-dual for radio-interferometry</a></li>
 					</ol>
 				</p>
 

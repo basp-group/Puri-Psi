@@ -90,9 +90,24 @@ padding:8px;
 /* width:158px; */
 }
 
-#sticker {
+/* #sticker {
 text-align: left;
 float: top;
+position: sticky;
+} */
+
+.stuck_c3{
+    position: fixed;
+    overflow-y: scroll;
+    width:280px;
+}
+.stuck{
+    position: fixed;
+    overflow-y: scroll;
+    margin:0 auto;
+}
+.not-stuck {
+    margin-left: 300px;
 }
 
 .highlight:hover {background-color: rgb(240,240,240);}
