@@ -1,14 +1,6 @@
 
-# PURI-PSI
+# PURI-PSI (webpage)
 
 ## Description
 
-This code contains a series a MATLAB functions associated with the PURI-PSI library.
-
-## Authors
-
-## References
-
-## License
-
-# Notes
+This repository only stores the codes of the Puri-Psi webpage on Github. The codes composing this library can be retrieved at the webpage available at http://basp-group.github.io/Puri-Psi/.
