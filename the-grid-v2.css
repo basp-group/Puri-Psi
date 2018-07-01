@@ -5,6 +5,11 @@ For more information, see http://andreasviklund.com/templates/the-grid-v2/
 
 *{margin:0; padding:0;}
 
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+ }
+
 /* General styles */
 body {background:#fff url(images/background.png) top center no-repeat; color:#303030; font:84% Helvetica,Tahoma,sans-serif; line-height:1.4em;}
 a {color:#2a5a9a; text-decoration:none; font-weight:700;}
