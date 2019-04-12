@@ -59,7 +59,7 @@
 
 				<a name="introduction"></a> <h2>Introduction</h2>
 
-				<p> <strong>Puri-Psi</strong> is an open-source code developed within the <a href="https://www.hw.ac.uk/schools/engineering-physical-sciences/institutes/sensors-signals-systems/basp.htm">BASP group (Biomedical and Astronomical Signal Processing)</a> headed by Prof. Wiaux that provides functionality to address radio-interferometric imaging problems using state-of-the-art optimisation. 
+				<p> <strong>Puri-Psi</strong> is an open-source code developed within the <a href="https://www.hw.ac.uk/schools/engineering-physical-sciences/institutes/sensors-signals-systems/basp.htm">BASP group (Biomedical and Astronomical Signal Processing)</a> headed by Prof. Wiaux that provides functionality to address radio and optical interferometric imaging problems using state-of-the-art optimisation. 
 				</p>
 
 				<p>The name <strong>Puri-Psi</strong> builds from former software <a href="http://basp-group.github.io/purify/">Purify</a> by Prof. Wiaux and collaborators, with the extension -Psi standing for &quot;Parallel Proximal Scalable Imaging&quot;.
@@ -74,7 +74,14 @@
 
 				<a name="matlab"></a><h2>Matlab</h2>
 
-				<p> <strong>Puri-Psi</strong> is currently composed of several independent Matlab toolboxes devoted to specific radio-interferometric imaging problems. Further details on each of these methods can be directly found on their respective Github repository, which can be separately accessed by clicking on the following links.
+				<p> <strong>Puri-Psi</strong> is currently composed of several independent Matlab toolboxes devoted to specific radio and optical interferometric imaging imaging problems. Further details on each of these methods can be directly found on their respective Github repository, which can be separately accessed by clicking on the following links.
+				</p>
+
+				<h3>Optical interferometric imaging</h3>
+				<p>
+					<ul>
+						<li><a href="http://basp-group.github.io/Optical-Interferometry-Trilinear/">A regularized tri-linear approach for optical interferometric imaging</a><</li>
+					</ul>
 				</p>
 
 
@@ -104,6 +111,7 @@
 				<p>
 					<ul>
 						<li><a href="http://basp-group.github.io/Polarised-SARA/">Sparse interferometric Stokes imaging under polarization constraint (Polarized SARA)</a></li>
+						<li><a href="http://basp-group.github.io/Polca-SARA/">Self direction-dependent calibration for full polarization radio-interferometric sparse imaging (Polca SARA)</a></li>
 					</ul>
 				</p>
 
@@ -133,6 +141,21 @@
 
 				<p> If you use <strong>Puri-Psi</strong> for work that results in publication, please reference this site (<a href="http://basp-group.github.io/Puri-Psi/">http://basp-group.github.io/Puri-Psi/</a>) and our related academic papers:
 				</p>
+
+				<h3>Optical interferometric imaging</h3>
+
+				<blockquote class="highlight"> Anna Auria, Rafael E Carrillo, Jean-Philippe Thiran, Yves Wiaux, 
+				<a href="https://ieeexplore.ieee.org/document/7026216">Sparsity in tensor optimization for optical-interferometric imaging</a>, 
+				<i>Proc. IEEE International Conference on Image Processing (ICIP)</i>, pp. 6026-6030, Paris, France, Oct. 2014.<br>
+				<a href="https://doi.org/10.1109/ICIP.2014.7026216">DOI:10.1109/ICIP.2014.7026216</a>
+				</blockquote>
+
+				<blockquote class="highlight"> J. Birdi, A. Repetti, and Y. Wiaux, 
+				<a href="https://doi.org/10.1093/mnras/stx415">A regularized tri-linear approach for optical interferometric imaging</a>, 
+				<i>Mon. Not. Roy. Astron. Soc.</i>, 468(1):1142-1155, 2017. <br>
+				<a href="https://arxiv.org/abs/1609.00546">ArXiv:1609.00546</a>
+				| <a href="https://doi.org/10.1093/mnras/stx415">DOI:10.1093/mnras/stx415</a>
+				</blockquote>
 
 				<h3>SARA - Scalable monochromatic imaging</h3>
 
@@ -172,6 +195,15 @@
 				<a href="https://arxiv.org/abs/1801.02417">ArXiv:1801.02417</a> | <a href="https://doi.org/10.1093/mnras/sty1182">DOI: 10.1093/mnras/sty1182</a>
 				</blockquote> 
 
+				<blockquote class="highlight"> J. Birdi, A. Repetti, and Y. Wiaux, <a href="https://ieeexplore.ieee.org/document/8448968">Scalable algorithm for polarization constrained
+				sparse interferometric Stokes imaging</a>, <i>Proc. IEEE Sensor Array and Multichannel Signal Process. Workshop (SAM)</i>, pp. 465-469, Sheffield, United Kingdom, July 2018. Invited paper<br>
+				</blockquote>
+
+				<blockquote class="highlight"> J. Birdi, A. Repetti, and Y. Wiaux, <a href="https://arxiv.org/abs/1801.02417">Polca SARA - Full polarization, direction-dependent calibration and sparse imaging for radio interferometry</a>, <i>submitted</i>, Apr. 2019. <br>
+				<a href="https://arxiv.org/abs/1904.00663">ArXiv:1904.00663</a> 
+				<!-- | <a href="https://doi.org/10.1093/mnras/sty1182">DOI: 10.1093/mnras/sty1182</a> -->
+				</blockquote> 
+
 				<h3>Joint calibration and imaging</h3>
 
 				<blockquote class="highlight"> A. Repetti, J. Birdi, A. Dabbech and Y. Wiaux, <a href="https://arxiv.org/abs/1701.03689">Non-convex optimization for self-calibration of direction-dependent effects in radio interferometric imaging</a>, <i>Mon. Not. Roy. Astron. Soc.</i>, 470(4):3981-4006, 2017. <br>
@@ -183,7 +215,7 @@
 				<a href="https://doi.org/10.1117/12.2273766">DOI: 10.1117/12.2273766</a>
 				</blockquote>
 
-				<blockquote class="highlight"> P.-A. Thouvenin, A. Repetti, A. Dabbech and Y. Wiaux, <a>Time-Regularized Blind Deconvolution Approach for Radio Interferometry</a>, <i>Proc. IEEE Sensor Array and Multichannel Signal Process. Workshop (SAM)</i>, pp. 475-479, Sheffield, United Kingdom, July 2018.<br>
+				<blockquote class="highlight"> P.-A. Thouvenin, A. Repetti, A. Dabbech and Y. Wiaux, <a href="https://ieeexplore.ieee.org/document/8448891">Time-Regularized Blind Deconvolution Approach for Radio Interferometry</a>, <i>Proc. IEEE Sensor Array and Multichannel Signal Process. Workshop (SAM)</i>, pp. 475-479, Sheffield, United Kingdom, July 2018. Invited paper<br>
 				</blockquote>
 
 				<h3>BUQO - Scalable uncertainty quantification</h3>
