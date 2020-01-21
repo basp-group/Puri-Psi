@@ -51,6 +51,8 @@ Puri-Psi started life as a fork of the [Purify](https://github.com/basp-group/pu
 
 ## References and citation
 
+A. Repetti, M. Pereyra and Y. Wiaux. Uncertainty Quantification in Imaging: When Convex Optimization Meets Bayesian Analysis. In Proceedings of the 26th European Signal Processing Conference (EUSIPCO 2018), Rome, Italy, 3-8 Sept. 2018
+
 
 ## Acknowledgements
 
