@@ -24,7 +24,20 @@ Puri-Psi uses [Psi](https://github.com/basp-group/Psi) as an implementation of t
 - [Catch2](https://github.com/catchorg/Catch2): A C++ unit-testing framework.
 - [google/benchmark](https://github.com/google/benchmark):A C++ micro-benchmarking framework.
 
-### Contributors
+### Installing
+
+Once the dependencies are present, the program can be built with:
+
+```
+cd /path/to/code
+mkdir build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+make
+```
+
+
+## Contributors
 
 Psi has been developed by:
 
@@ -36,12 +49,12 @@ Psi has been developed by:
 
 Puri-Psi started life as a fork of the [Purify](https://github.com/basp-group/purify) software package, developed in collaboration with UCL.
 
-### References and citation
+## References and citation
 
 
-### Acknowledgements
+## Acknowledgements
 
-### License
+## License
 
 
 ```
