@@ -1,0 +1,5 @@
+lib/*.a
+lib/*.so
+build/
+CMakeCache.txt
+.settings
