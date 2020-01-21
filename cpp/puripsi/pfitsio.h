@@ -1,0 +1,88 @@
+#ifndef PURIPSI_PFITSIO_H
+#define PURIPSI_PFITSIO_H
+#include "puripsi/config.h"
+#include "puripsi/types.h"
+
+#include <string>
+#include <CCfits/CCfits>
+#include "puripsi/utilities.h"
+
+namespace puripsi {
+
+namespace pfitsio {
+struct header_params {
+  // structure containing parameters for fits header
+  std::string fits_name = "output_image.fits";
+  t_real mean_frequency = 1400; // in MHz
+  t_real cell_x = 1;            // in arcseconds
+  t_real cell_y = 1;            // in arcseconds
+  t_real ra = 0;                // in radians, converted to decimal degrees before write
+  t_real dec = 0;               // in radians, converted to decimal degrees before write
+  t_int pix_ref_x = 0;
+  t_int pix_ref_y = 0;
+  std::string pix_units = "Jy/BEAM";
+  t_real channels_total = 1;
+  t_real channel_width = 8; // in MHz
+  t_real polarisation = 1;
+  t_int niters = 0;          // number of iterations
+  bool hasconverged = false; // stating if model has converged
+  t_real relative_variation = 0;
+  t_real residual_convergence = 0;
+  t_real epsilon = 0;
+};
+//! Write image to fits file using header information
+void write2d_header(const Image<t_real> &image, const pfitsio::header_params &header,
+                    const bool &overwrite = true);
+//! Write image to fits file
+void write2d(const Image<t_real> &image, const std::string &fits_name,
+             const std::string &pix_units = "Jy/Beam", const bool &overwrite = true);
+
+template <class DERIVED>
+void write2d(const Eigen::EigenBase<DERIVED> &input, int nx, int ny, const std::string &fits_name,
+             const std::string &pix_units = "Jy/Beam", const bool &overwrite = true) {
+  Image<t_real> const data = input.derived().real().template cast<t_real>();
+  write2d(Image<t_real>::Map(data.data(), nx, ny), fits_name, pix_units, overwrite);
+}
+template <class DERIVED>
+void write2d_header(const Eigen::EigenBase<DERIVED> &input, int nx, int ny,
+                    const pfitsio::header_params &header, const bool &overwrite = true) {
+  Image<t_real> const data = input.derived().real().template cast<t_real>();
+  write2d_header(Image<t_real>::Map(data.data(), nx, ny), header, overwrite);
+}
+//! Read image from fits file
+Image<t_complex> read2d(const std::string &fits_name);
+//! Read part of image (several channels) from fits file
+Image<t_complex> read2dpartial(const std::string &fits_name, t_int ax2, t_int offset);
+//! Write cube to fits file using header information
+void write3d_header(const std::vector<Image<t_real>> &image, const pfitsio::header_params &header,
+                    const bool &overwrite = true);
+//! Write cube to fits file
+void write3d(const std::vector<Image<t_real>> &image, const std::string &fits_name,
+             const std::string &pix_units = "Jy/Beam", const bool &overwrite = true);
+template <class DERIVED>
+void write3d(const std::vector<Eigen::EigenBase<DERIVED>> &input, int nx, int ny,
+             const std::string &fits_name, const std::string &pix_units = "Jy/Beam",
+             const bool &overwrite = true) {
+  std::vector<Image<t_real>> images;
+  for(int i = 0; i < input.size(); i++) {
+    Image<t_real> const data = input.derived().real().template cast<t_real>();
+    images.push_back(Image<t_real>::Map(data.data(), nx, ny));
+  }
+  write3d(images, fits_name, pix_units, overwrite);
+}
+template <class DERIVED>
+void write3d_header(const std::vector<Eigen::EigenBase<DERIVED>> &input, int nx, int ny,
+                    const pfitsio::header_params &header, const bool &overwrite = true) {
+  std::vector<Image<t_real>> images;
+  for(int i = 0; i < input.size(); i++) {
+    Image<t_real> const data = input.derived().real().template cast<t_real>();
+    images.push_back(Image<t_real>::Map(data.data(), nx, ny));
+  }
+  write3d_header(images, header, overwrite);
+}
+//! Read cube from fits file
+std::vector<Image<t_complex>> read3d(const std::string &fits_name);
+} // namespace pfitsio
+} // namespace puripsi
+
+#endif

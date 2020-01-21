@@ -1,0 +1,67 @@
+if(logging)
+  add_library(common_catch_main_object OBJECT "common_catch_main.cc")
+  if(SPDLOG_INCLUDE_DIR)
+    target_include_directories(common_catch_main_object SYSTEM PUBLIC ${SPDLOG_INCLUDE_DIR})
+  endif()
+  if(CATCH_INCLUDE_DIR)
+    target_include_directories(common_catch_main_object SYSTEM PUBLIC ${CATCH_INCLUDE_DIR})
+  endif()
+  if(PSI_INCLUDE_DIRS)
+    target_include_directories(common_catch_main_object SYSTEM PUBLIC ${PSI_INCLUDE_DIRS})
+  endif()
+  target_include_directories(common_catch_main_object PUBLIC
+    "${PROJECT_BINARY_DIR}/include/"
+    "${CMAKE_CURRENT_SOURCE_DIR}/.."
+    )
+endif()
+include_directories("${PROJECT_SOURCE_DIR}/cpp" "${CMAKE_CURRENT_BINARY_DIR}/include")
+file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/outputs")
+
+add_catch_test(puripsi_fitsio LIBRARIES libpuripsi)
+add_catch_test(utils LIBRARIES libpuripsi)
+add_catch_test(operators LIBRARIES libpuripsi)
+add_catch_test(sparse LIBRARIES libpuripsi)
+add_catch_test(index_mapping LIBRARIES libpuripsi)
+add_catch_test(wproj_utils LIBRARIES libpuripsi)
+add_catch_test(preconditioner LIBRARIES libpuripsi)
+add_catch_test(astroio LIBRARIES libpuripsi)
+if(data AND TARGET casacore::ms)
+  add_catch_test(casacore LIBRARIES libpuripsi ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY})
+endif()
+
+
+add_library(common_mpi_catch_main_object OBJECT "common_mpi_catch_main.cc")
+target_include_directories(common_mpi_catch_main_object
+  PUBLIC ${PROJECT_SOURCE_DIR}/cpp ${PROJECT_BINARY_DIR}/include ${MPI_CXX_INCLUDE_PATH} ${EIGEN3_INCLUDE_DIR})
+if(SPDLOG_INCLUDE_DIR)
+  target_include_directories(common_mpi_catch_main_object SYSTEM PUBLIC ${SPDLOG_INCLUDE_DIR})
+endif()
+if(CATCH_INCLUDE_DIR)
+  target_include_directories(common_mpi_catch_main_object SYSTEM PUBLIC ${CATCH_INCLUDE_DIR})
+endif()
+if(PSI_INCLUDE_DIRS)
+  target_include_directories(common_mpi_catch_main_object SYSTEM PUBLIC ${PSI_INCLUDE_DIRS})
+endif()
+
+function(add_mpi_test_from_test testname)
+  unset(arguments)
+  if(CATCH_JUNIT)
+    set(arguments -r junit -o ${PROJECT_BINARY_DIR}/Testing/${testname}.xml)
+  endif()
+  if(NOT MPIEXEC_MAX_NUMPROCS)
+    set(MPIEXEC_MAX_NUMPROCS 4)
+  endif()
+  add_test(NAME ${testname}
+    COMMAND
+    ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} ${MPIEXEC_MAX_NUMPROCS} ${MPIEXEC_PREFLAGS}
+    $<TARGET_FILE:test_${testname}> ${arguments})
+  set_tests_properties(${testname} PROPERTIES LABELS "catch;mpi")
+endfunction()
+
+function(add_mpi_test testname)
+  add_catch_test(${testname} COMMON_MAIN common_mpi_catch_main_object NOTEST ${ARGN})
+  add_mpi_test_from_test(${testname})
+endfunction()
+
+add_mpi_test(astrodecomposition LIBRARIES libpuripsi)
+

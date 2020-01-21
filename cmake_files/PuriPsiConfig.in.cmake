@@ -1,0 +1,11 @@
+get_filename_component(PURIPSI_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+message(STATUS "Linking to puripsi package in ${PURIPSI_CMAKE_DIR}")
+if(NOT TARGET libpuripsi AND EXISTS "${PURIPSI_CMAKE_DIR}/PuriPsiTargets.cmake")
+  include("${PURIPSI_CMAKE_DIR}/PuriPsiTargets.cmake")
+endif()
+
+set(PURIPSI_INCLUDE_DIRS "@ALL_INCLUDE_DIRS@")
+set(PURIPSI_LIBRARIES libpuripsi)
+if(TARGET puripsi)
+  set(PURIPSI_EXECUTABLE puripsi)
+endif()
