@@ -87,5 +87,19 @@ find_package(CasaCore OPTIONAL_COMPONENTS ms)
 
 find_package(CasaRest REQUIRED)
 
+set(PURIPSI_EIGEN_MKL FALSE)
+# Find MKL
+find_package(MKL)
+
+if(MKL_FOUND AND mkl)
+    set(PURIPSI_EIGEN_MKL 1) # This will go into config.h
+    set(EIGEN_USE_MKL_ALL 1) # This will go into config.h - it makes Eigen use MKL
+    include_directories(${MKL_INCLUDE_DIR})
+else()
+    set(PURIPSI_EIGEN_MKL 0)
+    set(EIGEN_USE_MKL_ALL 0)
+endif()
+
+
 # Add script to execute to make sure libraries in the build tree can be found
 add_to_ld_path("${EXTERNAL_ROOT}/lib")

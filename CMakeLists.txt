@@ -10,7 +10,7 @@ option(benchmarks     "Enable benchmarking"                             on)
 option(openmp         "Enable OpenMP"                                   on)
 option(mpi	      "Enable MPI"                                      on)
 option(logging        "Enable logging"                                  on)
-
+option(mkl            "Use MKL for Eigen acceleration"                  on)
 # Set version and build id of this package
 include(version)
 

@@ -46,6 +46,9 @@ int main(int argc, const char **argv) {
 	psi::logging::set_level("critical");
 	puripsi::logging::set_level("critical");
 
+    Eigen::initParallel();
+    PURIPSI_HIGH_LOG("Using {} Eigen threads",Eigen::nbThreads());
+
 	// Image parameters
 	t_int imsizey = 2048;
 	t_int imsizex = 2048;
@@ -289,12 +292,12 @@ int main(int argc, const char **argv) {
 			}
 
 			// Compute global operator norm
-			//auto const pm = psi::algorithm::PowerMethodWideband<psi::t_complex>().tolerance(1e-6).decomp(Decomp);
-			//auto const result = pm.AtA(Phi2, psi::Matrix<psi::t_complex>::Random(imsizey*imsizex, Decomp.my_number_of_frequencies()));
-			//nu2 = result.magnitude.real();
+			auto const pm = psi::algorithm::PowerMethodWideband<psi::t_complex>().tolerance(1e-6).decomp(Decomp);
+			auto const result = pm.AtA(Phi2, psi::Matrix<psi::t_complex>::Random(imsizey*imsizex, Decomp.my_number_of_frequencies()));
+			nu2 = result.magnitude.real();
 
 			if(Decomp.global_comm().is_root()){
-			//	PURIPSI_HIGH_LOG("nu2 is {} ", nu2);
+				PURIPSI_HIGH_LOG("nu2 is {} ", nu2);
 			}
 		}
 
@@ -385,8 +388,7 @@ int main(int argc, const char **argv) {
 
 		t_real kappa3;
 		if(not restoring){
-//			kappa3 = 1./nu2; // inverse of the norm of the full measurement operator Phi (single value)
-                        kappa3 = 6.23149e-07;
+			kappa3 = 1./nu2; // inverse of the norm of the full measurement operator Phi (single value)
 			if(Decomp.global_comm().is_root()){
 				PURIPSI_HIGH_LOG("kappa3 is {} ", kappa3);
 			}
@@ -443,8 +445,7 @@ int main(int argc, const char **argv) {
 																	.Psi_Root(Psi_Root)
 																	.levels(local_nlevels)
 																	.global_levels(nlevels)
-																	.n_channels(band_number)
-																	//.n_channels(Decomp.global_number_of_frequencies())
+																	.n_channels(Decomp.global_number_of_frequencies())
 																	.l21_proximal_weights(psi::Vector<t_real>::Ones(imsizex*imsizey*local_nlevels[0]))
 																	.nuclear_proximal_weights(psi::Vector<t_real>::Ones(Decomp.global_number_of_frequencies()))
 																	.positivity_constraint(true)
@@ -493,7 +494,7 @@ int main(int argc, const char **argv) {
 				//pfitsio::write2d(image_save.real(), outfile_fits);
 				for(int f=0; f<Decomp.global_number_of_frequencies(); ++f){
 					Image<t_complex> out_image = Image<t_complex>::Map(diagnostic.algo.x.col(f).data(), imsizey, imsizex);
-					pfitsio::write2d(out_image.real(), outfile_fits + std::to_string(f) + "_" + fits_ending);
+					pfitsio::write2d(out_image.real(), outfile_fits + std::to_string(f) + fits_ending);
 				}
 			}
 		}

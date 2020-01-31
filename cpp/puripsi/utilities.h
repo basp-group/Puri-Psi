@@ -137,7 +137,9 @@ sparse_multiply_matrix(const Eigen::SparseMatrixBase<T0> &M, const Eigen::Matrix
   auto const &derived = M.derived();
 
 // parallel sparse matrix multiplication with vector.
-#pragma omp parallel for
+#ifdef PURIPSI_OPENMP
+#pragma omp parallel for default(shared)
+#endif
   //#pragma omp simd
   for(t_int k = 0; k < M.outerSize(); ++k)
     for(typename Sparse<typename T0::Scalar>::InnerIterator it(derived, k); it; ++it)
@@ -152,7 +154,9 @@ template <class K, class L> Image<t_complex> parallel_multiply_image(const K &A,
   const t_int cols = A.cols();
   Image<t_complex> C = Matrix<t_complex>::Zero(rows, cols);
 
+#ifdef PURIPSI_OPENMP
 #pragma omp simd collapse(2)
+#endif
   for(t_int i = 0; i < cols; ++i)
     for(t_int j = 0; j < rows; ++j)
       C(j, i) = A(j, i) * B(j, i);

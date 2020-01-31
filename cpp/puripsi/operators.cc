@@ -29,7 +29,9 @@ Sparse<t_complex> init_gridding_matrix_2d(const Vector<t_real> &u, const Vector<
   const t_complex I(0, 1);
   const t_int ju_max = std::min(Ju + 1, ftsizeu_ + 1);
   const t_int jv_max = std::min(Jv + 1, ftsizev_ + 1);
-#pragma omp parallel for collapse(3)
+#ifdef PURIPSI_OPENMP
+#pragma omp parallel for collapse(3) default(shared)
+#endif
   for(t_int m = 0; m < rows; ++m) {
     for(t_int ju = 1; ju < ju_max; ++ju) {
       for(t_int jv = 1; jv < jv_max; ++jv) {
@@ -77,7 +79,9 @@ init_gridding_matrix_2d(const Vector<t_real> &u, const Vector<t_real> &v, const 
   interpolation_matrix.reserve(Vector<t_int>::Constant(rows, Jwv * Jwu));
 
   const t_complex I(0, 1);
-#pragma omp parallel for
+#ifdef PURIPSI_OPENMP
+#pragma omp parallel for default(shared)
+#endif
   for (t_int m = 0; m < rows; ++m) {
     // w_projection convolution setup
     const Matrix<t_complex> projection_kernel =

@@ -138,7 +138,9 @@ MeasurementOperator::init_interpolation_matrix2d(const Vector<t_real> &u, const 
 	interpolation_matrix.reserve(Vector<t_int>::Constant(rows, Ju * Jv));
 	Matrix<t_int> full_fourier_indices = Matrix<t_int>::Zero(rows, Ju * Jv); // matrices of indices to be kept (quite huge here, trimmed-down later on)
 
-#pragma omp parallel for collapse(3)
+#ifdef PURIPSI_OPENMP
+#pragma omp parallel for collapse(3) default(shared)
+#endif
 	for(t_int m = 0; m < rows; ++m) {
 		// I should write this as a tensor product! It would reduce the number of calculations of
 		// kernelu and kernelv.

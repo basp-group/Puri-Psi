@@ -143,7 +143,9 @@ init_psf_convolve_2d(const std::shared_ptr<psi::LinearTransform<T> const> &degri
   assert(ft_psf.size() == psf.size());
   const auto ft_psf_multiply = [=](T &out, const T &input) {
     out = input;
-#pragma omp parallel for
+#ifdef PURIPSI_OPENMP
+#pragma omp parallel for default(shared)
+#endif
     for(t_uint i = 0; i < input.size(); i++)
       out(i) = ft_psf(i) * input(i);
   };

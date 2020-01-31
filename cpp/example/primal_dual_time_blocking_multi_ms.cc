@@ -352,7 +352,7 @@ int main(int argc, const char **argv) {
 
 				auto pd
 				= psi::algorithm::PrimalDualTimeBlocking<t_complex>(target, imsizey*imsizex, l2ball_epsilon, Phi, Ui)
-				.itermax(2000)
+				.itermax(10)
 				.tau(tau)
 				.sigma1(sigma1)
 				.sigma2(sigma2)

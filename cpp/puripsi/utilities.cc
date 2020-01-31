@@ -104,7 +104,9 @@ utilities::vis_params random_sample_density(const t_int &vis_num, const t_real &
 	uv_vis.u = Vector<t_real>::Zero(vis_num);
 	uv_vis.v = Vector<t_real>::Zero(vis_num);
 	uv_vis.w = Vector<t_real>::Zero(vis_num);
-	//#pragma omp parallel for
+#ifdef PURIPSI_OPENMP
+	//#pragma omp parallel for default(shared)
+#endif
 	for(t_uint i = 0; i < vis_num; i++) {
 		uv_vis.u(i) = sample();
 		uv_vis.v(i) = sample();
@@ -776,7 +778,6 @@ bool parse_true_false_parameter(std::string parameter, std::string arg_name){
 	}else{
 		PURIPSI_ERROR("Incorrect {} parameter. Should be 1 or true, 0 or false.", arg_name);
 	}
-        return false;
 }
 } // namespace utilities
 } // namespace puripsi

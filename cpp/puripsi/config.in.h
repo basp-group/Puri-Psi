@@ -16,6 +16,13 @@
 //! Whether FFTW has openmp
 #cmakedefine PURIPSI_OPENMP_FFTW
 
+//! Whether mpi is being used or not
+#cmakedefine PURIPSI_MPI
+
+// Whether Eigen will use MKL (if MKL was found and PURIPSI_EIGEN_MKL is enabled in CMake)
+#cmakedefine PURIPSI_EIGEN_MKL
+#cmakedefine EIGEN_USE_MKL_ALL
+
 #include <string>
 #include <tuple>
 

@@ -140,7 +140,9 @@ init_zero_padding_2d(const Image<t_real> &S, const t_real &oversample_ratio) {
   auto direct = [=](T &output, const T &x) {
     assert(x.size() == imsizex_ * imsizey_);
     output = Vector<t_complex>::Zero(ftsizeu_ * ftsizev_);
-#pragma omp parallel for collapse(2)
+#ifdef PURIPSI_OPENMP
+#pragma omp parallel for collapse(2) default(shared)
+#endif
     for(t_uint j = 0; j < imsizey_; j++) {
       for(t_uint i = 0; i < imsizex_; i++) {
         const t_uint input_index = utilities::sub2ind(j, i, imsizey_, imsizex_);
@@ -153,7 +155,9 @@ init_zero_padding_2d(const Image<t_real> &S, const t_real &oversample_ratio) {
   auto indirect = [=](T &output, const T &x) {
     assert(x.size() == ftsizeu_ * ftsizev_);
     output = T::Zero(imsizey_ * imsizex_);
-#pragma omp parallel for collapse(2)
+#ifdef PURIPSI_OPENMP
+#pragma omp parallel for collapse(2) default(shared)
+#endif
     for(t_uint j = 0; j < imsizey_; j++) {
       for(t_uint i = 0; i < imsizex_; i++) {
         const t_uint output_index = utilities::sub2ind(j, i, imsizey_, imsizex_);
