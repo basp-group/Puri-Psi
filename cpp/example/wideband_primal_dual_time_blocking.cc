@@ -162,10 +162,11 @@ int main(int argc, const char **argv) {
 				band_number = global_X0.cols();
 				row_number = global_X0.rows();
 				PURIPSI_HIGH_LOG("Number of channels is {} ", band_number);
+				PURIPSI_HIGH_LOG("Image size {} x {}", imsizex, imsizey);
 			}
 
 			// Reducing the number of channels used to fit in memory.
-			band_number = 4;
+			band_number = 8;
 
 			band_number = Decomp.global_comm().broadcast(band_number, Decomp.global_comm().root_id());
 			row_number = Decomp.global_comm().broadcast(row_number, Decomp.global_comm().root_id());
@@ -293,8 +294,17 @@ int main(int argc, const char **argv) {
 
 			// Compute global operator norm
 			auto const pm = psi::algorithm::PowerMethodWideband<psi::t_complex>().tolerance(1e-6).decomp(Decomp);
-			auto const result = pm.AtA(Phi2, psi::Matrix<psi::t_complex>::Random(imsizey*imsizex, Decomp.my_number_of_frequencies()));
-			nu2 = result.magnitude.real();
+			//AJauto const result = pm.AtA(Phi2, psi::Matrix<psi::t_complex>::Random(imsizey*imsizex, Decomp.my_number_of_frequencies()));
+			//AJnu2 = result.magnitude.real();
+			nu2 = 396206356.79739934;
+
+			// Manually delete the Phi2 measurement operator to reduce memory here (it doesn't seem to be free'd quick enough to let the second set of measurement
+			// operators get built successfully below in large image size cases.
+			for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
+				for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){   // assume the data are order per blocks per channel
+					Phi2[f][t].reset();
+				}
+			}
 
 			if(Decomp.global_comm().is_root()){
 				PURIPSI_HIGH_LOG("nu2 is {} ", nu2);
@@ -306,7 +316,7 @@ int main(int argc, const char **argv) {
 		for(int f=0; f< Decomp.my_number_of_frequencies(); ++f){
 			Phi[f].reserve(Decomp.my_frequencies()[f].number_of_time_blocks);
 			for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){   // assume the data are order per blocks per channel
-				Phi[f].emplace_back(std::make_shared<const MeasurementOperator>(uv_data[f][t], J, J, "kb", imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "natural", 0, "false", 1, "none", true));
+				Phi[f].emplace_back(std::make_shared<const MeasurementOperator>(uv_data[f][t], J, J, kernel, imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "natural", 0, "false", 1, "none", true));
 			}
 		}
 
@@ -446,7 +456,7 @@ int main(int argc, const char **argv) {
 																	.levels(local_nlevels)
 																	.global_levels(nlevels)
 																	.n_channels(Decomp.global_number_of_frequencies())
-																	.l21_proximal_weights(psi::Vector<t_real>::Ones(imsizex*imsizey*local_nlevels[0]))
+																	.l21_proximal_weights(psi::Vector<t_real>::Ones(imsizex*imsizey*Decomp.my_number_of_root_wavelets()))
 																	.nuclear_proximal_weights(psi::Vector<t_real>::Ones(Decomp.global_number_of_frequencies()))
 																	.positivity_constraint(true)
 																	.relative_variation(5e-4)

@@ -262,10 +262,12 @@ int main(int argc, const char **argv) {
 			local_nlevels[f] = Decomp.my_frequencies()[f].number_of_wavelets;
 		}
 
+
 		psi::LinearTransform<psi::Vector<psi::t_complex>> Psi_Root = psi::linear_transform_identity<t_complex>();
+		auto distributed_root_sara = psi::wavelets::distribute_sara(sara, Decomp.my_lower_root_wavelet(), Decomp.my_number_of_root_wavelets(), Decomp.global_number_of_root_wavelets());
 		if(Decomp.my_number_of_root_wavelets()>0){
 			PURIPSI_HIGH_LOG("Distributing root wavelets {} {} {}",Decomp.global_comm().rank(), Decomp.my_lower_root_wavelet(), Decomp.my_number_of_root_wavelets());
-			Psi_Root = psi::linear_transform<psi::t_complex>(psi::wavelets::distribute_sara(sara, Decomp.my_lower_root_wavelet(), Decomp.my_number_of_root_wavelets(), Decomp.global_number_of_root_wavelets()), imsizey, imsizex);
+			Psi_Root = psi::linear_transform<psi::t_complex>(distributed_root_sara, imsizey, imsizex);
 		}
 
 
