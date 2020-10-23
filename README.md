@@ -51,7 +51,8 @@ Puri-Psi started life as a fork of the [Purify](https://github.com/basp-group/pu
 
 ## References and citation
 
-A. Repetti, M. Pereyra and Y. Wiaux. Uncertainty Quantification in Imaging: When Convex Optimization Meets Bayesian Analysis. In Proceedings of the 26th European Signal Processing Conference (EUSIPCO 2018), Rome, Italy, 3-8 Sept. 2018
+> A. Abdulaziz, A. Dabbech, and Y. Wiaux, **Wideband Super-resolution Imaging in Radio Interferometry via Low Rankness and Joint Average Sparsity Models (HyperSARA)**, *Mon. Not. Roy. Astron. Soc.*, 489(1):1230-1248, Oct. 2019. \
+> <a href = "https://arxiv.org/abs/1806.04596">ArXiv:1806.04596</a> | <a href = "https://doi.org/10.1093/mnras/stz2117">DOI:10.1093/mnras/stz2117</a>
 
 
 ## Acknowledgements
