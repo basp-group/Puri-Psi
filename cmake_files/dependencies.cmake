@@ -94,12 +94,27 @@ find_package(MKL)
 if(MKL_FOUND AND mkl)
     set(PURIPSI_EIGEN_MKL 1) # This will go into config.h
     set(EIGEN_USE_MKL_ALL 1) # This will go into config.h - it makes Eigen use MKL
+    set(PURIPSI_EIGEN_BLAS 1)# This will go into config.h
     include_directories(${MKL_INCLUDE_DIR})
 else()
     set(PURIPSI_EIGEN_MKL 0)
     set(EIGEN_USE_MKL_ALL 0)
+    set(PURIPSI_EIGEN_BLAS FALSE)
+    find_package(BLAS)
+    if(BLAS_FOUND AND blas)
+       set(PURIPSI_EIGEN_BLAS 1)
+       set(PURIPSI_USE_BLAS 1)
+    else()
+       set(PURIPSI_EIGEN_BLAS 0)
+       set(PURIPSI_USE_BLAS 0)
+    endif()
+    set(PURIPSI_BLAS ${BLAS_FOUND})
 endif()
 
+find_package(HDF5 COMPONENTS C CXX)
+if(HDF5_FOUND AND hdf5)
+    include_directories(${HD5_INCLUDE_DIRS})
+endif()
 
 # Add script to execute to make sure libraries in the build tree can be found
 add_to_ld_path("${EXTERNAL_ROOT}/lib")

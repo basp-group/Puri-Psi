@@ -51,6 +51,8 @@ int main(int argc, const char **argv) {
 	// Image parameters
 	const t_int imsizey = 4096;
 	const t_int imsizex = 4096;
+	const t_real nshiftx = static_cast<psi::t_real>(imsizex)/2.;
+	const t_real nshifty = static_cast<psi::t_real>(imsizey)/2.;
 	const std::string test_number = "1";
 
 	// Gridding parameters
@@ -72,11 +74,11 @@ int main(int argc, const char **argv) {
 	bool wavelet_parallelisation = true;
 
 	std::vector<std::string> dataName{
-		"/home/nx01/nx01/adrianj/compress/data/cpp_ms/CYG-8422-D-1X2MHZ-10S.MS",
-		"/home/nx01/nx01/adrianj/compress/data/cpp_ms/CYG-8422-C-1X2MHZ-10S.MS",
-		"/home/nx01/nx01/adrianj/compress/data/cpp_ms/CYG-8422-B-1X2MHZ-10S.MS",
-		"/home/nx01/nx01/adrianj/compress/data/cpp_ms/CYG-8422-A1-1X2MHZ-10S.MS",
-		"/home/nx01/nx01/adrianj/compress/data/cpp_ms/CYG-8422-A2-1X2MHZ-10S.MS"
+		"/lustre/home/shared/sc004/cpp_ms/CYG-8422-D-1X2MHZ-10S.MS",
+		"/lustre/home/shared/sc004/cpp_ms/CYG-8422-C-1X2MHZ-10S.MS",
+		"/lustre/home/shared/sc004/cpp_ms/CYG-8422-B-1X2MHZ-10S.MS",
+		"/lustre/home/shared/sc004/cpp_ms/CYG-8422-A1-1X2MHZ-10S.MS",
+		"/lustre/home/shared/sc004/cpp_ms/CYG-8422-A2-1X2MHZ-10S.MS",
 	};
 
 	if(temp_only_dirty == "1" || temp_only_dirty == "true" || temp_only_dirty == "True"){
@@ -236,9 +238,9 @@ int main(int argc, const char **argv) {
 
 					if(preconditioning){
 						puripsi::preconditioner<t_real>(Ui[l], my_uv_data[0][l].u, my_uv_data[0][l].v, ftsizev, ftsizeu);
-						Phi2[l] = std::make_shared<const MeasurementOperator>(my_uv_data[0][l], Ui[l], J, J, "kb", imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "natural", 0, "false", 1, "none", true);
+						Phi2[l] = std::make_shared<const MeasurementOperator>(my_uv_data[0][l], Ui[l], J, J, "kb", imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "natural", 0, false, 1, "none", false, nshiftx, nshifty);
 					}else{
-						Phi2[l] = std::make_shared<const MeasurementOperator>(my_uv_data[0][l], J, J, "kb", imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "natural", 0, "false", 1, "none", true);
+						Phi2[l] = std::make_shared<const MeasurementOperator>(my_uv_data[0][l], J, J, "kb", imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "natural", 0, false, 1, "none", false, nshiftx, nshifty);
 					}
 
 				}
@@ -290,12 +292,12 @@ int main(int argc, const char **argv) {
 				}
 
 				// None preconditioning operator for blocking power method.
-				Phi[l] = std::make_shared<const MeasurementOperator>(my_uv_data[0][l], J, J, "kb", imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "natural", 0, "false", 1, "none", true);
+				Phi[l] = std::make_shared<const MeasurementOperator>(my_uv_data[0][l], J, J, "kb", imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "natural", 0, false, 1, "none", false, nshiftx, nshifty);
 
 				//! If we are reading in a checkpoint from file we will read in the epsilon rather than calculate it.
 				if(!restoring){
 					auto pixel_size_config = field_of_view / imsizey_config(data_id);
-					std::shared_ptr<const psi::LinearTransform<psi::Vector<psi::t_complex>>> Phi_nnls = std::make_shared<const MeasurementOperator>(my_uv_data[0][l], J, J, "kb", imsizex_config(data_id), imsizey_config(data_id), 100, over_sample, pixel_size_config, pixel_size_config, "natural", 0, "false", 1, "none", true);
+					std::shared_ptr<const psi::LinearTransform<psi::Vector<psi::t_complex>>> Phi_nnls = std::make_shared<const MeasurementOperator>(my_uv_data[0][l], J, J, "kb", imsizex_config(data_id), imsizey_config(data_id), 100, over_sample, pixel_size_config, pixel_size_config, "natural", 0, false, 1, "none", false, nshiftx, nshifty);
 					auto const pm = psi::algorithm::PowerMethod<psi::t_complex>().tolerance(1e-6);
 					auto const nu1data = pm.AtA(Phi_nnls, psi::Vector<psi::t_complex>::Random(imsizey_config(data_id)*imsizex_config(data_id)));
 					auto nu = nu1data.magnitude.real();
@@ -352,7 +354,7 @@ int main(int argc, const char **argv) {
 
 				auto pd
 				= psi::algorithm::PrimalDualTimeBlocking<t_complex>(target, imsizey*imsizex, l2ball_epsilon, Phi, Ui)
-				.itermax(10)
+				.itermax(2000)
 				.tau(tau)
 				.sigma1(sigma1)
 				.sigma2(sigma2)

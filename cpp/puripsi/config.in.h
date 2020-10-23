@@ -23,6 +23,10 @@
 #cmakedefine PURIPSI_EIGEN_MKL
 #cmakedefine EIGEN_USE_MKL_ALL
 
+// Whether Eigen will use BLAS (if BLAS was found and PURIPSI_EIGEN_BLAS is enabled in CMake)
+#cmakedefine PURIPSI_EIGEN_BLAS
+#cmakedefine EIGEN_USE_BLAS 
+
 #include <string>
 #include <tuple>
 

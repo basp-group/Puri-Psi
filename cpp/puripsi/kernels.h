@@ -17,13 +17,13 @@ const std::map<std::string, kernel> kernel_from_string = {
     {"pswf", kernel::pswf}, {"kbmin", kernel::kbmin}, {"gauss_alt", kernel::gauss_alt}};
 
 //! Kaiser-Bessel kernel
-t_real kaiser_bessel(const t_real &x, const t_int &J);
+t_real kaiser_bessel(const t_real x, const t_real J);
 //! More general Kaiser-Bessel kernel
-t_real kaiser_bessel_general(const t_real &x, const t_int &J, const t_real &alpha);
+t_real kaiser_bessel_general(const t_real x, const t_real J, const t_real alpha);
 //!  Fourier transform of more general Kaiser-Bessel kernel
-t_real ft_kaiser_bessel_general(const t_real &x, const t_int &J, const t_real &alpha);
+t_real ft_kaiser_bessel_general(const t_real x, const t_real J, const t_real alpha);
 //! Fourier transform of kaiser bessel kernel
-t_real ft_kaiser_bessel(const t_real &x, const t_int &J);
+t_real ft_kaiser_bessel(const t_real x, const t_real J);
 //! Gaussian kernel
 t_real gaussian(const t_real &x, const t_int &J);
 //! Fourier transform of Gaussian kernel

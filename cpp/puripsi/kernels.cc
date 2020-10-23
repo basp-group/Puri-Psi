@@ -4,7 +4,7 @@
 namespace puripsi {
 
 namespace kernels {
-t_real kaiser_bessel(const t_real &x, const t_int &J) {
+t_real kaiser_bessel(const t_real x, const t_real J) {
   /*
      kaiser bessel gridding kernel
      */
@@ -12,30 +12,32 @@ t_real kaiser_bessel(const t_real &x, const t_int &J) {
   return kaiser_bessel_general(x, J, alpha);
 }
 
-t_real kaiser_bessel_general(const t_real &x, const t_int &J, const t_real &alpha) {
+t_real kaiser_bessel_general(const t_real x, const t_real J, const t_real alpha) {
   /*
      kaiser bessel gridding kernel
      */
+  if (2 * x > J) return 0;
   t_real a = 2 * x / J;
-  return boost::math::cyl_bessel_i(0, std::real(alpha * std::sqrt(1 - a * a)))
-         / boost::math::cyl_bessel_i(0, alpha);
+  return boost::math::cyl_bessel_i(0, std::real(alpha * std::sqrt(1 - a * a))) /
+         boost::math::cyl_bessel_i(0, alpha);
 }
 
-t_real ft_kaiser_bessel_general(const t_real &x, const t_int &J, const t_real &alpha) {
+t_real ft_kaiser_bessel_general(const t_real x, const t_real J, const t_real alpha) {
   /*
      Fourier transform of kaiser bessel gridding kernel
      */
 
   t_complex eta = std::sqrt(
       static_cast<t_complex>((constant::pi * x * J) * (constant::pi * x * J) - alpha * alpha));
-  t_real normalisation = 38828.11016883; // Factor that keeps it consistent with fessler formula
+  const t_real normalisation = J / boost::math::cyl_bessel_i(0, alpha);
 
-  return std::real(std::sin(eta) / eta) / normalisation; // simple way of doing the calculation, the
+  return std::real(std::sin(eta) / eta) *
+         normalisation;  // simple way of doing the calculation, the
   // boost bessel funtions do not support
   // complex valued arguments
 }
 
-t_real ft_kaiser_bessel(const t_real &x, const t_int &J) {
+t_real ft_kaiser_bessel(const t_real x, const t_real J) {
   /*
      Fourier transform of kaiser bessel gridding kernel
      */

@@ -552,12 +552,11 @@ TEST_CASE("Test astrodecomposition, [astrodecomposition]"){
 
 	}
 
-
-	SECTION("Dirty image collection"){
+	SECTION("Multi Frequency - multi block: target distribution"){
 
 		bool parallel = true;
 
-		int block_number = 1;
+		int block_number = 6;
 
 		auto NextDecomp = puripsi::AstroDecomposition(parallel, world);
 
@@ -582,26 +581,215 @@ TEST_CASE("Test astrodecomposition, [astrodecomposition]"){
 
 		NextDecomp.decompose_primal_dual(true, true, false, false, false, frequencies, wavelet_levels, time_blocks, sub_blocks, true);
 
-		int size_of_image = 45;
 
-		std::vector<Vector<t_complex>> dirty(NextDecomp.my_number_of_frequencies());
-		for(int f=0; f<NextDecomp.my_number_of_frequencies(); f++){
-			dirty[f] = Vector<t_complex>(size_of_image);
-			dirty[f].fill(NextDecomp.global_comm().rank()+1);
-		}
-		std::vector<Vector<t_complex>> global_dirty(NextDecomp.global_number_of_frequencies());
+		std::vector<std::vector<Vector<t_complex>>> target_data;
+
+		int temp_size = 20;
+
 		if(NextDecomp.global_comm().is_root()){
+			target_data = std::vector<std::vector<Vector<t_complex>>>(NextDecomp.global_number_of_frequencies());
 			for(int f=0; f<NextDecomp.global_number_of_frequencies(); f++){
-				global_dirty[f] = Vector<t_complex>(size_of_image);
+				target_data[f] = std::vector<Vector<t_complex>>(NextDecomp.frequencies()[f].number_of_time_blocks);
+			}
+			for(int f=0; f<NextDecomp.global_number_of_frequencies(); f++){
+				for(int t=0; t<NextDecomp.frequencies()[f].number_of_time_blocks; t++){
+					target_data[f][t] = Vector<t_complex>(temp_size);
+					for(int j=0; j<temp_size; j++){
+						target_data[f][t][j].imag(f);
+						target_data[f][t][j].real(f);
+					}
+				}
 			}
 		}
 
-		NextDecomp.collect_dirty_image(dirty, global_dirty);
+		std::vector<std::vector<Vector<t_complex>>> my_target_data(NextDecomp.my_number_of_frequencies());
+		for(int f=0; f<NextDecomp.my_number_of_frequencies(); f++){
+			my_target_data[f] = std::vector<Vector<t_complex>>(NextDecomp.my_frequencies()[f].number_of_time_blocks);
+		}
+
+		NextDecomp.template distribute_target_data<std::vector<std::vector<Vector<t_complex>>>, psi::Vector<t_complex>>(target_data, my_target_data);
+
+		for(int i=0; i<my_target_data.size(); i++){
+			for(int t=0; t<my_target_data[i].size(); t++){
+				CHECK(my_target_data[i][t].size() == temp_size);
+				for(int j=0;j<temp_size;j++){
+					CHECK(my_target_data[i][t][j].real() == world.rank());
+					CHECK(my_target_data[i][t][j].imag() == world.rank());
+				}
+			}
+		}
+
+		std::vector<std::vector<Vector<t_complex>>> new_global_target_data;
 
 		if(NextDecomp.global_comm().is_root()){
+			new_global_target_data = std::vector<std::vector<Vector<t_complex>>>(NextDecomp.global_number_of_frequencies());
 			for(int f=0; f<NextDecomp.global_number_of_frequencies(); f++){
-				for(int i=0; i<size_of_image; i++){
-					CHECK(global_dirty[f][i].real() == f+1);
+				new_global_target_data[f] = std::vector<Vector<t_complex>>(NextDecomp.frequencies()[f].number_of_time_blocks);
+			}
+		}
+
+		NextDecomp.template gather_target_data<std::vector<std::vector<Vector<t_complex>>>, psi::Vector<t_complex>>(new_global_target_data, my_target_data);
+
+		if(NextDecomp.global_comm().is_root()){
+
+			for(int i=0; i<new_global_target_data.size(); i++){
+				CHECK(new_global_target_data[i].size() == target_data[i].size());
+				for(int t=0; t<new_global_target_data[i].size(); t++){
+					for(int j=0;j<temp_size;j++){
+						CHECK(new_global_target_data[i][t][j] == target_data[i][t][j]);
+					}
+				}
+			}
+		}
+
+	}
+
+	SECTION("Multi Frequency - multi block: uv_data distribution"){
+
+		bool parallel = true;
+
+		int block_number = 6;
+
+		auto NextDecomp = puripsi::AstroDecomposition(parallel, world);
+
+		int frequencies = world.size();
+		int nlevels = 2;
+
+		std::vector<int> time_blocks = std::vector<int>(frequencies);
+		for(int f=0; f<frequencies; f++){
+			time_blocks[f] = block_number;
+		}
+
+		std::vector<t_int> wavelet_levels = std::vector<t_int>(frequencies);
+		for(int f=0; f<frequencies; f++){
+			wavelet_levels[f] = nlevels;
+		}
+
+		std::vector<std::vector<int>> sub_blocks = std::vector<std::vector<int>>(frequencies);
+		for(int f=0; f<frequencies; f++){
+			sub_blocks[f] = std::vector<int>(block_number);
+			sub_blocks[f][0] = 0;
+		}
+
+		NextDecomp.decompose_primal_dual(true, true, false, false, false, frequencies, wavelet_levels, time_blocks, sub_blocks, true);
+
+
+		std::vector<std::vector<Image<t_real>>> uv_data;
+
+		int temp_rows = 20;
+		int temp_cols = 10;
+
+		if(NextDecomp.global_comm().is_root()){
+			uv_data = std::vector<std::vector<Image<t_real>>>(NextDecomp.global_number_of_frequencies());
+			for(int f=0; f<NextDecomp.global_number_of_frequencies(); f++){
+				uv_data[f] = std::vector<Image<t_real>>(NextDecomp.frequencies()[f].number_of_time_blocks);
+			}
+			for(int f=0; f<NextDecomp.global_number_of_frequencies(); f++){
+				for(int t=0; t<NextDecomp.frequencies()[f].number_of_time_blocks; t++){
+					uv_data[f][t] = Image<t_real>(temp_rows, temp_cols);
+					for(int i=0; i<temp_rows; i++){
+						for(int j=0; j<temp_cols; j++){
+							uv_data[f][t](i,j) = f;
+						}
+					}
+				}
+			}
+		}
+
+		std::vector<std::vector<Image<t_real>>> my_uv_data(NextDecomp.my_number_of_frequencies());
+		for(int f=0; f<NextDecomp.my_number_of_frequencies(); f++){
+			my_uv_data[f] = std::vector<Image<t_real>>(NextDecomp.my_frequencies()[f].number_of_time_blocks);
+		}
+
+		NextDecomp.template distribute_uv_data<std::vector<std::vector<Image<t_real>>>, Image<t_real>>(uv_data, my_uv_data);
+
+		for(int f=0; f<my_uv_data.size(); f++){
+			for(int t=0; t<my_uv_data[f].size(); t++){
+				CHECK(my_uv_data[f][t].size() == temp_rows*temp_cols);
+				for(int i=0; i<temp_rows; i++){
+					for(int j=0; j<temp_cols; j++){
+						CHECK(my_uv_data[f][t](i,j) == world.rank());
+					}
+				}
+			}
+		}
+
+		std::vector<std::vector<Image<t_real>>> new_global_uv_data;
+
+		if(NextDecomp.global_comm().is_root()){
+			new_global_uv_data = std::vector<std::vector<Image<t_real>>>(NextDecomp.global_number_of_frequencies());
+			for(int f=0; f<NextDecomp.global_number_of_frequencies(); f++){
+				new_global_uv_data[f] = std::vector<Image<t_real>>(NextDecomp.frequencies()[f].number_of_time_blocks);
+			}
+		}
+
+		NextDecomp.template gather_uv_data<std::vector<std::vector<Image<t_real>>>, Image<t_real>>(new_global_uv_data, my_uv_data);
+
+		if(NextDecomp.global_comm().is_root()){
+
+			for(int f=0; f<new_global_uv_data.size(); f++){
+				CHECK(new_global_uv_data[f].size() == uv_data[f].size());
+				for(int t=0; t<new_global_uv_data[f].size(); t++){
+					for(int i=0; i<temp_rows; i++){
+						for(int j=0; j<temp_cols; j++){
+							CHECK(new_global_uv_data[f][t](i,j) == uv_data[f][t](i,j));
+						}
+					}
+				}
+			}
+
+		}
+
+		SECTION("Dirty image collection"){
+
+			bool parallel = true;
+
+			int block_number = 1;
+
+			auto NextDecomp = puripsi::AstroDecomposition(parallel, world);
+
+			int frequencies = world.size();
+			int nlevels = 2;
+
+			std::vector<int> time_blocks = std::vector<int>(frequencies);
+			for(int f=0; f<frequencies; f++){
+				time_blocks[f] = block_number;
+			}
+
+			std::vector<t_int> wavelet_levels = std::vector<t_int>(frequencies);
+			for(int f=0; f<frequencies; f++){
+				wavelet_levels[f] = nlevels;
+			}
+
+			std::vector<std::vector<int>> sub_blocks = std::vector<std::vector<int>>(frequencies);
+			for(int f=0; f<frequencies; f++){
+				sub_blocks[f] = std::vector<int>(block_number);
+				sub_blocks[f][0] = 0;
+			}
+
+			NextDecomp.decompose_primal_dual(true, true, false, false, false, frequencies, wavelet_levels, time_blocks, sub_blocks, true);
+
+			int size_of_image = 45;
+
+			std::vector<Vector<t_complex>> dirty(NextDecomp.my_number_of_frequencies());
+			for(int f=0; f<NextDecomp.my_number_of_frequencies(); f++){
+				dirty[f] = Vector<t_complex>(size_of_image);
+				dirty[f].fill(NextDecomp.global_comm().rank()+1);
+			}
+			std::vector<Vector<t_complex>> global_dirty(NextDecomp.global_number_of_frequencies());
+			if(NextDecomp.global_comm().is_root()){
+				for(int f=0; f<NextDecomp.global_number_of_frequencies(); f++){
+					global_dirty[f] = Vector<t_complex>(size_of_image);
+				}
+			}
+
+			NextDecomp.collect_dirty_image(dirty, global_dirty);
+
+			if(NextDecomp.global_comm().is_root()){
+				for(int f=0; f<NextDecomp.global_number_of_frequencies(); f++){
+					for(int i=0; i<size_of_image; i++){
+						CHECK(global_dirty[f][i].real() == f+1);
+					}
 				}
 			}
 		}

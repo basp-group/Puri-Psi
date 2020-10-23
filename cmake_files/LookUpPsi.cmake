@@ -1,6 +1,6 @@
 # Looks up [Psi](http://basp-group.github.io/psi/)
 #
-# - GIT_REPOSITORY: defaults to https://github.com/basp-group/psi-dev.git
+# - GIT_REPOSITORY: defaults to https://github.com/basp-group-private/psi-dev.git
 # - GIT_TAG: defaults to master
 # - BUILD_TYPE: defaults to Release
 #
@@ -9,7 +9,7 @@ if(PSI_ARGUMENTS)
         ${PSI_ARGUMENTS})
 endif()
 if(NOT PSI_GIT_REPOSITORY)
-    set(PSI_GIT_REPOSITORY https://github.com/basp-group/psi-dev.git)
+    set(PSI_GIT_REPOSITORY https://github.com/basp-group-private/psi-dev.git)
 endif()
 if(NOT PSI_GIT_TAG)
     set(PSI_GIT_TAG master)
@@ -62,7 +62,7 @@ ExternalProject_Add(
 add_recursive_cmake_step(Lookup-Psi DEPENDEES install)
 
 foreach(dep Lookup-Eigen3 Lookup-spdlog)
-  find_package(${dep})
+  lookup_package(${dep})
   if(TARGET ${dep})
     add_dependencies(Lookup-Psi ${dep})
   endif()

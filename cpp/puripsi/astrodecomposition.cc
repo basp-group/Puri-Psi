@@ -1,5 +1,4 @@
 #include "puripsi/astrodecomposition.h"
-#include "puripsi/logging.h"
 
 namespace puripsi {
 
@@ -266,6 +265,7 @@ void AstroDecomposition::gather_uv_data(std::vector<std::vector<utilities::vis_p
 	}
 	return;
 }
+
 
 
 

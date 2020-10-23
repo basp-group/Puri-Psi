@@ -314,10 +314,11 @@ uv_scale(const utilities::vis_params &uv_vis, const t_int &sizex, const t_int &s
 	scaled_vis.v = uv_vis.v / (2 * constant::pi) * sizey;
 	scaled_vis.vis = uv_vis.vis;
 	scaled_vis.weights = uv_vis.weights;
-	for(t_int i = 0; i < uv_vis.u.size(); ++i) {
-		scaled_vis.u(i) = utilities::mod(scaled_vis.u(i), sizex);
-		scaled_vis.v(i) = utilities::mod(scaled_vis.v(i), sizey);
-	}
+	//! this step is wrong!
+	// for(t_int i = 0; i < uv_vis.u.size(); ++i) {
+	// 	scaled_vis.u(i) = utilities::mod(scaled_vis.u(i), sizex);
+	// 	scaled_vis.v(i) = utilities::mod(scaled_vis.v(i), sizey);
+	// }
 	scaled_vis.w = uv_vis.w;
 	scaled_vis.units = utilities::vis_units::pixels;
 	scaled_vis.ra = uv_vis.ra;
@@ -378,12 +379,13 @@ t_int sub2ind(const t_int &row, const t_int &col, const t_int &rows, const t_int
     cols:: number of columns for matrix
     rows:: number of rows for matrix
 	 */
-	return row * cols + col;
+	// return row * cols + col;
+	return col * rows + row; //! column major
 }
 
 std::tuple<t_int, t_int> ind2sub(const t_int &sub, const t_int &cols, const t_int &rows) {
 	/*
-    Converts index of a matrix to (row, column). This does the same as the matlab funciton sub2ind,
+    Converts index of a matrix to (row, column). This does the same as the matlab function sub2ind,
     converts subscript to index.
 
     sub:: subscript of entry in matrix
@@ -393,7 +395,8 @@ std::tuple<t_int, t_int> ind2sub(const t_int &sub, const t_int &cols, const t_in
     col:: output column of matrix
 
 	 */
-	return std::make_tuple<t_int, t_int>(std::floor((sub - (sub % cols)) / cols), sub % cols);
+	// return std::make_tuple<t_int, t_int>(std::floor((sub - (sub % cols)) / cols), sub % cols);
+	return std::make_tuple<t_int, t_int>(sub % rows, std::floor((sub - (sub % rows)) / rows)); //! column major
 }
 
 t_real mod(const t_real &x, const t_real &y) {
@@ -777,6 +780,7 @@ bool parse_true_false_parameter(std::string parameter, std::string arg_name){
 		return false;
 	}else{
 		PURIPSI_ERROR("Incorrect {} parameter. Should be 1 or true, 0 or false.", arg_name);
+		return false;
 	}
 }
 } // namespace utilities

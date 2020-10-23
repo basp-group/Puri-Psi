@@ -24,6 +24,7 @@
 #include <psi/wavelets/sara.h>
 #include <psi/power_method.h>
 #include <psi/power_method_wideband.h>
+#include <psi/mpi/scalapack.h>
 #include <psi/primal_dual_wideband_blocking.h>
 
 #include "puripsi/directories.h"
@@ -49,6 +50,8 @@ int main(int argc, const char **argv) {
 	// Image parameters
 	t_int imsizey = 2048;
 	t_int imsizex = 2048;
+	t_real nshiftx = static_cast<psi::t_real>(imsizex)/2.;
+	t_real nshifty = static_cast<psi::t_real>(imsizey)/2.;
 	auto const input_snr = 40.; // in dB
 
 	// Gridding parameters
@@ -236,7 +239,7 @@ int main(int argc, const char **argv) {
 				}
 			}
 
-			Decomp.decompose_primal_dual(true, true, false, wavelet_parallelisation, true, band_number, wavelet_levels, time_blocks, sub_blocks, false);
+			Decomp.decompose_primal_dual(true, true, false, wavelet_parallelisation, true, band_number, wavelet_levels, time_blocks, sub_blocks, true);
 
 			Decomp.set_checkpointing(true);
 			Decomp.set_checkpointing_frequency(100);
@@ -301,9 +304,9 @@ int main(int argc, const char **argv) {
 				Phi2[f].reserve(Decomp.my_frequencies()[f].number_of_time_blocks);
 				for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){   // assume the data are order per blocks per channel
 					if(preconditioning){
-						Phi2[f].emplace_back(std::make_shared<const MeasurementOperator>(uv_data[f][t], Ui[f][t], J, J, kernel, imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "natural", 0, "false", 1, "none", true));
+						Phi2[f].emplace_back(std::make_shared<const MeasurementOperator>(uv_data[f][t], Ui[f][t], J, J, kernel, imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "natural", 0, false, 1, "none", false, nshiftx, nshifty));
 					}else{
-						Phi2[f].emplace_back(std::make_shared<const MeasurementOperator>(uv_data[f][t], J, J, kernel, imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "natural", 0, "false", 1, "none", true));
+						Phi2[f].emplace_back(std::make_shared<const MeasurementOperator>(uv_data[f][t], J, J, kernel, imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "natural", 0, false, 1, "none", false, nshiftx, nshifty));
 					}
 				}
 			}
@@ -323,7 +326,7 @@ int main(int argc, const char **argv) {
 			Phi[f].reserve(Decomp.my_frequencies()[f].number_of_time_blocks);
 			for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){   // assume the data are order per blocks per channel
 				// No preconditioning (normal operator)
-				Phi[f].emplace_back(std::make_shared<const MeasurementOperator>(uv_data[f][t], J, J, kernel, imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "natural", 0, "false", 1, "none", true));
+				Phi[f].emplace_back(std::make_shared<const MeasurementOperator>(uv_data[f][t], J, J, kernel, imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "natural", 0, false, 1, "none", false, nshiftx, nshifty));
 			}
 		}
 
@@ -339,7 +342,7 @@ int main(int argc, const char **argv) {
 				//! If we are reading in a checkpoint from file we will read in the epsilon rather than calculate it.
 				if(!restoring){
 					auto pixel_size_config = field_of_view / imsizey;
-					std::shared_ptr<const psi::LinearTransform<psi::Vector<psi::t_complex>>> Phi_nnls = std::make_shared<const MeasurementOperator>(uv_data[f][t], J, J, kernel, imsizex, imsizey, 100, over_sample, pixel_size_config, pixel_size_config, "natural", 0, "false", 1, "none", true);
+					std::shared_ptr<const psi::LinearTransform<psi::Vector<psi::t_complex>>> Phi_nnls = std::make_shared<const MeasurementOperator>(uv_data[f][t], J, J, kernel, imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "natural", 0, false, 1, "none", false, nshiftx, nshifty);
 					auto const pm = psi::algorithm::PowerMethod<psi::t_complex>().tolerance(1e-6);
 					auto const nu1data = pm.AtA(Phi_nnls, psi::Vector<psi::t_complex>::Random(imsizey*imsizex));
 					auto nu = nu1data.magnitude.real();
@@ -401,7 +404,7 @@ int main(int argc, const char **argv) {
 		psi::Vector<t_real> eps_lambdas(3);
 		eps_lambdas << 0.99, 1.01, 0.5*(sqrt(5)-1);
 		if(Decomp.global_comm().is_root()){
-			PURIPSI_HIGH_LOG("adaptive epsilon parameters: tol_in {}, tol_out {}, pecentage {} ", eps_lambdas(0), eps_lambdas(1), eps_lambdas(2));
+			PURIPSI_HIGH_LOG("adaptive epsilon parameters: tol_in {}, tol_out {}, percentage {} ", eps_lambdas(0), eps_lambdas(1), eps_lambdas(2));
 		}
 
 		std::vector<Vector<t_complex>> dirty(Decomp.my_number_of_frequencies());
@@ -417,17 +420,23 @@ int main(int argc, const char **argv) {
 
 
 		for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
-			Image<t_complex> dirty_image = Image<t_complex>::Map(dirty[f].data(), imsizey, imsizex);
+			Image<t_complex> dirty_image = Image<t_complex>::Map(dirty[f].data(), imsizex, imsizey);
+			dirty_image.transposeInPlace();
 			pfitsio::write2d(dirty_image.real(), dirtyoutfile_fits + std::to_string(Decomp.my_frequencies()[f].freq_number) + fits_ending);
 		}
 
 		if(not only_dirty){
+
+			 psi::mpi::Scalapack scalapack = psi::mpi::Scalapack(true);
+			 scalapack.setupBlacs(Decomp, std::min((int)std::min(imsizey*imsizex, band_number),(int)std::min((int)20,  (int)Decomp.global_comm().size())), imsizey*imsizex, Decomp.global_number_of_frequencies()); // triggers warning/error message when setup not run already
+			// 																								
+
 			// Instantiate algorithm
 			if(Decomp.global_comm().is_root()){
 				PURIPSI_HIGH_LOG("Creating wideband primal-dual functor");
 			}
 			auto ppd = psi::algorithm::PrimalDualWidebandBlocking<t_complex>(target, imsizey*imsizex, l2ball_epsilon, Phi, Ui)
-									.itermax(1000)
+									.itermax(10)
 									.mu(mu)
 									.tau(tau)
 									.kappa1(kappa1)
@@ -451,16 +460,16 @@ int main(int argc, const char **argv) {
 									.adaptive_epsilon_start(200)
 									.itermax_fb(20)
 									.preconditioning(preconditioning)
-									.relative_variation_fb(1e-8);
+									.relative_variation_fb(1e-5)
+									.scalapack(scalapack);
 
 			// Sets weight after each pd iteration.
 			//PURIPSI_HIGH_LOG("Creating reweighting-scheme functor");
 
 			// !error of reweighted
 			auto reweighted = psi::algorithm::reweighted(ppd)
-			.itermax(10)
+			.itermax(1)
 			.min_delta(min_delta)
-			.decomp(Decomp)
 			.is_converged(psi::RelativeVariation<psi::t_complex>(1e-5));
 
 			if(Decomp.global_comm().is_root()){
@@ -485,7 +494,8 @@ int main(int argc, const char **argv) {
 				//Image<t_complex> image_save = Image<t_complex>::Map(diagnostic.x.data(), imsizey*imsizex, band_number);
 				//pfitsio::write2d(image_save.real(), outfile_fits);
 				for(int f=0; f<Decomp.global_number_of_frequencies(); ++f){
-					Image<t_complex> out_image = Image<t_complex>::Map(diagnostic.algo.x.col(f).data(), imsizey, imsizex);
+					Image<t_complex> out_image = Image<t_complex>::Map(diagnostic.algo.x.col(f).data(), imsizex, imsizey);
+					out_image.transposeInPlace();
 					pfitsio::write2d(out_image.real(), outfile_fits + std::to_string(f) + fits_ending);
 				}
 			}

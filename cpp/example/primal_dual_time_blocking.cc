@@ -50,6 +50,8 @@ int main(int argc, const char **argv) {
 	//	t_int imsizex = 256;
 	t_int imsizey = 1024;
 	t_int imsizex = 1024;
+	t_real nshiftx = static_cast<psi::t_real>(imsizex)/2.;
+	t_real nshifty = static_cast<psi::t_real>(imsizey)/2.;
 	const std::string test_number = "1";
 
 	// Gridding parameters
@@ -269,13 +271,13 @@ int main(int argc, const char **argv) {
 				if(preconditioning){
 					Ui[l] = psi::Vector<psi::t_real>::Ones(my_uv_data[0][l].u.size());
 					puripsi::preconditioner<t_real>(Ui[l], my_uv_data[0][l].u, my_uv_data[0][l].v, ftsizev, ftsizeu);
-					Phi2[l] = std::make_shared<const MeasurementOperator>(my_uv_data[0][l], Ui[l], J, J, "kb", imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "natural", 0, "false", 1, "none", true);
+					Phi2[l] = std::make_shared<const MeasurementOperator>(my_uv_data[0][l], Ui[l], J, J, "kb", imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "none", 0, false, 1, "none", false, nshiftx, nshifty);
 				}else{
-					Phi2[l] = std::make_shared<const MeasurementOperator>(my_uv_data[0][l], J, J, "kb", imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "natural", 0, "false", 1, "none", true);
+					Phi2[l] = std::make_shared<const MeasurementOperator>(my_uv_data[0][l], J, J, "kb", imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "none", 0, false, 1, "none", false, nshiftx, nshifty);
 				}
 
 				// Non-preconditioning operator for blocking power method.
-				Phi[l] = 	std::make_shared<const MeasurementOperator>(my_uv_data[0][l], J, J, "kb", imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "natural", 0, "false", 1, "none", true);
+				Phi[l] = 	std::make_shared<const MeasurementOperator>(my_uv_data[0][l], J, J, "kb", imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "none", 0, false, 1, "none", false, nshiftx, nshifty);
 				//! If we are reading in a checkpoint from file we will read in the epsilon rather than calculate it.
 				if(!restoring){
 					auto const pm = psi::algorithm::PowerMethod<psi::t_complex>().tolerance(1e-6);

@@ -23,7 +23,7 @@ Sparse<t_complex> init_gridding_matrix_2d(const Vector<t_real> &u, const Vector<
                                           const Vector<t_complex> &weights, const t_uint &imsizey_,
                                           const t_uint &imsizex_, const t_real &oversample_ratio,
                                           const std::function<t_real(t_real)> kernelu,
-                                          const std::function<t_real(t_real)> kernelv,
+                                          const std::function<t_real(t_real)> kernelv, const t_real nshifty_ = 0., const t_real nshiftx_ = 0.,
                                           const t_uint Ju = 4, const t_uint Jv = 4);
 
 //! Construct gridding matrix with w projection
@@ -33,7 +33,7 @@ init_gridding_matrix_2d(const Vector<t_real> &u, const Vector<t_real> &v, const 
                         const t_uint &imsizex_, const t_real oversample_ratio,
                         const std::function<t_real(t_real)> kernelu,
 			const std::function<t_real(t_real)> kernelv,
-			const std::function<t_complex(t_real, t_real, t_real)> kernelw, const t_uint Ju = 4,
+			const std::function<t_complex(t_real, t_real, t_real)> kernelw, const t_real nshifty_ = 0., const t_real nshiftx_ = 0., const t_uint Ju = 4,
 			const t_uint Jv = 4, const t_uint Jw = 6, const bool w_term = false);
 
 //! Given the Fourier transform of a gridding kernel, creates the scaling image for gridding
@@ -107,14 +107,14 @@ init_gridding_matrix_2d(const Vector<t_real> &u, const Vector<t_real> &v, const 
                         const t_uint &imsizex_, const t_uint &oversample_ratio,
                         const std::function<t_real(t_real)> kernelu,
                         const std::function<t_real(t_real)> kernelv, 
-		                  	const std::function<t_complex(t_real, t_real, t_real)> kernelw, 
-                        const t_uint Ju = 4, const t_uint Jv = 4, const t_uint Jw = 6, 
+		                  	const std::function<t_complex(t_real, t_real, t_real)> kernelw, const t_real nshifty_ = 0., const t_real nshiftx_ = 0.,
+                        const t_uint Ju = 4, const t_uint Jv = 4, const t_uint Jw = 6,
                         const bool w_term = false){
 
   const std::shared_ptr<const Sparse<t_complex>> interpolation_matrix =
       std::make_shared<const Sparse<t_complex>>(
           details::init_gridding_matrix_2d(u, v, w, weights, imsizey_, imsizex_, oversample_ratio,
-                                           kernelu, kernelv, kernelw, Ju, Jv, Jw, w_term));
+                                           kernelu, kernelv, kernelw, nshifty_, nshiftx_, Ju, Jv, Jw, w_term));
   const std::shared_ptr<const Sparse<t_complex>> adjoint
       = std::make_shared<const Sparse<t_complex>>(interpolation_matrix->adjoint());
 
@@ -127,7 +127,7 @@ init_gridding_matrix_2d(const Vector<t_real> &u, const Vector<t_real> &v, const 
       });
 }
 
-//! Construsts zero padding operator
+//! Constructs zero-padding operator
 template <class T>
 std::tuple<psi::OperatorFunction<T>, psi::OperatorFunction<T>>
 init_zero_padding_2d(const Image<t_real> &S, const t_real &oversample_ratio) {
@@ -135,11 +135,14 @@ init_zero_padding_2d(const Image<t_real> &S, const t_real &oversample_ratio) {
   const t_uint imsizey_ = S.rows();
   const t_uint ftsizeu_ = std::floor(imsizex_ * oversample_ratio);
   const t_uint ftsizev_ = std::floor(imsizey_ * oversample_ratio);
-  const t_uint x_start = std::floor(ftsizeu_ * 0.5 - imsizex_ * 0.5);
-  const t_uint y_start = std::floor(ftsizev_ * 0.5 - imsizey_ * 0.5);
+  // const t_uint x_start = std::floor(ftsizeu_ * 0.5 - imsizex_ * 0.5);
+  // const t_uint y_start = std::floor(ftsizev_ * 0.5 - imsizey_ * 0.5);
+  const t_uint x_start = 0;
+  const t_uint y_start = 0;
   auto direct = [=](T &output, const T &x) {
     assert(x.size() == imsizex_ * imsizey_);
     output = Vector<t_complex>::Zero(ftsizeu_ * ftsizev_);
+//! check whether this is correct          
 #ifdef PURIPSI_OPENMP
 #pragma omp parallel for collapse(2) default(shared)
 #endif
@@ -175,7 +178,7 @@ template <class T> psi::OperatorFunction<T> init_normalise(const t_real &op_norm
   return [=](T &output, const T &x) { output = x / op_norm; };
 }
 
-//! Construsts zero padding operator
+//! Constructs zero-padding operator
 template <class T>
 std::tuple<psi::OperatorFunction<T>, psi::OperatorFunction<T>>
 init_weights_(const Vector<t_complex> &weights) {
@@ -192,7 +195,7 @@ init_weights_(const Vector<t_complex> &weights) {
 }
 //! enum for fftw plans
 enum class fftw_plan { estimate, measure };
-//! Construsts FFT operator
+//! Constructs FFT operator
 template <class T>
 std::tuple<psi::OperatorFunction<T>, psi::OperatorFunction<T>>
 init_FFT_2d(const t_uint &imsizey_, const t_uint &imsizex_, const t_real &oversample_factor_,
@@ -258,10 +261,9 @@ base_padding_and_FFT_2d(const std::function<t_real(t_real)> &kernelu,
                         const fftw_plan &ft_plan = fftw_plan::measure) {
   psi::OperatorFunction<T> directZ, indirectZ;
   psi::OperatorFunction<T> directFFT, indirectFFT;
-  // const Image<t_real> S = puripsi::details::init_correction2d(oversample_ratio, imsizey, imsizex,
-  //                                                            ftkernelu, ftkernelv); // [P.-A.] see if this is correct...
-  const Image<t_real> S = puripsi::details::init_correction2d_fft(oversample_ratio, imsizey, imsizex,
-                                                                  kernelu, kernelv, Ju, Jv);
+  const Image<t_real> S = puripsi::details::init_correction2d(oversample_ratio, imsizey, imsizex, kernelu, kernelv);
+  // const Image<t_real> S = puripsi::details::init_correction2d_fft(oversample_ratio, imsizey, imsizex,
+  //                                                                 kernelu, kernelv, Ju, Jv);
 
   PURIPSI_LOW_LOG("Norm of S: {}", S.matrix().norm());
   PURIPSI_LOW_LOG("Building Measurement Operator: WGFZDB");
@@ -291,6 +293,7 @@ base_degrid_operator_2d(const Vector<t_real> &u, const Vector<t_real> &v, const 
                         const Vector<t_complex> &weights, const t_uint &imsizey,
                         const t_uint &imsizex, const t_real &oversample_ratio = 2,
                         const kernels::kernel kernel = kernels::kernel::kb, 
+                        const t_real nshifty = 0., const t_real nshiftx = 0.,
 			                  const t_uint Ju = 4, const t_uint Jv = 4,
                         const fftw_plan &ft_plan = fftw_plan::measure, const bool w_term = false,
                         const t_uint Jw = 6, const t_real &cellx = 1, const t_real &celly = 1){
@@ -299,20 +302,18 @@ base_degrid_operator_2d(const Vector<t_real> &u, const Vector<t_real> &v, const 
   std::tie(kernelu, kernelv, ftkernelu, ftkernelv)
       = puripsi::create_kernels(kernel, Ju, Jv, imsizey, imsizex, oversample_ratio);
   psi::OperatorFunction<T> directFZ, indirectFZ;
-  std::tie(directFZ, indirectFZ) = base_padding_and_FFT_2d<T>(kernelu, kernelv, imsizey,
+  std::tie(directFZ, indirectFZ) = base_padding_and_FFT_2d<T>(ftkernelu, ftkernelv, imsizey,
                                                               imsizex, Ju, Jv, oversample_ratio, ft_plan);
   psi::OperatorFunction<T> directG, indirectG;
   if(w_term == true)
-    PURIPSI_MEDIUM_LOG("FoV (width, height): {} deg x {} deg", imsizex * cellx / (60. * 60.),
-                      imsizey * celly / (60. * 60.));
+    PURIPSI_MEDIUM_LOG("FoV (width, height): {} deg x {} deg", imsizex * cellx / (60. * 60.), imsizey * celly / (60. * 60.));
   PURIPSI_LOW_LOG("Constructing Weighting and Gridding Operators: WG");
   PURIPSI_MEDIUM_LOG("Number of visibilities: {}", u.size());
   std::function<t_complex(t_real, t_real, t_real)> kernelw =
-      projection_kernels::w_projection_kernel_approx(cellx, celly, imsizex, imsizey,
-                                                     oversample_ratio);
+      projection_kernels::w_projection_kernel_approx(cellx, celly, imsizex, imsizey, oversample_ratio);
   std::tie(directG, indirectG) = puripsi::operators::init_gridding_matrix_2d<T>(
       u, v, w.array() - w.array().mean(), weights, imsizey, imsizex, oversample_ratio, kernelv,
-      kernelu, kernelw, Ju, Jv, Jw, w_term);
+      kernelu, kernelw, nshifty, nshiftx, Ju, Jv, Jw, w_term);
   auto direct = psi::chained_operators<T>(directG, directFZ);
   auto indirect = psi::chained_operators<T>(indirectFZ, indirectG);
   PURIPSI_LOW_LOG("Finished construction of Φ.");
@@ -331,7 +332,7 @@ init_degrid_operator_2d(const Vector<t_real> &u, const Vector<t_real> &v, const 
                         const Vector<t_complex> &weights, const t_uint &imsizey,
                         const t_uint &imsizex, const t_real &oversample_ratio = 2,
                         const t_uint &power_iters = 100, const t_real &power_tol = 1e-4,
-			const kernels::kernel kernel = kernels::kernel::kb, 
+			const kernels::kernel kernel = kernels::kernel::kb, const t_real nshifty = 0., const t_real nshiftx = 0.,
 			const t_uint Ju = 4, const t_uint Jv = 4,
                         const bool w_term = false, const t_real &cellx = 1, const t_real &celly = 1) {
   const operators::fftw_plan ft_plan = operators::fftw_plan::measure;
@@ -339,7 +340,7 @@ init_degrid_operator_2d(const Vector<t_real> &u, const Vector<t_real> &v, const 
   std::array<t_int, 3> M = {0, 1, static_cast<t_int>(u.size())};
   psi::OperatorFunction<T> directDegrid, indirectDegrid;
   std::tie(directDegrid, indirectDegrid) = puripsi::operators::base_degrid_operator_2d<T>(
-      u, v, w, weights, imsizey, imsizex, oversample_ratio, kernel, Ju, Jv, ft_plan, w_term);
+      u, v, w, weights, imsizey, imsizex, oversample_ratio, kernel, nshifty, nshiftx, Ju, Jv, ft_plan, w_term);
   auto direct = directDegrid;
   auto indirect = indirectDegrid;
   // [P.-A.] remove normalisation, which should not be there
@@ -357,7 +358,7 @@ init_degrid_operator_2d(const utilities::vis_params &uv_vis_input, const t_uint 
                         const t_uint &imsizex, const t_real &cell_x, const t_real &cell_y,
                         const t_real &oversample_ratio = 2, const t_uint &power_iters = 100,
                         const t_real &power_tol = 1e-4, 
-                        const kernels::kernel kernel = kernels::kernel::kb, 
+                        const kernels::kernel kernel = kernels::kernel::kb, const t_real nshiftx = 0., const t_real nshifty = 0.,
                         const t_uint Ju = 4, const t_uint Jv = 4,
                         const bool w_term = false,  const t_uint Jw = 6) {
 
@@ -368,7 +369,7 @@ init_degrid_operator_2d(const utilities::vis_params &uv_vis_input, const t_uint 
     uv_vis = utilities::uv_scale(uv_vis, std::floor(oversample_ratio * imsizex),
                                  std::floor(oversample_ratio * imsizey));
   return init_degrid_operator_2d<T>(uv_vis.u, uv_vis.v, uv_vis.w, uv_vis.weights, imsizey, imsizex,
-                                    oversample_ratio, power_iters, power_tol, kernel, Ju, Jv,
+                                    oversample_ratio, power_iters, power_tol, kernel, nshifty, nshiftx, Ju, Jv,
                                     w_term, cell_x, cell_y);
 }
 

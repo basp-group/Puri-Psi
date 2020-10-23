@@ -12,7 +12,6 @@ Vector<t_complex> MeasurementOperator::degrid(const Image<t_complex> &eigen_imag
 	 */
 	Matrix<t_complex> ft_vector = FFT(eigen_image);
 	return G_function(ft_vector);
-
 }
 
 Vector<t_complex> MeasurementOperator::preconditioned_degrid(const Image<t_complex> &eigen_image, const Vector<t_real> &preconditioner) const {
@@ -55,6 +54,7 @@ Vector<t_complex> MeasurementOperator::G_function(const Matrix<t_complex> &ft_ve
 
 Vector<t_complex> MeasurementOperator::G_function(const Eigen::SparseMatrix<t_complex> &ft_vector) const{
 	return Matrix<t_complex>(G * ft_vector).array()*W; // issue here!, see if we can keep the sparse matrix
+	//TODO: make sure the operation is still correct after the fix! (ft_vector is ColumnMajor, but G is RowMajor)
 }
 
 Vector<t_int> MeasurementOperator::get_fourier_indices() const {
@@ -63,14 +63,15 @@ Vector<t_int> MeasurementOperator::get_fourier_indices() const {
 
 Matrix<t_complex> MeasurementOperator::FFT(const Image<t_complex> &eigen_image) const{
 
-
-
 	Matrix<t_complex> padded_image = Matrix<t_complex>::Zero(floor(imsizey() * oversample_factor()), floor(imsizex() * oversample_factor()));
 
 	Matrix<t_complex> ft_vector(ftsizev_, ftsizeu_);
 
-	t_int x_start = floor(floor(imsizex() * oversample_factor()) * 0.5 - imsizex() * 0.5);
-	t_int y_start = floor(floor(imsizey() * oversample_factor()) * 0.5 - imsizey() * 0.5);
+	// t_int x_start = floor(floor(imsizex() * oversample_factor()) * 0.5 - imsizex() * 0.5);
+	// t_int y_start = floor(floor(imsizey() * oversample_factor()) * 0.5 - imsizey() * 0.5);
+	//! Adopt same padding convention as Matlab
+	t_int x_start = 0;
+	t_int y_start = 0;
 
 	// zero padding and gridding correction
 	padded_image.block(y_start, x_start, imsizey(), imsizex())
@@ -78,6 +79,7 @@ Matrix<t_complex> MeasurementOperator::FFT(const Image<t_complex> &eigen_image) 
 
 	ft_vector = utilities::re_sample_ft_grid(fftoperator_.forward(padded_image),
 			resample_factor);
+	ft_vector = fftoperator_.forward(padded_image);
 
 	// turn into vector
 	ft_vector.resize(ftsizeu_ * ftsizev_, 1);
@@ -95,9 +97,11 @@ Image<t_complex> MeasurementOperator::inverse_FFT(Matrix<t_complex> &ft_vector) 
 	Image<t_complex> padded_image = fftoperator_.inverse(ft_vector);
 	padded_image = padded_image*static_cast<t_complex>(ftsizeu_*ftsizev_);
 
-	t_int x_start = floor(floor(imsizex() * oversample_factor()) * 0.5 - imsizex() * 0.5);
-
-	t_int y_start = floor(floor(imsizey() * oversample_factor()) * 0.5 - imsizey() * 0.5);
+	// t_int x_start = floor(floor(imsizex() * oversample_factor()) * 0.5 - imsizex() * 0.5);
+	// t_int y_start = floor(floor(imsizey() * oversample_factor()) * 0.5 - imsizey() * 0.5);
+	//! Adopt same padding convention as Matlab
+	t_int x_start = 0;
+	t_int y_start = 0; 
 
 	return utilities::parallel_multiply_image(S, padded_image.block(y_start, x_start, imsizey(), imsizex()));
 }
@@ -128,32 +132,46 @@ MeasurementOperator::init_interpolation_matrix2d(const Vector<t_real> &u, const 
     ftsizeu:: size of grid along u axis
     ftsizev:: size of grid along v axis
 	 */
-
 	t_int rows = u.size();
 	t_int cols = ftsizeu_ * ftsizev_;
 	const Vector<t_real> k_u = MeasurementOperator::omega_to_k(u - Vector<t_real>::Constant(rows, Ju * 0.5));
 	const Vector<t_real> k_v = MeasurementOperator::omega_to_k(v - Vector<t_real>::Constant(rows, Jv * 0.5));
 
+	//! Sparse is a RowMajor sparse matrix
 	Sparse<t_complex> interpolation_matrix(rows, cols);
 	interpolation_matrix.reserve(Vector<t_int>::Constant(rows, Ju * Jv));
 	Matrix<t_int> full_fourier_indices = Matrix<t_int>::Zero(rows, Ju * Jv); // matrices of indices to be kept (quite huge here, trimmed-down later on)
+	const t_complex I(0, 1);
 
 #ifdef PURIPSI_OPENMP
-#pragma omp parallel for collapse(3) default(shared)
+#pragma omp parallel for default(shared)
 #endif
 	for(t_int m = 0; m < rows; ++m) {
-		// I should write this as a tensor product! It would reduce the number of calculations of
-		// kernelu and kernelv.
+		//! adding phase shift from Fessler's code (need to undo scaling applied  uv-coverage) 
+		psi::t_real phase_shiftx = 0;
+		if(std::abs(nshiftx()) > 0) 
+				phase_shiftx = u(m)*(2 * constant::pi)*nshiftx()/ static_cast<t_real>(ftsizeu_); 
+		psi::t_real phase_shifty = 0;
+		if(std::abs(nshifty()) > 0)
+			phase_shifty = v(m)*(2 * constant::pi)*nshifty()/ static_cast<t_real>(ftsizev_);
+
 		for(t_int i = 1; i <= Ju; ++i) {
+			const t_int q = utilities::mod(k_u(m) + i, ftsizeu_);
+
+			psi::t_real cu = kernelu(u(m) - (k_u(m) + i));
+			psi::t_complex phaseu = constant::pi * I * static_cast<t_real>(imsizex()-1)/static_cast<t_real>(ftsizeu_) * (u(m) - (k_u(m) + i));
+			psi::t_complex coeffu = cu*std::exp(phaseu);
+
 			for(t_int j = 1; j <= Jv; ++j) {
-				const t_int q = utilities::mod(k_u(m) + i, ftsizeu_);
 				const t_int p = utilities::mod(k_v(m) + j, ftsizev_);
 				const t_int index = utilities::sub2ind(p, q, ftsizev_, ftsizeu_);
-				const t_complex I(0, 1);
-				interpolation_matrix.coeffRef(m, index)
-            						= std::exp(-2 * constant::pi * I * ((k_u(m) + i) * 0.5 + (k_v(m) + j) * 0.5))
-				* kernelu(u(m) - (k_u(m) + i)) * kernelv(v(m) - (k_v(m) + j));
-				const t_int index_local = utilities::sub2ind(j-1, i-1, Ju, Jv);
+				
+				psi::t_real cv = kernelv(v(m) - (k_v(m) + j));
+				psi::t_complex phasev = constant::pi * I * static_cast<t_real>(imsizey()-1)/static_cast<t_real>(ftsizev_) * (v(m) - (k_v(m) + j));
+				psi::t_complex coeffv = cv*std::exp(phasev);
+				interpolation_matrix.coeffRef(m, index) = std::conj(coeffu * coeffv)*std::exp(I*(phase_shifty + phase_shiftx));
+
+				const t_int index_local = utilities::sub2ind(j-1, i-1, Jv, Ju);
 				full_fourier_indices(m, index_local) = index;
 			}
 		}
@@ -167,19 +185,29 @@ MeasurementOperator::init_interpolation_matrix2d(const Vector<t_real> &u, const 
 
 	return interpolation_matrix;
 }
-Image<t_real>
-MeasurementOperator::init_correction2d(const std::function<t_real(t_real)> ftkernelu,
+
+Image<t_real> MeasurementOperator::init_correction2d(const std::function<t_real(t_real)> ftkernelu,
 		const std::function<t_real(t_real)> ftkernelv) {
 	/*
     Given the Fourier transform of a gridding kernel, creates the scaling image for gridding
     correction.
 	 */
-	t_int x_start = std::floor(ftsizeu_ * 0.5 - imsizex() * 0.5);
-	t_int y_start = std::floor(ftsizev_ * 0.5 - imsizey() * 0.5);
-	Array<t_real> range;
-	range.setLinSpaced(std::max(ftsizeu_, ftsizev_), 0.5, std::max(ftsizeu_, ftsizev_) - 0.5);
-	return (1e0 / range.segment(y_start, imsizey()).unaryExpr(ftkernelv)).matrix()
-			* (1e0 / range.segment(x_start, imsizex()).unaryExpr(ftkernelu)).matrix().transpose();
+	//! Purify version, significantly different from Fessler's Matlab code 
+	// t_int x_start = std::floor(ftsizeu_ * 0.5 - imsizex() * 0.5);
+	// t_int y_start = std::floor(ftsizev_ * 0.5 - imsizey() * 0.5);
+	// Array<t_real> range;
+	// range.setLinSpaced(std::max(ftsizeu_, ftsizev_), 0.5, std::max(ftsizeu_, ftsizev_) - 0.5);
+	// return (1e0 / range.segment(y_start, imsizey()).unaryExpr(ftkernelv)).matrix()
+	// 		* (1e0 / range.segment(x_start, imsizex()).unaryExpr(ftkernelu)).matrix().transpose();
+
+	psi::Array<psi::t_real> range_v;
+	range_v.setLinSpaced(imsizey(), static_cast<psi::t_real>(-(imsizey()-1))/2., static_cast<psi::t_real>(imsizey()-1)/2.);  
+	psi::Matrix<psi::t_real> ftv = (1. / range_v.unaryExpr(ftkernelv)).matrix();
+
+	psi::Array<psi::t_real> range_u;
+	range_u.setLinSpaced(imsizex(), static_cast<psi::t_real>(-(imsizex()-1))/2., static_cast<psi::t_real>(imsizex()-1)/2.);
+
+	return ( (1. / range_v.unaryExpr(ftkernelv)).matrix() * (1. / range_u.unaryExpr(ftkernelu)).matrix().transpose() ).array();
 }
 
 Image<t_real>
@@ -189,13 +217,14 @@ MeasurementOperator::init_correction2d_fft(const std::function<t_real(t_real)> k
 	/*
     Given the gridding kernel, creates the scaling image for gridding correction using an fft.
 	 */
-	Matrix<t_complex> K = Matrix<t_complex>::Zero(ftsizeu_, ftsizev_);
+	//TODO: needs to be fixed and compared to Matlab (use numerical FFT to compute the scale correction)
+	Matrix<t_complex> K = Matrix<t_complex>::Zero(ftsizev_, ftsizeu_);
 	for(int i = 0; i < Ju; ++i) {
 		t_int n = utilities::mod(i - Ju / 2, ftsizeu_);
 		for(int j = 0; j < Jv; ++j) {
 			t_int m = utilities::mod(j - Jv / 2, ftsizev_);
 			const t_complex I(0, 1);
-			K(n, m) = kernelu(i - Ju / 2) * kernelv(j - Jv / 2)
+			K(m, n) = kernelu(i - Ju / 2) * kernelv(j - Jv / 2)
                 						* std::exp(-2 * constant::pi * I * ((i - Ju / 2) * 0.5 + (j - Jv / 2) * 0.5));
 		}
 	}
@@ -211,6 +240,7 @@ Image<t_real> MeasurementOperator::init_primary_beam(const std::string &primary_
 	/*
     Calcualte primary beam, A, for the measurement operator.
 	 */
+	// TODO: needs to be revised given all the above changes, probably wrong in the current version
 	t_int x_start = std::floor(ftsizeu_ * 0.5 - imsizex() * 0.5);
 	t_int y_start = std::floor(ftsizev_ * 0.5 - imsizey() * 0.5);
 	Array<t_real> range;
@@ -228,11 +258,12 @@ Image<t_real> MeasurementOperator::init_primary_beam(const std::string &primary_
 			return std::exp(-4 * std::log(2) * 42. / ((y - y0) * cell_y));
 		};
 		return (1e0 / range.segment(x_start, imsizex()).unaryExpr(pbcorr_x)).matrix()
-				* (1e0 / range.segment(y_start, imsizey()).unaryExpr(pbcorr_y)).matrix().transpose();
+				* (1e0 / range.segment(y_start, imsizey()).unaryExpr(pbcorr_y)).matrix().transpose(); //! [04/08/2020] not sure this is correct
 	}
 	return Image<t_real>::Zero(imsizey(), imsizex()) + 1.;
 }
 
+// TODO: to be removed
 t_real MeasurementOperator::power_method(const t_int &niters, const t_real &relative_difference) {
 	/*
    Attempt at coding the power method, returns the largest eigen value of a linear operator
@@ -264,12 +295,12 @@ MeasurementOperator::MeasurementOperator(
 		const std::string &kernel_name, const t_int &imsizex, const t_int &imsizey,
 		const t_int &norm_iterations, const t_real &oversample_factor, const t_real &cell_x,
 		const t_real &cell_y, const std::string &weighting_type, const t_real &R, bool use_w_term,
-		const t_real &energy_fraction, const std::string &primary_beam, bool fft_grid_correction)
+		const t_real &energy_fraction, const std::string &primary_beam, bool fft_grid_correction, const t_real nshiftx, const t_real nshifty)
 : psi::LinearTransform<psi::Vector<t_complex>>(linear_transform(uv_vis_input.u.size(), imsizey, imsizex, oversample_factor, preconditioner)),
   Ju_(Ju), Jv_(Jv), kernel_name_(kernel_name), norm_iterations_(norm_iterations), cell_x_(cell_x),
   cell_y_(cell_y), weighting_type_(weighting_type), R_(R), use_w_term_(use_w_term),
   energy_fraction_(energy_fraction), fft_grid_correction_(fft_grid_correction),
-  primary_beam_(primary_beam) {
+  primary_beam_(primary_beam), nshiftx_(nshiftx), nshifty_(nshifty)  {
 
 	/*
 Generates operators needed for gridding and degridding.
@@ -297,12 +328,12 @@ MeasurementOperator::MeasurementOperator(
 		const std::string &kernel_name, const t_int &imsizex, const t_int &imsizey,
 		const t_int &norm_iterations, const t_real &oversample_factor, const t_real &cell_x,
 		const t_real &cell_y, const std::string &weighting_type, const t_real &R, bool use_w_term,
-		const t_real &energy_fraction, const std::string &primary_beam, bool fft_grid_correction)
+		const t_real &energy_fraction, const std::string &primary_beam, bool fft_grid_correction, const t_real nshiftx, const t_real nshifty)
 : psi::LinearTransform<psi::Vector<t_complex>>(linear_transform(uv_vis_input.u.size(), imsizey, imsizex, oversample_factor)),
   Ju_(Ju), Jv_(Jv), kernel_name_(kernel_name), norm_iterations_(norm_iterations), cell_x_(cell_x),
   cell_y_(cell_y), weighting_type_(weighting_type), R_(R), use_w_term_(use_w_term),
   energy_fraction_(energy_fraction), fft_grid_correction_(fft_grid_correction),
-  primary_beam_(primary_beam) {
+  primary_beam_(primary_beam), nshiftx_(nshiftx), nshifty_(nshifty) {
 
 	/*
 Generates operators needed for gridding and degridding.
@@ -340,6 +371,8 @@ void MeasurementOperator::init_operator(const utilities::vis_params &uv_vis_inpu
 	if(uv_vis.units ==  utilities::vis_units::radians)
 		uv_vis = utilities::uv_scale(uv_vis, floor(oversample_factor() * imsizex()),
 				floor(oversample_factor() * imsizey()));
+		// uv_vis = utilities::uv_scale(uv_vis, ftsizeu_,
+		// 		ftsizev_);
 
 	PURIPSI_LOW_LOG("Constructing Gridding Operator: D");
 	PURIPSI_MEDIUM_LOG("Oversampling Factor: {}", oversample_factor());
@@ -351,7 +384,7 @@ void MeasurementOperator::init_operator(const utilities::vis_params &uv_vis_inpu
 
 	PURIPSI_MEDIUM_LOG("Kernel Name: {}", kernel_name_.c_str());
 	PURIPSI_MEDIUM_LOG("Number of visibilities: {}", uv_vis.u.size());
-	PURIPSI_MEDIUM_LOG("Number of pixels: {} x {}", imsizex(), imsizey());
+	PURIPSI_MEDIUM_LOG("Number of pixels: {} x {}", imsizey(), imsizex());
 	PURIPSI_MEDIUM_LOG("Ju: {}", Ju_);
 	PURIPSI_MEDIUM_LOG("Jv: {}", Jv_);
 
@@ -377,16 +410,6 @@ void MeasurementOperator::init_operator(const utilities::vis_params &uv_vis_inpu
 		};
 		ftkernelu = ftkb;
 		ftkernelv = ftkb;
-		S = MeasurementOperator::init_correction2d(
-				ftkernelu, ftkernelv); // Does gridding correction using analytic formula
-		G = MeasurementOperator::init_interpolation_matrix2d(uv_vis.u, uv_vis.v, Ju_, Jv_, kernelu,
-				kernelv, fourier_indices_);
-
-		PURIPSI_LOW_LOG("Calculating weights: W");
-		W = utilities::init_weights(uv_vis.u, uv_vis.v, uv_vis.weights, oversample_factor(),
-				weighting_type_, R_, ftsizeu_, ftsizev_);
-		PURIPSI_MEDIUM_LOG("Gridding Operator Constructed: WGFSA");
-		return;
 	}
 
 	if((kernel_name_ == "pswf") and (Ju_ != 6 or Jv_ != 6)) {
@@ -396,13 +419,14 @@ void MeasurementOperator::init_operator(const utilities::vis_params &uv_vis_inpu
 	if(kernel_name_ == "kb") {
 		auto kbu = [&](t_real x) { return kernels::kaiser_bessel(x, Ju_); };
 		auto kbv = [&](t_real x) { return kernels::kaiser_bessel(x, Jv_); };
-		auto ftkbu = [&](t_real x) { return kernels::ft_kaiser_bessel(x / ftsizeu_ - 0.5, Ju_); };
-		auto ftkbv = [&](t_real x) { return kernels::ft_kaiser_bessel(x / ftsizev_ - 0.5, Jv_); };
+		auto ftkbu = [&](t_real x) { return kernels::ft_kaiser_bessel(x / ftsizeu_, Ju_); };
+		auto ftkbv = [&](t_real x) { return kernels::ft_kaiser_bessel(x / ftsizev_, Jv_); };
 		kernelu = kbu;
 		kernelv = kbv;
 		ftkernelu = ftkbu;
 		ftkernelv = ftkbv;
 	}
+	//TODO: all the kernels, except "kb", need to be revised (just in case)
 	if(kernel_name_ == "kb_min") {
 		const t_real kb_interp_alpha_Ju
 		= constant::pi * std::sqrt(Ju_ * Ju_ / (oversample_factor() * oversample_factor())
@@ -488,7 +512,7 @@ void MeasurementOperator::init_operator(const utilities::vis_params &uv_vis_inpu
 	PURIPSI_MEDIUM_LOG("Gridding Operator Constructed: WGFSA");
 
 }
-
+ // TODO: see if these functions need to be updated
 psi::LinearTransform<psi::Vector<psi::t_complex>>
 puripsi::MeasurementOperator::linear_transform(t_uint nvis) {
 	return linear_transform(nvis, imsizey(), imsizex(), oversample_factor());

@@ -1,5 +1,16 @@
-lib/*.a
-lib/*.so
-build/
-CMakeCache.txt
-.settings
+bin/
+lib/
+data/test/
+*.pyc
+.*.sw[p, o, n]
+*.egg*
+*build*/
+pkg_install/
+dist/
+casapy-*.log
+ipython-*.log
+.DS_Store
+.idea/*
+/.project
+.vscode*
+*.h5

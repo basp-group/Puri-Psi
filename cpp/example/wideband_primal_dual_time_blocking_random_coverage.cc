@@ -1,4 +1,3 @@
-
 #include <array>
 #include <vector>
 #include <memory>
@@ -6,16 +5,13 @@
 #include <string>
 #include <fstream>
 #include <iostream>
-//#include <iomanip>
-//#include <cstdlib>
+#include <iomanip> // for setw
+#include <cstdlib> // for exit()
 #include <boost/math/special_functions/erf.hpp>
+#include <random>
 
-#include <mpi.h>
-
-
-#include <unsupported/Eigen/SparseExtra> // for Eigen::saveMarket
+#include <Eigen/Dense>
 #include <psi/maths.h>
-#include <psi/forward_backward_nnls.h>
 #include <psi/relative_variation.h>
 #include <psi/positive_quadrant.h>
 #include <psi/reweighted_wideband.h>
@@ -24,16 +20,17 @@
 #include <psi/utilities.h>
 #include <psi/wavelets.h>
 #include <psi/wavelets/sara.h>
+#include <psi/power_method.h>
 #include <psi/power_method_wideband.h>
 #include <psi/primal_dual_wideband_blocking.h>
+#include <psi/proximal.h>
 
-//#include "puripsi/casacore.h"
+#include "puripsi/MeasurementOperator.h"
 #include "puripsi/directories.h"
 #include "puripsi/pfitsio.h"
 #include "puripsi/types.h"
 #include "puripsi/utilities.h"
 #include "puripsi/logging.h"
-#include "puripsi/MeasurementOperator.h"
 #include "puripsi/preconditioner.h"
 #include "puripsi/astrodecomposition.h"
 
@@ -43,96 +40,56 @@ using namespace puripsi::notinstalled;
 int main(int argc, const char **argv) {
 	psi::logging::initialize();
 	puripsi::logging::initialize();
-	psi::logging::set_level("critical");
-	puripsi::logging::set_level("critical");
+	psi::logging::set_level("err");
+	puripsi::logging::set_level("err");
 
-	Eigen::initParallel();
-
-	// Image parameters
-	t_int imsizey = 2048;
-	t_int imsizex = 2048;
-	t_real nshiftx = static_cast<psi::t_real>(imsizex)/2.;
-	t_real nshifty = static_cast<psi::t_real>(imsizey)/2.;
-	auto const input_snr = 40.; // in dB
-	t_int svd_size = 2;
-	t_int padding_size  = 0;
-
-	// Gridding parameters
-	t_int const J = 8;
-	t_real const over_sample = 2;
-	const string kernel = "kb";
-	t_real pixel_size = -1;
-
-	std::string uvdataName = argc >= 2 ? argv[1] : "/data/mjiang/MeerKAT_UVW_norm.fits";
-	std::string modelName = argc >= 3 ? argv[2] : "/data/mjiang/XF_mat_C.fits";
-	std::string name = argc >= 4 ? argv[3] : "puripsi_output";
-	imsizex = argc >= 5 ? static_cast<t_int>(std::stod(static_cast<std::string>(argv[4]))) : imsizex;
-	imsizey = argc >= 6 ? static_cast<t_int>(std::stod(static_cast<std::string>(argv[5]))) : imsizey;
-	std::string temp_only_dirty = argc >= 6 ? argv[6] : "false";
-	std::string temp_restoring = argc >= 7 ? argv[7] : "false";
-	svd_size = argc >= 8 ? static_cast<t_int>(std::stod(static_cast<std::string>(argv[8]))) : svd_size;
-	padding_size = argc >= 9 ? static_cast<t_int>(std::stod(static_cast<std::string>(argv[9]))) : padding_size;
-
-	if(padding_size < 0){
-		PURIPSI_HIGH_LOG("Error with the padding_size input variable ({}) setting it to zero", padding_size);
-		padding_size = 0;
-	}
-
-	t_int image_size = imsizey*imsizex;
-
-	const t_int ftsizeu = imsizex*over_sample;
-	const t_int ftsizev = imsizey*over_sample;
-	std::string const fits_ending = ".fits";
-	std::string const clean_outfile_fits = name + "_clean_";
-	std::string const outfile_fits = name + "_";
-	std::string const dirtyoutfile_fits = name +  "_dirty_";
-	std::string const dirtyresidualoutfile_fits = name +  "_residual" + fits_ending;
-
+	bool generate_synth_data = true; // set to "true" to generate the coverage
 	bool only_dirty = false;
 	bool preconditioning = true;
 	bool restoring =  false;
 	bool wavelet_parallelisation = true;
 
-	t_int band_number;
-	t_int row_number;
-	t_int n_blocks = 4;
+	// Set numeric display parameter (std::cout)
+	std::cout << std::scientific;
+	std::cout.precision(4);
 
-	if(argc > 11) {
-		std::cout << "Usage:\n"
-				"$ "
-				<< argv[0] << " [uv] [model] [output] [imsizex] [imsizey] [only_dirty] [restoring]\n\n"
-				"- uv: name of the sampling pattern file\n\n"
-				"- model: name of the model file\n\n"
-				"- output: name of output file\n\n"
-				"- imsizex: integer specifying the x size of the image\n\n"
-				"- imsizey: integer specifying the y size of the image\n\n"
-				"- only_dirty: integer (0 or 1) or string (true/True/false/False) specifying whether the code only produces a dirty image and does not simulate the true image\n\n"
-				"- restoring: integer (0 or 1) or string (true/True/false/False) specifying whether a restart file is being used to initialise the simulation\n\n"
-				"- svd_size: integer specifying how many processes to use for the svd\n\n"
-				"- padding_size: integer specifying how many processes to leave free to give the global root more memory space";
-		exit(0);
-	}
+	// Data parameters
+	auto const input_snr = 40;
 
 
-	if(temp_only_dirty == "1" || temp_only_dirty == "true" || temp_only_dirty == "True"){
-		only_dirty = true;
-	}else if(temp_only_dirty == "0" || temp_only_dirty == "false" || temp_only_dirty == "False"){
-		only_dirty = false;
-	}else{
-		std::cout << "Incorrect only_dirty parameter. Should be\n\n"
-				"- only_dirty: 1 or true for only_dirty, 0 or false for not, false by default";
-		exit(0);
-	}
+	t_int imsizey = 256;
+	t_int imsizex = 256;
+	t_real nshiftx = static_cast<psi::t_real>(imsizex)/2.;
+	t_real nshifty = static_cast<psi::t_real>(imsizey)/2.;
 
-	if(temp_restoring == "1" || temp_restoring == "true" || temp_restoring == "True"){
-		restoring = true;
-	}else if(temp_restoring == "0" || temp_restoring == "false" || temp_restoring == "False"){
-		restoring = false;
-	}else{
-		std::cout << "Incorrect restoring parameter. Should be\n\n"
-				"- restoring: 1 or true for restoring, 0 or false for not, false by default";
-		exit(0);
-	}
+	std::string modelName = argc >= 2 ? argv[1] : "M31_256_256_512.fits";
+	std::string uvdataName = argc >= 3 ? argv[2] : "uvdata.txt";
+	imsizex = argc >= 4 ? static_cast<t_int>(std::stod(static_cast<std::string>(argv[3]))) : imsizex;
+	imsizey = argc >= 5 ? static_cast<t_int>(std::stod(static_cast<std::string>(argv[4]))) : imsizey;
+
+
+	// Image parameters
+	t_int band_number = 3;
+	t_int image_size = imsizey*imsizex;
+	t_int n_blocks = 1;
+
+	// File names
+	const std::string test_number = "1";
+	std::string const outputfile = output_filename("random_coverage_output.fits");
+	std::string const fits_ending = ".fits";
+	std::string const clean_outfile_fits = "random_coverage_clean_";
+	std::string const dirtyoutfile_fits = "random_coverage_dirty_";
+	std::string const dirtyresidualoutfile_fits = "random_coverage_residual" + fits_ending;
+
+
+	// Gridding parameters
+	t_int const J = 8;
+	t_real const over_sample = 2;
+	const string kernel = "kb";
+	t_real pixel_size = 1;
+	const t_int ftsizeu = imsizex*over_sample;
+	const t_int ftsizev = imsizey*over_sample;
+
 
 	bool mpi_init_status = psi::mpi::init(argc, argv);
 
@@ -143,56 +100,47 @@ int main(int argc, const char **argv) {
 
 	}else{
 
-
-		auto const world = psi::mpi::Communicator::World(padding_size);
-
+		auto const world = psi::mpi::Communicator::World();
 		bool parallel = true;
-
 		auto Decomp = AstroDecomposition(parallel, world);
 
-		auto adaptive_epsilon_start = 250;
+		auto adaptive_epsilon_start = 200;
 		if(restoring){
 			adaptive_epsilon_start = 0;
 		}
 
-		/* Set parameters for the solver */
-		// Set SARA dictionary
+		// 1. Set SARA dictionary
 		psi::wavelets::SARA const sara{
 			std::make_tuple("Dirac", 3u), std::make_tuple("DB1", 3u), std::make_tuple("DB2", 3u),
 					std::make_tuple("DB3", 3u),   std::make_tuple("DB4", 3u), std::make_tuple("DB5", 3u),
-					std::make_tuple("DB6", 3u),   std::make_tuple("DB7", 3u), std::make_tuple("DB8", 3u)};
-		auto const nlevels = sara.size();
+					std::make_tuple("DB6", 3u),   std::make_tuple("DB7", 3u), std::make_tuple("DB8", 3u)}; // [P.-A.] so sara[i].levels == 3 for i in [0, 8]
+		auto const nlevels = sara.size(); //! [P.-A.] should not be called nlevels (misleading): n_dictionaries instead?
 		auto const min_delta = 1e-5;
 
+
+		// 2. Loading / distributing synth image
 		Image<t_complex> local_X0;
 
+		if(Decomp.global_comm().is_root()){
+			PURIPSI_LOW_LOG("Reading input .fits image");
+		}
 		//! Local scoping added to enable global_X0 to be removed after the data loading has happened and free up memory
 		{
-
-			if(Decomp.global_comm().is_root()){
-				PURIPSI_HIGH_LOG("Using {} padding processes", padding_size);
-			}
-
 			Image<t_complex> global_X0;
-
-
 			if(Decomp.global_comm().is_root()){
-				global_X0 = pfitsio::read2d(modelName);   // model cube should be row-major [L, N], X0[N, L] after reading
+				global_X0 = pfitsio::read2d(modelName);   // model cube should be row-major [L, N], X0[N, L] after reading // format N x L 
 				band_number = global_X0.cols();
-				row_number = global_X0.rows();
+				image_size = global_X0.rows(); // image size
 				PURIPSI_HIGH_LOG("Number of channels is {} ", band_number);
-				PURIPSI_HIGH_LOG("Image sise from file is {} ", row_number);
-				PURIPSI_HIGH_LOG("Image size {} x {} = {}", imsizex, imsizey, imsizex*imsizey);
+				PURIPSI_HIGH_LOG("Image size {} x {}", imsizex, imsizey);
+				PURIPSI_HIGH_LOG("Consistency check: {}, {}", imsizex*imsizey, image_size);
+				PURIPSI_HIGH_LOG("Size global_X0: {}, {}", global_X0.rows(), global_X0.cols());
 			}
 
-
-
+			// Reducing the number of channels used to fit in memory.
+			// band_number = 60;
 			band_number = Decomp.global_comm().broadcast(band_number, Decomp.global_comm().root_id());
-			row_number = Decomp.global_comm().broadcast(row_number, Decomp.global_comm().root_id());
-
-			if(row_number != imsizex*imsizey){
-				PURIPSI_ERROR("Image size is not the same as in the model file");
-			}
+			image_size = Decomp.global_comm().broadcast(image_size, Decomp.global_comm().root_id());
 
 			std::vector<t_int> time_blocks = std::vector<t_int>(band_number);
 			for(int b=0; b<band_number; b++){
@@ -218,32 +166,35 @@ int main(int argc, const char **argv) {
 			Decomp.set_checkpointing_frequency(100);
 			Decomp.set_restoring(restoring);
 
-			local_X0 = Image<t_complex>(row_number, Decomp.my_number_of_frequencies());
+			local_X0 = Image<t_complex>(image_size, Decomp.my_number_of_frequencies());
 
 			Decomp.template distribute_frequency_data<Image<t_complex>, t_complex>(local_X0, global_X0, false);
 
 		}
+		if(Decomp.global_comm().is_root()){
+			PURIPSI_LOW_LOG("Reading input .fits image - done");
+		}
 
+		// 3. Setup SARA operator
+		if(Decomp.global_comm().is_root()){
+			PURIPSI_LOW_LOG("Setup SARA operator");
+		}
 		std::vector<t_uint> local_nlevels(Decomp.my_number_of_frequencies());
-
 		std::vector<psi::LinearTransform<psi::Vector<psi::t_complex>>> Psi;
 		Psi.reserve(Decomp.my_number_of_frequencies());
-		int lower_wavelet = 0;
-		int number_of_wavelets = 0;
-		if(Decomp.my_number_of_frequencies() != 0){
-			lower_wavelet = Decomp.my_frequencies()[0].lower_wavelet;
-			number_of_wavelets = Decomp.my_frequencies()[0].number_of_wavelets;
-		}
+
+		double total_number_local_dict = 0;
 		// TODO properly fix this so there are multiple distributed_sara used
 		// because at the moment it assumes all wavelets are distributed the same way
-		psi::wavelets::SARA distributed_sara = psi::wavelets::distribute_sara(sara, lower_wavelet, number_of_wavelets, number_of_wavelets);
-		if(Decomp.my_number_of_frequencies() != 0){
-			for(int f=0; f<Decomp.my_number_of_frequencies(); f++){
-				PURIPSI_LOW_LOG("Distributing wavelets {} {} {}",Decomp.global_comm().rank(), Decomp.my_frequencies()[f].lower_wavelet, Decomp.my_frequencies()[f].number_of_wavelets);
-				Psi.emplace_back(psi::linear_transform<psi::t_complex>(distributed_sara, imsizey, imsizex));
-				local_nlevels[f] = Decomp.my_frequencies()[f].number_of_wavelets;
-			}
+		auto distributed_sara = psi::wavelets::distribute_sara(sara, Decomp.my_frequencies()[0].lower_wavelet, Decomp.my_frequencies()[0].number_of_wavelets, Decomp.frequencies()[0].number_of_wavelets);
+		for(int f=0; f<Decomp.my_number_of_frequencies(); f++){
+			PURIPSI_LOW_LOG("Distributing wavelets {} {} {}",Decomp.global_comm().rank(), Decomp.my_frequencies()[f].lower_wavelet, Decomp.my_frequencies()[f].number_of_wavelets);
+			Psi.emplace_back(psi::linear_transform<psi::t_complex>(distributed_sara, imsizey, imsizex));
+			local_nlevels[f] = Decomp.my_frequencies()[f].number_of_wavelets; // [P.-A.] see if this is the appropriate value!
+			total_number_local_dict += local_nlevels[f];
+			// PURIPSI_LOW_LOG("Number of local wavelet dictionaries: {}", local_nlevels[f]); // check that the distributed sum (over all dimensions) of local_nlevels = 27
 		}
+		PURIPSI_LOW_LOG("Total number of local dict (sum over local freqs): {}", total_number_local_dict); // the sum of all this value should be 9 * 3 here (if running on 3 processes)
 
 		psi::LinearTransform<psi::Vector<psi::t_complex>> Psi_Root = psi::linear_transform_identity<t_complex>();
 		auto distributed_root_sara = psi::wavelets::distribute_sara(sara, Decomp.my_lower_root_wavelet(), Decomp.my_number_of_root_wavelets(), Decomp.global_number_of_root_wavelets());
@@ -251,49 +202,60 @@ int main(int argc, const char **argv) {
 			PURIPSI_LOW_LOG("Distributing root wavelets {} {} {}",Decomp.global_comm().rank(), Decomp.my_lower_root_wavelet(), Decomp.my_number_of_root_wavelets());
 			Psi_Root = psi::linear_transform<psi::t_complex>(distributed_root_sara, imsizey, imsizex);
 		}
-
-
-		for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
-			if(Decomp.own_this_frequency(Decomp.my_frequencies()[f].freq_number)){
-				Image<t_complex> out_image = Image<t_complex>::Map(local_X0.col(f).data(), imsizex, imsizey);
-				out_image.transposeInPlace();
-				pfitsio::write2d(out_image.real(), clean_outfile_fits + std::to_string(Decomp.my_frequencies()[f].freq_number) + fits_ending);
-			}
+		if(Decomp.global_comm().is_root()){
+			PURIPSI_LOW_LOG("Setup SARA operator - done");
 		}
 
+		// 4. Generate synthetic coverage
 		/* For the issue of storage, instead of reading data directly from an MS, hyperspectral data are generated from
 		 * a realistic monochromatic uv file and a model hyperspectral image */
-		std::vector<std::vector<utilities::vis_params>> uv_data(Decomp.my_number_of_frequencies());
+		psi::Vector<t_real> freq(band_number);
+		double freq0 = 1000.e6;
+		double stepFreq = 1.e6;
+		for(int l = 0; l < band_number; ++l){
+			freq[l] = freq0 + stepFreq * l;
+		}
 
-		{
-			// 1.wide-band frequency vector
-			psi::Vector<t_real> freq(band_number);
-			double freq0 = 1000.e6;
-			double stepFreq = 1.e6;
-			for(int l = 0; l < band_number; ++l){
-				freq[l] = freq0 + stepFreq * l;
+		// SIZE ISSUE HERE!
+		//! Generate synthetic uv-coverage
+		std::vector<std::vector<puripsi::utilities::vis_params>> uv_data(Decomp.my_number_of_frequencies());
+		// TODO: add option to read from file
+		if(generate_synth_data){	
+			//! generate and save synth coverage
+			t_real const sigma_m = constant::pi / 3;
+			t_int const number_of_vis = std::floor(image_size * 2.);
+			t_int const number_of_vis_per_block = number_of_vis/n_blocks;
+
+			// generate random coverage in parallel
+			for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
+				uv_data[f].reserve(Decomp.my_frequencies()[f].number_of_time_blocks);
+				// utilities::vis_params vis_tmp = utilities::random_sample_density(number_of_vis_per_block, 0, sigma_m, 0); // use in testing mode, set rng to 1000
+				for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){
+					utilities::vis_params vis_tmp2 = utilities::random_sample_density(number_of_vis, 0, sigma_m, 0);
+					vis_tmp2.units = puripsi::utilities::vis_units::radians;
+					uv_data[f].emplace_back(vis_tmp2);
+				}
+			} 
+
+			if(Decomp.global_comm().is_root()){
+				PURIPSI_LOW_LOG("Generated random uv-coverage");
 			}
-
+		}else { 
 			Image<t_complex> uv_model;
 			if(Decomp.global_comm().is_root()){
-				// 2.wide-band uv generated from a monochromatic realistic uv-coverage
-				PURIPSI_HIGH_LOG("Reading uv data {}", uvdataName);
 				uv_model = pfitsio::read2d(uvdataName);
-				//		uv_model.transposeInPlace(); //! [P.-A.] keep it in backup for now, Ming's file may need this convention (if they are not modified beforehand)
-				uv_model /= freq[band_number-1]/freq[0];            // avoid uv points outside [-pi, pi] for all freq channels
+				PURIPSI_LOW_LOG("Size uv_model: {} x {}", uv_model.rows(), uv_model.cols());
 			}
 
-			//! TODO: If we are padding the global communicator here we are currently sending this data to too many processes (i.e. the padding processes).
-			//! This could be optimised to use a non-global comm that didn't include the padding processes.
 			uv_model = Decomp.global_comm().broadcast(uv_model, Decomp.global_comm().root_id());
 
 			for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
 				uv_data[f].reserve(Decomp.my_frequencies()[f].number_of_time_blocks);
-				for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){   // assume the data are order per blocks per channel
+				for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){
 					utilities::vis_params vis_tmp;
 					Image<t_real> uv_tmp;
-					uv_tmp = (uv_model * freq[Decomp.my_frequencies()[f].freq_number]/freq[0]).real().eval();    // scaling of uv-coverage in terms of frequency	
-					vis_tmp.u = uv_tmp.row(0);
+					uv_tmp = (uv_model * freq[Decomp.my_frequencies()[f].freq_number]/freq[0]).real().eval();    // scaling of uv-coverage in terms of frequency
+					vis_tmp.u = uv_tmp.row(0); // beware format of the .fits file
 					vis_tmp.v = uv_tmp.row(1);
 					vis_tmp.w = uv_tmp.row(2);
 					vis_tmp.weights = Vector<t_complex>::Constant(uv_tmp.row(0).size(), 1);
@@ -302,51 +264,58 @@ int main(int argc, const char **argv) {
 					uv_data[f][t].units = puripsi::utilities::vis_units::radians;
 				}
 			}
+			if(Decomp.global_comm().is_root()){
+				PURIPSI_LOW_LOG("Read synthetic uv-coverage");
+			}
+		}
 
-		}	
-
-		//! AJ Temporary until we calculate here
-		pixel_size = 1;
-
-		// 3.Compute the preconditioning matrix
+		// 5. Compute the preconditioning matrix
+		if(Decomp.global_comm().is_root()){
+			PURIPSI_LOW_LOG("Building preconditioning matrix Ui");
+		}
 		std::vector<std::vector<psi::Vector<t_real>>> Ui(Decomp.my_number_of_frequencies());
 		for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
 			Ui[f].reserve(Decomp.my_frequencies()[f].number_of_time_blocks);
-			for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){   // assume the data are order per blocks per channel
+			for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){
 				Ui[f].emplace_back(psi::Vector<psi::t_real>::Ones(uv_data[f][t].u.size()));
 				puripsi::preconditioner<t_real>(Ui[f][t], uv_data[f][t].u, uv_data[f][t].v, ftsizev, ftsizeu);
 			}
 		}
-
-		t_real nu2;
-		if(not restoring){
-			std::vector<std::vector<std::shared_ptr<const psi::LinearTransform<psi::Vector<psi::t_complex>>>>> Phi2(Decomp.my_number_of_frequencies());
-			for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
-				Phi2[f].reserve(Decomp.my_frequencies()[f].number_of_time_blocks);
-				for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){   // assume the data are order per blocks per channel
-					Phi2[f].emplace_back(std::make_shared<const MeasurementOperator>(uv_data[f][t], Ui[f][t], J, J, kernel, imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "none", 0, false, 1, "none", false, nshiftx, nshifty));
-				}
-			}
-
-			// Compute global operator norm
-			auto const pm = psi::algorithm::PowerMethodWideband<psi::t_complex>().tolerance(1e-6).decomp(Decomp);
-			auto const result = pm.AtA(Phi2, psi::Matrix<psi::t_complex>::Random(imsizey*imsizex, Decomp.my_number_of_frequencies()));
-			nu2 = result.magnitude.real();
-
-			// Manually delete the Phi2 measurement operator to reduce memory here (it doesn't seem to be free'd quick enough to let the second set of measurement
-			// operators get built successfully below in large image size cases.
-			for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
-				for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){   // assume the data are order per blocks per channel
-					Phi2[f][t].reset();
-				}
-			}
-
-			if(Decomp.global_comm().is_root()){
-				PURIPSI_HIGH_LOG("nu2 is {} ", nu2);
-			}
+		if(Decomp.global_comm().is_root()){
+			PURIPSI_LOW_LOG("Building preconditioning matrix Ui - done");
 		}
 
-		// 4.Generate measurement operators from the available uv_data
+		// 6. Build auxiliary measurement operator / compute operator norm
+		t_real nu2 = 1.;
+		// if(not restoring){
+		// 	std::vector<std::vector<std::shared_ptr<const psi::LinearTransform<psi::Vector<psi::t_complex>>>>> Phi2(Decomp.my_number_of_frequencies());
+		// 	for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
+		// 		Phi2[f].reserve(Decomp.my_frequencies()[f].number_of_time_blocks);
+		// 		for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){   // assume the data are order per blocks per channel
+		// 			Phi2[f].emplace_back(std::make_shared<const MeasurementOperator>(uv_data[f][t], Ui[f][t], J, J, kernel, imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "none", 0, false, 1, "none", false, nshiftx, nshifty));
+		// 		}
+		// 	}
+
+		// 	// Compute global operator norm
+		// 	auto const pm = psi::algorithm::PowerMethodWideband<psi::t_complex>().tolerance(1e-6).decomp(Decomp);
+		// 	auto const result = pm.AtA(Phi2, psi::Matrix<psi::t_complex>::Random(imsizey*imsizex, Decomp.my_number_of_frequencies()));
+		// 	nu2 = result.magnitude.real();
+
+		// 	// Manually delete the Phi2 measurement operator to reduce memory here (it doesn't seem to be free'd quick enough to let the second set of measurement
+		// 	// operators get built successfully below in large image size cases.
+		// 	for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
+		// 		for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){   // assume the data are order per blocks per channel
+		// 			Phi2[f][t].reset();
+		// 		}
+		// 	}
+
+		// 	if(Decomp.global_comm().is_root()){
+		// 		PURIPSI_LOW_LOG("nu2 is {} ", nu2);
+		// 	}
+		// }
+
+
+		// 7. Generate measurement operators from the available uv_data
 		std::vector<std::vector<std::shared_ptr<const psi::LinearTransform<psi::Vector<psi::t_complex>>>>> Phi(Decomp.my_number_of_frequencies());
 		for(int f=0; f< Decomp.my_number_of_frequencies(); ++f){
 			Phi[f].reserve(Decomp.my_frequencies()[f].number_of_time_blocks);
@@ -355,13 +324,13 @@ int main(int argc, const char **argv) {
 			}
 		}
 
-		// 5.Generate the ground truth measurements y0
+		// 8. Generate the ground truth measurements y0
 		std::vector<std::vector<psi::Vector<t_complex>>> y0(Decomp.my_number_of_frequencies());
 		t_real normy0 = 0.;
 		t_int Nm = 0; // total number of measurements
 		for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
 			y0[f].reserve(Decomp.my_frequencies()[f].number_of_time_blocks);
-			for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){   // assume the data are order per blocks per channel
+			for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){  
 				auto tmp = (*Phi[f][t]) * local_X0.col(f);
 				y0[f].emplace_back(tmp);
 				normy0 += y0[f][t].squaredNorm();
@@ -370,7 +339,7 @@ int main(int argc, const char **argv) {
 		}
 
 		if(Decomp.global_comm().is_root()){
-			PURIPSI_HIGH_LOG("Constructed y0");
+			PURIPSI_LOW_LOG("Constructed y0");
 		}
 
 		// TODO: Does this need to be globally reduced?
@@ -389,7 +358,7 @@ int main(int argc, const char **argv) {
 		}
 
 		if(Decomp.global_comm().is_root()){
-			PURIPSI_HIGH_LOG("Constructed target");
+			PURIPSI_LOW_LOG("Constructed data y");
 		}
 
 		psi::Vector<psi::Vector<t_real>> l2ball_epsilon(Decomp.my_number_of_frequencies());
@@ -412,7 +381,6 @@ int main(int argc, const char **argv) {
 			PURIPSI_HIGH_LOG("Calculated epsilon");
 		}
 
-
 		// Algorithm parameters
 		auto const tau = 0.99/3.; // 3 terms involved.
 		if(Decomp.global_comm().is_root()){
@@ -431,7 +399,7 @@ int main(int argc, const char **argv) {
 
 		t_real kappa3;
 		if(not restoring){
-			kappa3 = 1./nu2; // inverse of the norm of the full measurement operator Phi (single value)
+			kappa3 = 1./nu2; // inverse of the norm of the full measurement operator Phi2 (single value)
 			if(Decomp.global_comm().is_root()){
 				PURIPSI_HIGH_LOG("kappa3 is {} ", kappa3);
 			}
@@ -443,7 +411,7 @@ int main(int argc, const char **argv) {
 			PURIPSI_HIGH_LOG("adaptive epsilon parameters: tol_in {}, tol_out {}, percentage {} ", eps_lambdas(0), eps_lambdas(1), eps_lambdas(2));
 		}
 
-
+		//TODO: adapt to compute the nuclear norm and l21 norm in parallel
 		std::vector<Vector<t_complex>> dirty(Decomp.my_number_of_frequencies());
 		for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
 			dirty[f] = Vector<t_complex>::Zero(imsizey*imsizex);
@@ -454,27 +422,30 @@ int main(int argc, const char **argv) {
 			}
 			Decomp.my_frequencies()[f].freq_comm.distributed_sum(dirty[f], Decomp.my_frequencies()[f].freq_comm.root_id());
 		}
+
+		if(Decomp.global_comm().is_root()){
+			PURIPSI_LOW_LOG("Constructed dirty on each worker");
+		}
+
+
 		for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
 			if(Decomp.own_this_frequency(Decomp.my_frequencies()[f].freq_number)){
-				Image<t_complex> dirty_image = Image<t_complex>::Map(dirty[f].data(), imsizex, imsizey);
-				dirty_image.transposeInPlace();
+				Image<t_complex> dirty_image = Image<t_complex>::Map(dirty[f].data(), imsizey, imsizex);
 				pfitsio::write2d(dirty_image.real(), dirtyoutfile_fits + std::to_string(Decomp.my_frequencies()[f].freq_number) + fits_ending);
 			}
 		}
 
-
 		if(not only_dirty){
-
-
-			auto svd_process_count = std::min((int)std::min(imsizey*imsizex, band_number),(int)std::min((int)svd_size, (int)Decomp.global_comm().size()));
-
-
 			psi::mpi::Scalapack scalapack = psi::mpi::Scalapack(true);
-			scalapack.setupBlacs(Decomp, svd_process_count, imsizey*imsizex, Decomp.global_number_of_frequencies()); // triggers warning/error message when setup not run already
+			PURIPSI_LOW_LOG("setupBlacs {} {} {}", std::min((int)std::min(image_size, band_number),(int)std::min(20, (int)Decomp.global_comm().size())), image_size, band_number);
+
+			scalapack.setupBlacs(Decomp, std::min((int)std::min(image_size, band_number),(int)std::min(20, (int)Decomp.global_comm().size())), image_size, band_number);
 
 			if(Decomp.global_comm().is_root()){
-				PURIPSI_HIGH_LOG("Using {} processes for the SVD",svd_process_count);
+				PURIPSI_HIGH_LOG("Using {} processes for the SVD",std::min((int)std::min(image_size, band_number),(int)std::min(20, (int)Decomp.global_comm().size())));
 			}
+
+			PURIPSI_LOW_LOG("BLACS set up");
 
 			// Compute mu (nuclear_norm / l21_norm) in parallel
 			//TODO: avoid using global_dirty_image_matrix (there should be a more efficient way to do this operation)
@@ -484,22 +455,21 @@ int main(int argc, const char **argv) {
 				Matrix<t_complex> global_dirty_matrix;
 
 				if(Decomp.global_comm().is_root()){
-					global_dirty = std::vector<Vector<t_complex>>(Decomp.global_number_of_frequencies());
+					global_dirty = std::vector<Vector<t_complex>>(band_number);
 					global_dirty_matrix = Matrix<t_complex>(image_size, band_number);
-					for(int f=0; f<Decomp.global_number_of_frequencies(); ++f){
+					for(int f=0; f<band_number; ++f){
 						global_dirty[f] = Vector<t_complex>::Zero(imsizey*imsizex);
 					}
+					PURIPSI_LOW_LOG("Constructed setup global_dirty");
 				}
 
-				Decomp.collect_dirty_image(dirty, global_dirty);
-
+				Decomp.collect_dirty_image(dirty, global_dirty); //! revise format of global_dirty (to be manipulaed in matrix form, see how this is done in the solver)
 
 				if(Decomp.global_comm().is_root()){
 					for(int f=0; f<band_number; ++f){
 						global_dirty_matrix.col(f) = global_dirty[f];
 					}
 				}
-
 				Matrix<t_complex> partial;
 				t_real nuclear_norm;
 				t_real l21_norm;
@@ -513,10 +483,7 @@ int main(int argc, const char **argv) {
 				psi::Vector<t_real> U;
 				psi::Vector<t_real> VT;
 				psi::Vector<t_real> data_svd;
-				psi::Vector<t_real> sigma;
-				if(scalapack.involvedInSVD() or Decomp.global_comm().is_root()){
-					sigma = psi::Vector<t_real>(std::min(image_size, band_number));
-				}
+				psi::Vector<t_real> sigma = psi::Vector<t_real>(std::min(image_size, band_number));
 
 				if(scalapack.involvedInSVD()){
 					// set protected variables for scalapack
@@ -531,23 +498,23 @@ int main(int argc, const char **argv) {
 					VT = psi::Vector<t_real>(mpvt*npvt);
 				}
 
-				if(scalapack.involvedInSVD()){
-					scalapack.setupSVD(A, sigma, U, VT);
+				if(Decomp.global_comm().is_root()) {
+					data_svd = psi::Vector<t_real>(image_size*band_number);
 				}
 
-				if(Decomp.global_comm().is_root() or scalapack.scalapack_comm().is_root()) {
-					data_svd = psi::Vector<t_real>(image_size*band_number);
+				if(scalapack.involvedInSVD()){
+					scalapack.setupSVD(A, sigma, U, VT);
 				}
 
 				if(!Decomp.parallel_mpi() or not scalapack.usingScalapack()){
 					if(Decomp.global_comm().is_root())
 					{
-						PURIPSI_HIGH_LOG("Compute nuclear norm in serial");
+						PURIPSI_LOW_LOG("Compute nuclear norm in serial");
 						nuclear_norm = psi::nuclear_norm(global_dirty_matrix);
 					}
 				} else {
 					if(Decomp.global_comm().is_root()){
-						PURIPSI_HIGH_LOG("Compute nuclear norm in parallel");
+						PURIPSI_LOW_LOG("Compute nuclear norm in parallel");
 						for(int l=0; l<band_number ; ++l){
 							for(int n=0; n<image_size; ++n){
 								data_svd[l*image_size+n] = real(global_dirty_matrix(n,l)); //global_dirty[l](n)
@@ -555,29 +522,16 @@ int main(int argc, const char **argv) {
 						}
 					}
 
-					//! Send the data from the global_root to the root of the SVD operation. Because of process padding
-					//! this might not be the same process.
-					if(Decomp.global_comm().is_root() or (scalapack.involvedInSVD() and scalapack.scalapack_comm().is_root())){
-						scalapack.sendToScalapackRoot(Decomp, data_svd);
-					}
-
 					if(scalapack.involvedInSVD()){ //! already checked in the functions, so not needed here
 						scalapack.scatter(Decomp, A, data_svd, image_size, band_number, mpa, npa);
 						scalapack.runSVD(A, sigma, U, VT);
 					}
 
-					//! Send the data from the root of the SVD operation to the global_root. Because of process padding
-					//! this might not be the same process.
-					//! Send the calculated sigma, U, and VT vectors from the scalapack root to the global root.
-					if(Decomp.global_comm().is_root() or (scalapack.involvedInSVD() and scalapack.scalapack_comm().is_root())){
-						scalapack.recvFromScalapackRoot(Decomp, sigma);
-					}
 					if (Decomp.global_comm().is_root()){
 						nuclear_norm = psi::l1_norm(sigma);
-						PURIPSI_HIGH_LOG("Parallel nuclear norm: {}", nuclear_norm);
+						PURIPSI_LOW_LOG("Parallel nuclear norm: {}", nuclear_norm);
 					}
 				}
-
 
 				// Comptute l21 norm in parallel
 				auto wavelet_regularization = [](psi::LinearTransform<Vector<t_complex>> psi, const Matrix<t_complex> &X, const t_uint rows) {
@@ -594,7 +548,7 @@ int main(int argc, const char **argv) {
 				if(!Decomp.parallel_mpi() or Decomp.my_number_of_root_wavelets() != 0){
 					Matrix<t_complex> local_dirty;
 					if(Decomp.my_root_wavelet_comm().size() != 1){
-						local_dirty = Decomp.my_root_wavelet_comm().broadcast(global_dirty_matrix, Decomp.my_root_wavelet_comm().root_id());
+						local_dirty = Decomp.my_root_wavelet_comm().broadcast(global_dirty_matrix, Decomp.global_comm().root_id());
 						partial = wavelet_regularization(Psi_Root, local_dirty, image_size*Decomp.my_number_of_root_wavelets());
 					}else{
 						partial = wavelet_regularization(Psi_Root, global_dirty_matrix, image_size*Decomp.my_number_of_root_wavelets());
@@ -602,7 +556,7 @@ int main(int argc, const char **argv) {
 					l21_norm = psi::l21_norm(partial);
 
 					if(Decomp.parallel_mpi() and Decomp.my_root_wavelet_comm().size() != 1){
-						Decomp.my_root_wavelet_comm().distributed_sum(&l21_norm, Decomp.my_root_wavelet_comm().root_id());
+						Decomp.my_root_wavelet_comm().distributed_sum(&l21_norm, Decomp.global_comm().root_id());
 					}
 				}
 
@@ -615,57 +569,54 @@ int main(int argc, const char **argv) {
 
 			if(Decomp.global_comm().is_root()){
 				PURIPSI_HIGH_LOG("mu = {}", mu);
-			}
-
+			}	
 			// Instantiate algorithm
 			if(Decomp.global_comm().is_root()){
 				PURIPSI_HIGH_LOG("Creating wideband primal-dual functor");
+				PURIPSI_HIGH_LOG("Number of channels in the decomp object: {} / true number: {}", Decomp.global_number_of_frequencies(), band_number);
 			}
 
-			auto ppd = psi::algorithm::PrimalDualWidebandBlocking<t_complex>(target, imsizey*imsizex, l2ball_epsilon, Phi, Ui)
-																						.itermax(20)
-																						.itermin(10)
-																						.mu(mu)
-																						.tau(tau)
-																						.kappa1(kappa1)
-																						.kappa2(kappa2)
-																						.kappa3(kappa3)
-																						.Psi(Psi)
-																						.Psi_Root(Psi_Root)
-																						.levels(local_nlevels)
-																						.global_levels(nlevels)
-																						.n_channels(Decomp.global_number_of_frequencies())
-																						.l21_proximal_weights(psi::Vector<t_real>::Ones(imsizex*imsizey*Decomp.my_number_of_root_wavelets()))
-																						.nuclear_proximal_weights(psi::Vector<t_real>::Ones(Decomp.global_number_of_frequencies()))
-																						.positivity_constraint(true)
-																						.relative_variation(1e-6)
-																						.residual_convergence(1.01)
-																						.update_epsilon(false)
-																						.relative_variation_x(1e-4)
-																						.lambdas(eps_lambdas)
-																						.P(100)
-																						.decomp(Decomp)
-																						.adaptive_epsilon_start(adaptive_epsilon_start)
-																						.itermax_fb(20)
-																						.preconditioning(true)
-																						.relative_variation_fb(1e-8)
-																						.objective_check_frequency(10)
-																						.scalapack(scalapack);
+			auto ppd = psi::algorithm::PrimalDualWidebandBlocking<t_complex>(target, imsizey*imsizex, l2ball_epsilon, Phi, Ui) // global_X0
+						.itermax(3)
+						.mu(mu)
+						.tau(tau)
+						.kappa1(kappa1)
+						.kappa2(kappa2)
+						.kappa3(kappa3)
+						.Psi(Psi)
+						.Psi_Root(Psi_Root)
+						.levels(local_nlevels)
+						.global_levels(nlevels)
+						.n_channels(Decomp.global_number_of_frequencies())
+						.l21_proximal_weights(psi::Vector<t_real>::Ones(imsizex*imsizey*Decomp.my_number_of_root_wavelets()))
+						.nuclear_proximal_weights(psi::Vector<t_real>::Ones(Decomp.global_number_of_frequencies())) // size = min(M, N) = number_of_frequencies here
+						.positivity_constraint(true)
+						.relative_variation(5e-4)
+						.residual_convergence(1.001)
+						.update_epsilon(true)
+						.relative_variation_x(1e-4)
+						.lambdas(eps_lambdas)
+						.P(20)
+						.decomp(Decomp)
+						.adaptive_epsilon_start(adaptive_epsilon_start)
+						.itermax_fb(20)
+						.preconditioning(true)
+						.relative_variation_fb(1e-8)
+						.scalapack(scalapack);
 
 			auto reweighted = psi::algorithm::reweighted(ppd)
-			.itermax(1)
+			.itermax(2)
 			.min_delta(min_delta)
-			.update_delta([](t_real delta) { return 0.5 * delta; })
-			.is_converged(psi::RelativeVariation<psi::t_complex>(1e-6));
+			.is_converged(psi::RelativeVariation<psi::t_complex>(1e-5));
 
 			if(Decomp.global_comm().is_root()){
-				PURIPSI_HIGH_LOG("Starting re-weighted primal dual from psi library");
+				PURIPSI_HIGH_LOG("Starting wideband primal-dual from psi library");
 			}
-			double c_start = Decomp.global_comm().time();
+			std::clock_t c_start = std::clock();
 			auto diagnostic = reweighted();
-			double c_end = Decomp.global_comm().time();
+			std::clock_t c_end = std::clock();
 
-			auto total_time = (c_end - c_start);
+			auto total_time = (c_end - c_start) / CLOCKS_PER_SEC;
 
 			if(Decomp.global_comm().is_root()){
 				if(not diagnostic.good){
@@ -676,21 +627,13 @@ int main(int argc, const char **argv) {
 				PURIPSI_HIGH_LOG("Total computing time: {}", total_time);
 
 				// Write estimated image to a .fits file
-				//assert(diagnostic.x.size() == band_number*imsizey*imsizex);
-				//Image<t_complex> image_save = Image<t_complex>::Map(diagnostic.x.data(), imsizey*imsizex, band_number);
-				//pfitsio::write2d(image_save.real(), outfile_fits);
-				for(int f=0; f<Decomp.global_number_of_frequencies(); ++f){
-					Image<t_complex> out_image = Image<t_complex>::Map(diagnostic.algo.x.col(f).data(), imsizex, imsizey);
-					out_image.transposeInPlace();
-					pfitsio::write2d(out_image.real(), outfile_fits + std::to_string(f) + fits_ending);
-				}
+				assert(diagnostic.algo.x.size() == band_number*imsizey*imsizex);
+				Image<t_complex> image_save = Image<t_complex>::Map(diagnostic.algo.x.data(), imsizey*imsizex, band_number);
+				pfitsio::write2d(image_save.real(), outputfile);
 			}
 		}
 
-
 		psi::mpi::finalize();
-
 	}
-
 	return 0;
 }

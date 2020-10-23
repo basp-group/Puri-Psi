@@ -1,5 +1,4 @@
 #include "puripsi/config.h"
-#include <iostream>
 #include <catch2/catch.hpp>
 #include "puripsi/directories.h"
 #include "puripsi/logging.h"

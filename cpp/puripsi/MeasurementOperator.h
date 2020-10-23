@@ -30,16 +30,16 @@ public:
 	      energy_fraction_(m.energy_fraction_), fft_grid_correction_(m.fft_grid_correction_),
 	      primary_beam_(m.primary_beam_), fftoperator_(m.fftoperator_), ftsizeu_(m.ftsizeu_), ftsizev_(m.ftsizev_),
 		  G(m.G), S(m.S), W(m.W), C(m.C), norm(m.norm), resample_factor(m.resample_factor),
-		  fftw_plan_flag_(m.fftw_plan_flag_), gradient_(m.gradient_) {};
+		  fftw_plan_flag_(m.fftw_plan_flag_), gradient_(m.gradient_), nshiftx_(m.nshiftx_), nshifty_(m.nshifty_)  {};
 
-  MeasurementOperator(const utilities::vis_params &uv_vis_input, const t_int &Ju = 4,
-		      const t_int &Jv = 4, const std::string &kernel_name = "kb",
+  MeasurementOperator(const utilities::vis_params &uv_vis_input, const t_int &Ju = 4, const t_int &Jv = 4, const std::string &kernel_name = "kb",
 		      const t_int &imsizex = 256, const t_int &imsizey = 256,
                       const t_int &norm_iterations = 20, const t_real &oversample_factor = 2,
                       const t_real &cell_x = 1, const t_real &cell_y = 1,
                       const std::string &weighting_type = "none", const t_real &R = 0,
                       bool use_w_term = false, const t_real &energy_fraction = 1,
-                      const std::string &primary_beam = "none", bool fft_grid_correction = false);
+                      const std::string &primary_beam = "none", bool fft_grid_correction = false, 
+                      const t_real nshiftx = 0., const t_real nshifty = 0.);
 
   MeasurementOperator(const utilities::vis_params &uv_vis_input, Vector<t_real> const &preconditioner, const t_int &Ju = 4,
 		      const t_int &Jv = 4, const std::string &kernel_name = "kb",
@@ -48,7 +48,8 @@ public:
                       const t_real &cell_x = 1, const t_real &cell_y = 1,
                       const std::string &weighting_type = "none", const t_real &R = 0,
                       bool use_w_term = false, const t_real &energy_fraction = 1,
-                      const std::string &primary_beam = "none", bool fft_grid_correction = false);
+                      const std::string &primary_beam = "none", bool fft_grid_correction = false, 
+                      const t_real nshiftx = 0., const t_real nshifty = 0.);
 
 
 
@@ -79,6 +80,8 @@ public:                                                                         
   PURIPSI_MACRO(primary_beam, std::string, "none");
   PURIPSI_MACRO(fftw_plan_flag, std::string, "estimate");
   PURIPSI_MACRO(gradient, std::string, "none");
+  PURIPSI_MACRO(nshiftx, t_real, 0);
+  PURIPSI_MACRO(nshifty, t_real, 0);
   //! Reads in visiblities and uses them to construct the operator for use
   MeasurementOperator &construct_operator(const utilities::vis_params &uv_vis_input) {
     MeasurementOperator::init_operator(uv_vis_input);
@@ -125,13 +128,12 @@ protected:
   //! Generates interpolation matrix
   Sparse<t_complex> init_interpolation_matrix2d(const Vector<t_real> &u, const Vector<t_real> &v,
                                                 const t_int Ju, const t_int Jv,
-                                                const std::function<t_real(t_real)> kernelu,
-                                                const std::function<t_real(t_real)> kernelv,
+                                                const std::function<t_real(t_real)> kernelu, const std::function<t_real(t_real)> kernelv, 
                                                 Vector<t_int> &fourier_indices);
   //! Generates scaling factors for gridding correction using an fft
-  Image<t_real> init_correction2d_fft(const std::function<t_real(t_real)> kernelu,
-                                      const std::function<t_real(t_real)> kernelv, const t_int Ju,
-                                      const t_int Jv);
+  Image<t_real> init_correction2d_fft(const std::function<t_real(t_real)> kernelu, 
+                                      const std::function<t_real(t_real)> kernelv, 
+                                      const t_int Ju, const t_int Jv);
   //! Generates scaling factors for gridding correction
   Image<t_real> init_correction2d(const std::function<t_real(t_real)> ftkernelu,
                                   const std::function<t_real(t_real)> ftkernelv);

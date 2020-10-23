@@ -59,7 +59,7 @@ function(casacore_check_component_dependencies component output)
   set(found TRUE)
   foreach(dependency ${all_components})
     find_library(CasaCore_${dependency}_LIBRARY
-            NAMES casa_${dependency} PATHS ENV ${CASACORE_PREFIX})
+            NAMES casa_${dependency} PATHS ENV ${CASACORE_PREFIX} ${CasaCore_INCLUDE_DIR}/../lib)
     if(NOT CasaCore_${dependency}_LIBRARY)
       set(found FALSE)
       break()

@@ -25,10 +25,17 @@ add_catch_test(index_mapping LIBRARIES libpuripsi)
 add_catch_test(wproj_utils LIBRARIES libpuripsi)
 add_catch_test(preconditioner LIBRARIES libpuripsi)
 add_catch_test(astroio LIBRARIES libpuripsi)
+add_catch_test(fft_adjoint LIBRARIES libpuripsi)
+add_catch_test(fft_adjoint_operator LIBRARIES libpuripsi)
+add_catch_test(measurement_operator LIBRARIES libpuripsi)
 if(data AND TARGET casacore::ms)
   add_catch_test(casacore LIBRARIES libpuripsi ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY})
 endif()
 
+if(hdf5)
+  include_directories(${HDF5_INCLUDE_DIRS})
+  add_catch_test(MeasurementOperator LIBRARIES libpuripsi ${HDF5_LIBRARIES})
+endif()
 
 add_library(common_mpi_catch_main_object OBJECT "common_mpi_catch_main.cc")
 target_include_directories(common_mpi_catch_main_object
@@ -64,4 +71,3 @@ function(add_mpi_test testname)
 endfunction()
 
 add_mpi_test(astrodecomposition LIBRARIES libpuripsi)
-

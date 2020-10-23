@@ -9,7 +9,7 @@ Sparse<t_complex> init_gridding_matrix_2d(const Vector<t_real> &u, const Vector<
                                           const Vector<t_complex> &weights, const t_uint &imsizey_,
                                           const t_uint &imsizex_, const t_real &oversample_ratio,
                                           const std::function<t_real(t_real)> kernelu,
-                                          const std::function<t_real(t_real)> kernelv,
+                                          const std::function<t_real(t_real)> kernelv, const t_real nshifty_, const t_real nshiftx_,
                                           const t_uint Ju /*= 4*/, const t_uint Jv /*= 4*/) {
   const t_uint ftsizev_ = std::floor(imsizey_ * oversample_ratio);
   const t_uint ftsizeu_ = std::floor(imsizex_ * oversample_ratio);
@@ -27,38 +27,73 @@ Sparse<t_complex> init_gridding_matrix_2d(const Vector<t_real> &u, const Vector<
   interpolation_matrix.reserve(Vector<t_int>::Constant(rows, Ju * Jv));
 
   const t_complex I(0, 1);
-  const t_int ju_max = std::min(Ju + 1, ftsizeu_ + 1);
-  const t_int jv_max = std::min(Jv + 1, ftsizev_ + 1);
+  // const t_int ju_max = std::min(Ju + 1, ftsizeu_ + 1);
+  // const t_int jv_max = std::min(Jv + 1, ftsizev_ + 1);
+// #ifdef PURIPSI_OPENMP
+// #pragma omp parallel for collapse(3) default(shared)
+// #endif
+//   for(t_int m = 0; m < rows; ++m) {
+//     for(t_int ju = 1; ju < ju_max; ++ju) {
+//       for(t_int jv = 1; jv < jv_max; ++jv) {
+//         const t_uint q = utilities::mod(k_u(m) + ju, ftsizeu_);
+//         const t_uint p = utilities::mod(k_v(m) + jv, ftsizev_);
+//         const t_uint index = utilities::sub2ind(p, q, ftsizev_, ftsizeu_);
+//         interpolation_matrix.coeffRef(m, index)
+//             = std::exp(-2 * constant::pi * I * ((k_u(m) + ju) * 0.5 + (k_v(m) + jv) * 0.5))
+//               * kernelu(u(m) - (k_u(m) + ju)) * kernelv(v(m) - (k_v(m) + jv)) * weights(m);
+//       }
+//     }
+//   }
+
 #ifdef PURIPSI_OPENMP
-#pragma omp parallel for collapse(3) default(shared)
+#pragma omp parallel for default(shared)
 #endif
-  for(t_int m = 0; m < rows; ++m) {
-    for(t_int ju = 1; ju < ju_max; ++ju) {
-      for(t_int jv = 1; jv < jv_max; ++jv) {
-        const t_uint q = utilities::mod(k_u(m) + ju, ftsizeu_);
-        const t_uint p = utilities::mod(k_v(m) + jv, ftsizev_);
-        const t_uint index = utilities::sub2ind(p, q, ftsizev_, ftsizeu_);
-        interpolation_matrix.coeffRef(m, index)
-            = std::exp(-2 * constant::pi * I * ((k_u(m) + ju) * 0.5 + (k_v(m) + jv) * 0.5))
-              * kernelu(u(m) - (k_u(m) + ju)) * kernelv(v(m) - (k_v(m) + jv)) * weights(m);
-      }
-    }
-  }
+	for(t_int m = 0; m < rows; ++m) {
+		//! adding phase shift from Fessler's code (need to undo scaling applied to the uv-coverage) 
+		psi::t_real phase_shiftx = 0;
+		if(std::abs(nshiftx_) > 0) 
+				phase_shiftx = u(m)*(2 * constant::pi)*nshiftx_/ static_cast<t_real>(ftsizeu_); 
+		psi::t_real phase_shifty = 0;
+		if(std::abs(nshifty_) > 0)
+			phase_shifty = v(m)*(2 * constant::pi)*nshifty_/ static_cast<t_real>(ftsizev_);
+
+		for(t_int i = 1; i <= Ju; ++i) {
+			const t_int q = utilities::mod(k_u(m) + i, ftsizeu_);
+
+			psi::t_real cu = kernelu(u(m) - (k_u(m) + i));
+			psi::t_complex phaseu = constant::pi * I * static_cast<t_real>(imsizex_-1)/static_cast<t_real>(ftsizeu_) * (u(m) - (k_u(m) + i));
+			psi::t_complex coeffu = cu*std::exp(phaseu);
+
+			for(t_int j = 1; j <= Jv; ++j) {
+				const t_int p = utilities::mod(k_v(m) + j, ftsizev_);
+				const t_int index = utilities::sub2ind(p, q, ftsizev_, ftsizeu_);
+				
+				psi::t_real cv = kernelv(v(m) - (k_v(m) + j));
+				psi::t_complex phasev = constant::pi * I * static_cast<t_real>(imsizey_-1)/static_cast<t_real>(ftsizev_) * (v(m) - (k_v(m) + j));
+				psi::t_complex coeffv = cv*std::exp(phasev);
+				interpolation_matrix.coeffRef(m, index) = std::conj(coeffu * coeffv)*std::exp(I*(phase_shifty + phase_shiftx));
+
+				// const t_int index_local = utilities::sub2ind(j-1, i-1, Jv, Ju);
+				// full_fourier_indices(m, index_local) = index;
+			}
+		}
+	}
   return interpolation_matrix;
 }
  
 //! Construct gridding matrix with w projection
+// TODO: to be revised with Arwa (check this is properly fixed...)
 Sparse<t_complex>
 init_gridding_matrix_2d(const Vector<t_real> &u, const Vector<t_real> &v, const Vector<t_real> &w,
                         const Vector<t_complex> &weights, const t_uint &imsizey_,
                         const t_uint &imsizex_, const t_real oversample_ratio,
                         const std::function<t_real(t_real)> kernelu,
                         const std::function<t_real(t_real)> kernelv, 
-			const std::function<t_complex(t_real, t_real, t_real)> kernelw, const t_uint Ju /*= 4*/,
+			const std::function<t_complex(t_real, t_real, t_real)> kernelw, const t_real nshifty_, const t_real nshiftx_, const t_uint Ju /*= 4*/,
                         const t_uint Jv /*= 4*/, const t_uint Jw /*= 6*/, const bool w_term /*= false*/){
   if (!w_term)
     return init_gridding_matrix_2d(u, v, weights, imsizey_, imsizex_, oversample_ratio, kernelu,
-                                   kernelv, Ju, Jv);
+                                   kernelv, nshifty_, nshiftx_, Ju, Jv);
   const t_uint ftsizev_ = std::floor(imsizey_ * oversample_ratio);
   const t_uint ftsizeu_ = std::floor(imsizex_ * oversample_ratio);
   const t_uint rows = u.size();
@@ -108,15 +143,14 @@ Image<t_real> init_correction2d(const t_real &oversample_ratio, const t_uint &im
                                 const std::function<t_real(t_real)> ftkernelu,
                                 const std::function<t_real(t_real)> ftkernelv) {
 
-  const t_uint ftsizeu_ = std::floor(imsizex_ * oversample_ratio);
-  const t_uint ftsizev_ = std::floor(imsizey_ * oversample_ratio);
-  const t_uint x_start = std::floor(ftsizeu_ * 0.5 - imsizex_ * 0.5);
-  const t_uint y_start = std::floor(ftsizev_ * 0.5 - imsizey_ * 0.5);
+  psi::Array<psi::t_real> range_v;
+	range_v.setLinSpaced(imsizey_, static_cast<psi::t_real>(-(imsizey_-1))/2., static_cast<psi::t_real>(imsizey_-1)/2.);  
+	psi::Matrix<psi::t_real> ftv = (1. / range_v.unaryExpr(ftkernelv)).matrix();
 
-  Array<t_real> range;
-  range.setLinSpaced(std::max(ftsizeu_, ftsizev_), 0.5, std::max(ftsizeu_, ftsizev_) - 0.5);
-  return (1e0 / range.segment(y_start, imsizey_).unaryExpr(ftkernelv)).matrix()
-         * (1e0 / range.segment(x_start, imsizex_).unaryExpr(ftkernelu)).matrix().transpose();
+	psi::Array<psi::t_real> range_u;
+	range_u.setLinSpaced(imsizex_, static_cast<psi::t_real>(-(imsizex_-1))/2., static_cast<psi::t_real>(imsizex_-1)/2.);
+
+	return ( (1. / range_v.unaryExpr(ftkernelv)).matrix() * (1. / range_u.unaryExpr(ftkernelu)).matrix().transpose() ).array();
 }
 
 Image<t_real> init_correction2d_fft(const t_real &oversample_ratio, const t_uint &imsizey_,
@@ -127,6 +161,7 @@ Image<t_real> init_correction2d_fft(const t_real &oversample_ratio, const t_uint
   /*
     Given the gridding kernel, creates the scaling image for gridding correction using an fft.
   */
+  // TODO: needs to be fixed given the changes above?
   const t_uint ftsizeu_ = std::floor(imsizex_ * oversample_ratio);
   const t_uint ftsizev_ = std::floor(imsizey_ * oversample_ratio);
   Matrix<t_complex> K = Matrix<t_complex>::Zero(ftsizeu_, ftsizev_);
