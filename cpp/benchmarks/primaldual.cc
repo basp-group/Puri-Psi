@@ -31,8 +31,8 @@ public:
       const t_real cellsize = FoV / m_imsizex * 60. * 60.;
       const bool w_term = false;
       auto const over_sample = 2;
-      m_measurements_transform = measurementoperator::init_degrid_operator_2d<Vector<t_complex>>(
-												 m_uv_data, m_imsizey, m_imsizex, cellsize, cellsize, over_sample, 0, 0.0001, kernels::kernel::kb,  m_kernel, m_kernel, w_term);
+      m_measurements_transform =  std::make_shared<psi::LinearTransform<psi::Vector<psi::t_complex>>>(puripsi::operators::MeasurementOperator<Vector<t_complex>, t_complex>(
+												 m_uv_data, m_imsizey, m_imsizex, cellsize, cellsize, over_sample, 0, 0.0001, kernels::kernel::kb,  m_kernel, m_kernel, w_term));
       auto const gamma = (m_measurements_transform->adjoint() * m_uv_data.vis).real().maxCoeff() * 1e-3;
 
       m_nlevels = m_sara.size();
@@ -92,7 +92,7 @@ public:
   t_real m_sigma2;
 
   t_uint m_kernel;
-  std::shared_ptr<psi::LinearTransform<Vector<t_complex>> const> m_measurements_transform;
+  std::shared_ptr<psi::LinearTransform<Vector<t_complex>>> m_measurements_transform;
   t_real m_nlevels;
   std::shared_ptr<psi::algorithm::PrimalDual<t_complex>> m_pd;
 };

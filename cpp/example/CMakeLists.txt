@@ -29,17 +29,11 @@ add_example(script_read_MS LIBRARIES libpuripsi NOTEST)
 
 add_example(wideband_primal_dual_time_blocking_random_coverage LIBRARIES libpuripsi NOTEST )
 
-add_example(debug_wideband_ppd LIBRARIES libpuripsi NOTEST)
-
-add_example(debug_read_partial LIBRARIES libpuripsi NOTEST)
 
 if(hdf5)
   include_directories(${HDF5_INCLUDE_DIRS})
   add_example(read_visibilities_h5 LIBRARIES libpuripsi ${HDF5_LIBRARIES} NOTEST)
   add_example(wideband_primal_dual_time_blocking_h5 LIBRARIES libpuripsi ${HDF5_LIBRARIES} NOTEST)
-  add_example(debug_interpolation_matrix LIBRARIES libpuripsi ${HDF5_LIBRARIES} NOTEST)
-  add_example(debug_measurement_operator LIBRARIES libpuripsi ${HDF5_LIBRARIES} NOTEST)
-  add_example(test_projection LIBRARIES libpuripsi ${HDF5_LIBRARIES} NOTEST)
 endif()
 
 if(data AND TARGET casacore::ms)
