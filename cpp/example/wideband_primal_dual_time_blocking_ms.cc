@@ -32,7 +32,7 @@
 #include "puripsi/types.h"
 #include "puripsi/utilities.h"
 #include "puripsi/logging.h"
-#include "puripsi/MeasurementOperator.h"
+#include "puripsi/operators.h"
 #include "puripsi/preconditioner.h"
 #include "puripsi/astrodecomposition.h"
 #include "puripsi/astroio.h"
@@ -40,6 +40,7 @@
 
 using namespace puripsi;
 using namespace puripsi::notinstalled;
+using namespace puripsi::operators;
 
 int main(int argc, const char **argv) {
 	psi::logging::initialize();
@@ -297,22 +298,29 @@ int main(int argc, const char **argv) {
 			}
 		}
 
-		t_real nu2 = 1.0;
-		if(not restoring){
-			std::vector<std::vector<std::shared_ptr<const psi::LinearTransform<psi::Vector<psi::t_complex>>>>> Phi2(Decomp.my_number_of_frequencies());
-			for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
-				Phi2[f].reserve(Decomp.my_frequencies()[f].number_of_time_blocks);
-				for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){   // assume the data are order per blocks per channel
-					if(preconditioning){
-						Phi2[f].emplace_back(std::make_shared<const MeasurementOperator>(uv_data[f][t], Ui[f][t], J, J, kernel, imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "natural", 0, false, 1, "none", false, nshiftx, nshifty));
-					}else{
-						Phi2[f].emplace_back(std::make_shared<const MeasurementOperator>(uv_data[f][t], J, J, kernel, imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "natural", 0, false, 1, "none", false, nshiftx, nshifty));
-					}
+		// 4.Generate measurement operators from the available uv_data
+		std::vector<std::vector<std::shared_ptr<psi::LinearTransform<psi::Vector<psi::t_complex>>>>> Phi(Decomp.my_number_of_frequencies());
+		for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
+			Phi[f].reserve(Decomp.my_frequencies()[f].number_of_time_blocks);
+			for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){   // assume the data are order per blocks per channel
+				if(preconditioning){
+						Phi[f].emplace_back(std::make_shared<MeasurementOperator<Vector<t_complex>, t_complex>>(
+							uv_data[f][t], Ui[f][t], imsizey, imsizex, pixel_size, pixel_size, over_sample, 100,
+					        0.0001, kernels::kernel::kb, nshifty, nshiftx, J, J, false));
+				}else{
+					Phi[f].emplace_back(std::make_shared<MeasurementOperator<Vector<t_complex>, t_complex>>(
+						uv_data[f][t], imsizey, imsizex, pixel_size, pixel_size, over_sample, 100,
+				        0.0001, kernels::kernel::kb, nshifty, nshiftx, J, J, false));
 				}
 			}
+		}
+
+
+		t_real nu2 = 1.0;
+		if(not restoring){
 			// Compute global operator norm
 			auto const pm = psi::algorithm::PowerMethodWideband<psi::t_complex>().tolerance(1e-6).decomp(Decomp);
-			auto const result = pm.AtA(Phi2, psi::Matrix<psi::t_complex>::Random(imsizey*imsizex, Decomp.my_number_of_frequencies()));
+			auto const result = pm.AtA(Phi, psi::Matrix<psi::t_complex>::Random(imsizey*imsizex, Decomp.my_number_of_frequencies()));
 			PURIPSI_HIGH_LOG("Calculated power method {}",Decomp.global_comm().rank());
 			nu2 = result.magnitude.real();
 			if(Decomp.global_comm().is_root()){
@@ -320,13 +328,10 @@ int main(int argc, const char **argv) {
 			}
 		}
 
-		// 4.Generate measurement operators from the available uv_data
-		std::vector<std::vector<std::shared_ptr<const psi::LinearTransform<psi::Vector<psi::t_complex>>>>> Phi(Decomp.my_number_of_frequencies());
+		// Deactivate measurement operator preconditioning as it's only required for the nu2 calculation
 		for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
-			Phi[f].reserve(Decomp.my_frequencies()[f].number_of_time_blocks);
-			for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){   // assume the data are order per blocks per channel
-				// No preconditioning (normal operator)
-				Phi[f].emplace_back(std::make_shared<const MeasurementOperator>(uv_data[f][t], J, J, kernel, imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "natural", 0, false, 1, "none", false, nshiftx, nshifty));
+			for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){
+				(*Phi[f][t]).disable_preconditioning();
 			}
 		}
 
@@ -342,14 +347,13 @@ int main(int argc, const char **argv) {
 				//! If we are reading in a checkpoint from file we will read in the epsilon rather than calculate it.
 				if(!restoring){
 					auto pixel_size_config = field_of_view / imsizey;
-					std::shared_ptr<const psi::LinearTransform<psi::Vector<psi::t_complex>>> Phi_nnls = std::make_shared<const MeasurementOperator>(uv_data[f][t], J, J, kernel, imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "natural", 0, false, 1, "none", false, nshiftx, nshifty);
 					auto const pm = psi::algorithm::PowerMethod<psi::t_complex>().tolerance(1e-6);
-					auto const nu1data = pm.AtA(Phi_nnls, psi::Vector<psi::t_complex>::Random(imsizey*imsizex));
+					auto const nu1data = pm.AtA(Phi[f][t], psi::Vector<psi::t_complex>::Random(imsizey*imsizex));
 					auto nu = nu1data.magnitude.real();
 
 					auto forwardbackward_nnls_fista = psi::algorithm::ForwardBackward_nnls<t_complex>(target[f][t])
                                                         																				.itermax(500)
-																																		.Phi(Phi_nnls)
+																																		.Phi(Phi[f][t])
 																																		.mu(1./nu)
 																																		.FISTA(true)
 																																		.relative_variation(5e-5);

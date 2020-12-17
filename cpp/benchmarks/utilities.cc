@@ -82,9 +82,9 @@ namespace b_utilities {
 		     const t_real &cellsize) {
     auto uv_data = random_measurements(number_of_vis);
     // creating operator to generate measurements
-    auto measurement_op = measurementoperator::init_degrid_operator_2d<Vector<t_complex>>(
+    auto measurement_op = std::make_shared<psi::LinearTransform<psi::Vector<psi::t_complex>>>(puripsi::operators::MeasurementOperator<Vector<t_complex>, t_complex>(
 	  uv_data, ground_truth_image.rows(), ground_truth_image.cols(), cellsize, cellsize,
-          2, 0, 1e-4, kernels::kernel::kb, 8, 8, false);
+          2, 0, 1e-4, kernels::kernel::kb, 8, 8, false));
     // Generates measurements from image
     uv_data.vis = (*measurement_op)
       * Image<t_complex>::Map(ground_truth_image.data(), ground_truth_image.size(), 1);

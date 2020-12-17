@@ -2,7 +2,7 @@
 #include <numeric>
 #include <random>
 #include <catch2/catch.hpp>
-#include "puripsi/IndexMapping.h"
+#include "puripsi/index_mapping.h"
 #include "puripsi/types.h"
 #include "puripsi/utilities.h"
 

@@ -25,7 +25,7 @@
 #include <psi/primal_dual_wideband_blocking.h>
 #include <psi/proximal.h>
 
-#include "puripsi/MeasurementOperator.h"
+#include "puripsi/operators.h"
 #include "puripsi/directories.h"
 #include "puripsi/pfitsio.h"
 #include "puripsi/types.h"
@@ -36,6 +36,7 @@
 
 using namespace puripsi;
 using namespace puripsi::notinstalled;
+using namespace puripsi::operators;
 
 int main(int argc, const char **argv) {
 	psi::logging::initialize();
@@ -285,42 +286,36 @@ int main(int argc, const char **argv) {
 			PURIPSI_LOW_LOG("Building preconditioning matrix Ui - done");
 		}
 
-		// 6. Build auxiliary measurement operator / compute operator norm
-		t_real nu2 = 1.;
-		// if(not restoring){
-		// 	std::vector<std::vector<std::shared_ptr<const psi::LinearTransform<psi::Vector<psi::t_complex>>>>> Phi2(Decomp.my_number_of_frequencies());
-		// 	for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
-		// 		Phi2[f].reserve(Decomp.my_frequencies()[f].number_of_time_blocks);
-		// 		for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){   // assume the data are order per blocks per channel
-		// 			Phi2[f].emplace_back(std::make_shared<const MeasurementOperator>(uv_data[f][t], Ui[f][t], J, J, kernel, imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "none", 0, false, 1, "none", false, nshiftx, nshifty));
-		// 		}
-		// 	}
-
-		// 	// Compute global operator norm
-		// 	auto const pm = psi::algorithm::PowerMethodWideband<psi::t_complex>().tolerance(1e-6).decomp(Decomp);
-		// 	auto const result = pm.AtA(Phi2, psi::Matrix<psi::t_complex>::Random(imsizey*imsizex, Decomp.my_number_of_frequencies()));
-		// 	nu2 = result.magnitude.real();
-
-		// 	// Manually delete the Phi2 measurement operator to reduce memory here (it doesn't seem to be free'd quick enough to let the second set of measurement
-		// 	// operators get built successfully below in large image size cases.
-		// 	for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
-		// 		for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){   // assume the data are order per blocks per channel
-		// 			Phi2[f][t].reset();
-		// 		}
-		// 	}
-
-		// 	if(Decomp.global_comm().is_root()){
-		// 		PURIPSI_LOW_LOG("nu2 is {} ", nu2);
-		// 	}
-		// }
-
-
-		// 7. Generate measurement operators from the available uv_data
-		std::vector<std::vector<std::shared_ptr<const psi::LinearTransform<psi::Vector<psi::t_complex>>>>> Phi(Decomp.my_number_of_frequencies());
-		for(int f=0; f< Decomp.my_number_of_frequencies(); ++f){
+		// 6. Generate measurement operators from the available uv_data
+		std::vector<std::vector<std::shared_ptr<psi::LinearTransform<psi::Vector<psi::t_complex>>>>> Phi(Decomp.my_number_of_frequencies());
+		for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
 			Phi[f].reserve(Decomp.my_frequencies()[f].number_of_time_blocks);
 			for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){   // assume the data are order per blocks per channel
-				Phi[f].emplace_back(std::make_shared<const MeasurementOperator>(uv_data[f][t], J, J, kernel, imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "none", 0, false, 1, "none", false, nshiftx, nshifty));
+				Phi[f].emplace_back(std::make_shared<MeasurementOperator<Vector<t_complex>, t_complex>>(
+						uv_data[f][t], Ui[f][t], imsizey, imsizex, pixel_size, pixel_size, over_sample, 100,
+						0.0001, kernels::kernel::kb, nshifty, nshiftx, J, J, false));
+			}
+		}
+
+		t_real nu2 = 1.;
+
+		// 7. Build auxiliary measurement operator / compute operator norm
+		if(not restoring){
+
+			// Compute global operator norm
+			auto const pm = psi::algorithm::PowerMethodWideband<psi::t_complex>().tolerance(1e-6).decomp(Decomp);
+			auto const result = pm.AtA(Phi, psi::Matrix<psi::t_complex>::Random(imsizey*imsizex, Decomp.my_number_of_frequencies()));
+			nu2 = result.magnitude.real();
+
+			if(Decomp.global_comm().is_root()){
+				PURIPSI_LOW_LOG("nu2 is {} ", nu2);
+			}
+		}
+
+		// Deactivate measurement operator preconditioning as it's only required for the nu2 calculation
+		for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
+			for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){
+				(*Phi[f][t]).disable_preconditioning();
 			}
 		}
 
@@ -577,32 +572,32 @@ int main(int argc, const char **argv) {
 			}
 
 			auto ppd = psi::algorithm::PrimalDualWidebandBlocking<t_complex>(target, imsizey*imsizex, l2ball_epsilon, Phi, Ui) // global_X0
-						.itermax(3)
-						.mu(mu)
-						.tau(tau)
-						.kappa1(kappa1)
-						.kappa2(kappa2)
-						.kappa3(kappa3)
-						.Psi(Psi)
-						.Psi_Root(Psi_Root)
-						.levels(local_nlevels)
-						.global_levels(nlevels)
-						.n_channels(Decomp.global_number_of_frequencies())
-						.l21_proximal_weights(psi::Vector<t_real>::Ones(imsizex*imsizey*Decomp.my_number_of_root_wavelets()))
-						.nuclear_proximal_weights(psi::Vector<t_real>::Ones(Decomp.global_number_of_frequencies())) // size = min(M, N) = number_of_frequencies here
-						.positivity_constraint(true)
-						.relative_variation(5e-4)
-						.residual_convergence(1.001)
-						.update_epsilon(true)
-						.relative_variation_x(1e-4)
-						.lambdas(eps_lambdas)
-						.P(20)
-						.decomp(Decomp)
-						.adaptive_epsilon_start(adaptive_epsilon_start)
-						.itermax_fb(20)
-						.preconditioning(true)
-						.relative_variation_fb(1e-8)
-						.scalapack(scalapack);
+								.itermax(3)
+								.mu(mu)
+								.tau(tau)
+								.kappa1(kappa1)
+								.kappa2(kappa2)
+								.kappa3(kappa3)
+								.Psi(Psi)
+								.Psi_Root(Psi_Root)
+								.levels(local_nlevels)
+								.global_levels(nlevels)
+								.n_channels(Decomp.global_number_of_frequencies())
+								.l21_proximal_weights(psi::Vector<t_real>::Ones(imsizex*imsizey*Decomp.my_number_of_root_wavelets()))
+								.nuclear_proximal_weights(psi::Vector<t_real>::Ones(Decomp.global_number_of_frequencies())) // size = min(M, N) = number_of_frequencies here
+								.positivity_constraint(true)
+								.relative_variation(5e-4)
+								.residual_convergence(1.001)
+								.update_epsilon(true)
+								.relative_variation_x(1e-4)
+								.lambdas(eps_lambdas)
+								.P(20)
+								.decomp(Decomp)
+								.adaptive_epsilon_start(adaptive_epsilon_start)
+								.itermax_fb(20)
+								.preconditioning(true)
+								.relative_variation_fb(1e-8)
+								.scalapack(scalapack);
 
 			auto reweighted = psi::algorithm::reweighted(ppd)
 			.itermax(2)

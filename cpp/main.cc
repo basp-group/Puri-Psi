@@ -217,18 +217,18 @@ int main(int argc, char **argv) {
 	// uv_data.weights = uv_data.weights / uv_data.weights.sum() * uv_data.weights.size();
 	uv_data.vis = uv_data.vis.array() * uv_data.weights.array(); // ok
 	auto const noise_rms = estimate_noise(params); // to be removed (estimate epsilon)
-	std::shared_ptr<psi::LinearTransform<Vector<t_complex>> const> measurements_transform;
-	measurements_transform = measurementoperator::init_degrid_operator_2d<Vector<t_complex>>(
+	std::shared_ptr<psi::LinearTransform<Vector<t_complex>>> measurements_transform;
+	measurements_transform = std::make_shared<psi::LinearTransform<Vector<t_complex>>>(puripsi::operators::MeasurementOperator<Vector<t_complex>, t_complex>(
 			uv_data, params.height, params.width, params.cellsizey, params.cellsizex,
 			params.over_sample, params.power_method_iterations, 1e-4, params.kernel, params.J, params.J,
-			params.use_w_term);
+			params.use_w_term));
 
 	psi::wavelets::SARA const sara{
 		std::make_tuple("Dirac", 3u), std::make_tuple("DB1", 3u), std::make_tuple("DB2", 3u),
 				std::make_tuple("DB3", 3u),   std::make_tuple("DB4", 3u), std::make_tuple("DB5", 3u),
 				std::make_tuple("DB6", 3u),   std::make_tuple("DB7", 3u), std::make_tuple("DB8", 3u)};
 
-	auto const Psi = psi::linear_transform<t_complex>(sara, params.height, params.width);
+	auto Psi = psi::linear_transform<t_complex>(sara, params.height, params.width);
 
 	PURIPSI_LOW_LOG("Saving dirty map");
 	params.psf_norm = save_psf_and_dirty_image(measurements_transform, uv_data, params);

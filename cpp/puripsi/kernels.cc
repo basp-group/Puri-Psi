@@ -1,6 +1,8 @@
 #include "puripsi/kernels.h"
 #include "puripsi/config.h"
 #include "puripsi/logging.h"
+#include <iostream>
+
 namespace puripsi {
 
 namespace kernels {
@@ -248,9 +250,9 @@ std::tuple<std::function<t_real(t_real)>, std::function<t_real(t_real)>,
     auto kbu = [=](const t_real &x) { return kernels::kaiser_bessel(x, Ju_); };
     auto kbv = [=](const t_real &x) { return kernels::kaiser_bessel(x, Jv_); };
     auto ftkbu
-        = [=](const t_real &x) { return kernels::ft_kaiser_bessel(x / ftsizeu_ - 0.5, Ju_); };
+        = [=](const t_real &x) { return kernels::ft_kaiser_bessel(x / ftsizeu_, Ju_); };
     auto ftkbv
-        = [=](const t_real &x) { return kernels::ft_kaiser_bessel(x / ftsizev_ - 0.5, Jv_); };
+        = [=](const t_real &x) { return kernels::ft_kaiser_bessel(x / ftsizev_ , Jv_); };
     return std::make_tuple(kbu, kbv, ftkbu, ftkbv);
     break;
   }

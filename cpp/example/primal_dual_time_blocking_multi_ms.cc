@@ -25,7 +25,7 @@
 #include <psi/power_method_blocking.h>
 #include <psi/primal_dual_time_blocking.h>
 
-#include "puripsi/MeasurementOperator.h"
+#include "puripsi/operators.h"
 #include "puripsi/casacore.h"
 #include "puripsi/time_blocking.h"
 #include "puripsi/directories.h"
@@ -38,9 +38,7 @@
 
 using namespace puripsi;
 using namespace puripsi::notinstalled;
-
-
-
+using namespace puripsi::operators;
 
 int main(int argc, const char **argv) {
 	psi::logging::initialize();
@@ -210,9 +208,6 @@ int main(int argc, const char **argv) {
 
 
 			// Generate measurement operators from the available uv_data
-			std::vector<std::shared_ptr<const psi::LinearTransform<psi::Vector<psi::t_complex>>>> Phi(Decomp.my_frequencies()[0].number_of_time_blocks);
-			// Needed for no preconditioning (in the case that preconditioning is happening)
-
 			psi::Vector<psi::t_real> l2ball_epsilon(Decomp.my_frequencies()[0].number_of_time_blocks);
 			if(Decomp.global_comm().is_root()){
 				PURIPSI_HIGH_LOG("Creating Measurement Transforms for the blocks");
@@ -230,25 +225,30 @@ int main(int argc, const char **argv) {
 			t_real kappa;
 			t_real nu2;
 
+			std::vector<std::shared_ptr<psi::LinearTransform<psi::Vector<psi::t_complex>>>> Phi(Decomp.my_frequencies()[0].number_of_time_blocks);
+
+			for(int t = 0; t < Decomp.my_frequencies()[0].number_of_time_blocks; ++t){
+
+				if(preconditioning){
+					puripsi::preconditioner<t_real>(Ui[t], my_uv_data[0][t].u, my_uv_data[0][t].v, ftsizev, ftsizeu);
+					Phi[t]= std::make_shared<MeasurementOperator<Vector<t_complex>, t_complex>>(
+							my_uv_data[0][t], Ui[t], imsizey, imsizex, pixel_size, pixel_size, over_sample, 100,
+							0.0001, kernels::kernel::kb, nshifty, nshiftx, J, J, false);
+				}else{
+					Phi[t] = std::make_shared<MeasurementOperator<Vector<t_complex>, t_complex>>(
+							my_uv_data[0][t], imsizey, imsizex, pixel_size, pixel_size, over_sample, 100,
+							0.0001, kernels::kernel::kb, nshifty, nshiftx, J, J, false);
+				}
+
+			}
+
 			if(!restoring){
 
-				std::vector<std::shared_ptr<const psi::LinearTransform<psi::Vector<psi::t_complex>>>> Phi2(Decomp.my_frequencies()[0].number_of_time_blocks);
-
-				for(int l = 0; l < Decomp.my_frequencies()[0].number_of_time_blocks; ++l){
-
-					if(preconditioning){
-						puripsi::preconditioner<t_real>(Ui[l], my_uv_data[0][l].u, my_uv_data[0][l].v, ftsizev, ftsizeu);
-						Phi2[l] = std::make_shared<const MeasurementOperator>(my_uv_data[0][l], Ui[l], J, J, "kb", imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "natural", 0, false, 1, "none", false, nshiftx, nshifty);
-					}else{
-						Phi2[l] = std::make_shared<const MeasurementOperator>(my_uv_data[0][l], J, J, "kb", imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "natural", 0, false, 1, "none", false, nshiftx, nshifty);
-					}
-
-				}
 				// Compute global operator norm (adapt power method to the wideband setting)
 				// instanciate the power method
 				auto const pm = psi::algorithm::PowerMethodBlocking<psi::t_complex>().tolerance(1e-6).decomp(Decomp);
 
-				auto const result = pm.AtA(Phi2, psi::Vector<psi::t_complex>::Random(imsizey*imsizex));
+				auto const result = pm.AtA(Phi, psi::Vector<psi::t_complex>::Random(imsizey*imsizex));
 
 				nu2 = result.magnitude.real();
 				if(Decomp.global_comm().is_root()){
@@ -292,12 +292,16 @@ int main(int argc, const char **argv) {
 				}
 
 				// None preconditioning operator for blocking power method.
-				Phi[l] = std::make_shared<const MeasurementOperator>(my_uv_data[0][l], J, J, "kb", imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "natural", 0, false, 1, "none", false, nshiftx, nshifty);
-
+				Phi[l] = std::make_shared<MeasurementOperator<Vector<t_complex>, t_complex>>(
+						my_uv_data[0][l], imsizey, imsizex, pixel_size, pixel_size, over_sample, 100,
+						0.0001, kernels::kernel::kb, nshifty, nshiftx, J, J, false);
 				//! If we are reading in a checkpoint from file we will read in the epsilon rather than calculate it.
 				if(!restoring){
+
 					auto pixel_size_config = field_of_view / imsizey_config(data_id);
-					std::shared_ptr<const psi::LinearTransform<psi::Vector<psi::t_complex>>> Phi_nnls = std::make_shared<const MeasurementOperator>(my_uv_data[0][l], J, J, "kb", imsizex_config(data_id), imsizey_config(data_id), 100, over_sample, pixel_size_config, pixel_size_config, "natural", 0, false, 1, "none", false, nshiftx, nshifty);
+					std::shared_ptr<psi::LinearTransform<psi::Vector<psi::t_complex>>> Phi_nnls = std::make_shared<MeasurementOperator<Vector<t_complex>, t_complex>>(
+							my_uv_data[0][l], imsizey_config(data_id), imsizex_config(data_id), pixel_size_config, pixel_size_config, over_sample, 100,
+							0.0001, kernels::kernel::kb, nshifty, nshiftx, J, J, false);
 					auto const pm = psi::algorithm::PowerMethod<psi::t_complex>().tolerance(1e-6);
 					auto const nu1data = pm.AtA(Phi_nnls, psi::Vector<psi::t_complex>::Random(imsizey_config(data_id)*imsizex_config(data_id)));
 					auto nu = nu1data.magnitude.real();
@@ -315,6 +319,11 @@ int main(int argc, const char **argv) {
 					PURIPSI_HIGH_LOG("Estimated l2 ball bound for block {}: {}", Decomp.my_frequencies()[0].time_blocks[l].time_block_number, l2ball_epsilon(l));
 				}
 
+			}
+
+			// Deactivate measurement operator preconditioning as it's only required for the nu2 calculation
+			for(int t = 0; t < Decomp.my_frequencies()[0].number_of_time_blocks; ++t){
+				(*Phi[t]).disable_preconditioning();
 			}
 
 

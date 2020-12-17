@@ -20,10 +20,10 @@ configure_file(config.in.h "${PROJECT_BINARY_DIR}/include/puripsi/config.h")
 set(HEADERS
   logging.h kernels.h
   pfitsio.h logging.disabled.h types.h 
-  IndexMapping.h logging.enabled.h utilities.h operators.h MeasurementOperator.h wproj_utilities.h projection_kernels.h cimg.h FFTOperator.h
+  index_mapping.h logging.enabled.h utilities.h operators.h wproj_utilities.h projection_kernels.h cimg.h
   preconditioner.h time_blocking.h astrodecomposition.h astroio.h "${PROJECT_BINARY_DIR}/include/puripsi/config.h")
 
-set(SOURCES MeasurementOperator.cc FFTOperator.cc utilities.cc pfitsio.cc
+set(SOURCES utilities.cc pfitsio.cc
   kernels.cc wproj_utilities.cc operators.cc projection_kernels.cc time_blocking.cc astrodecomposition.cc astroio.cc)
 
 if(TARGET casacore::ms)

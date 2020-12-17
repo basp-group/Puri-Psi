@@ -27,9 +27,9 @@ int main(int nargs, char const **args) {
   auto uv_vis = utilities::random_sample_density(number_of_vis, 0, sigma_m);
   uv_vis.units = utilities::vis_units::radians;
   const Vector<t_complex> image = Vector<t_complex>::Random(number_of_pixels);
-  const auto measure_op = measurementoperator::init_degrid_operator_2d<Vector<t_complex>>(
+  const auto measure_op = std::make_shared<psi::LinearTransform<psi::Vector<psi::t_complex>>>(puripsi::operators::MeasurementOperator<Vector<t_complex>, t_complex>(
       uv_vis.u, uv_vis.v, uv_vis.w, uv_vis.weights, imsizey, imsizex, oversample_ratio, power_iters,
-      power_tol, kernels::kernel_from_string.at(kernel), Ju, Jv);
+      power_tol, kernels::kernel_from_string.at(kernel), Ju, Jv));
   for(t_uint i = 0; i < 100; i++) {
     PURIPSI_LOW_LOG("Iteration: {}", i);
     Vector<t_complex> const measurements = *measure_op * image;

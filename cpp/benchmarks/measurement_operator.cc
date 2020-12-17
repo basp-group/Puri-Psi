@@ -22,8 +22,7 @@ void degrid_operator_ctor(benchmark::State &state) {
   // benchmark the creation of measurement operator
   while(state.KeepRunning()) {
     auto start = std::chrono::high_resolution_clock::now();
-    auto sky_measurements = measurementoperator::
-      init_degrid_operator_2d<Vector<t_complex>>(
+    auto sky_measurements = puripsi::operators::MeasurementOperator<Vector<t_complex>, t_complex>(
 						 uv_data, rows, cols, cellsize, cellsize, 2, 0, 
 						 0.0001, kernels::kernel::kb, state.range(2), 
 						 state.range(2), w_term);
@@ -65,9 +64,9 @@ public:
       const t_real cellsize = FoV / m_imsizex * 60. * 60.;
       const bool w_term = false;
       m_kernel = state.range(2);
-      m_degridOperator = measurementoperator::init_degrid_operator_2d<Vector<t_complex>>(
+      m_degridOperator = std::make_shared<psi::LinearTransform<psi::Vector<psi::t_complex>>>(puripsi::operators::MeasurementOperator<Vector<t_complex>, t_complex>(
 	  m_uv_data, m_imsizey, m_imsizex, cellsize, cellsize, 2, 0, 0.0001, 
-	  kernels::kernel::kb, m_kernel, m_kernel, w_term);
+	  kernels::kernel::kb, m_kernel, m_kernel, w_term));
 	  }
   }
 

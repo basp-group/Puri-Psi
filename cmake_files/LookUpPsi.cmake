@@ -32,7 +32,6 @@ passon_variables(Lookup-Psi
   PATTERNS
       "CMAKE_[^_]*_R?PATH" "CMAKE_C_.*"
       "BLAS_.*" "FFTW3_.*" "TIFF_.*"
-      "GreatCMakeCookOff_DIR"
   ALSOADD
       "\nset(CMAKE_INSTALL_PREFIX \"${EXTERNAL_ROOT}\" CACHE STRING \"\")\n"
 )

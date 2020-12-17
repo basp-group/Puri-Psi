@@ -24,7 +24,7 @@
 #include <psi/power_method_blocking.h>
 #include <psi/primal_dual_time_blocking.h>
 
-#include "puripsi/MeasurementOperator.h"
+#include "puripsi/operators.h"
 #include "puripsi/directories.h"
 #include "puripsi/pfitsio.h"
 #include "puripsi/types.h"
@@ -35,6 +35,7 @@
 
 using namespace puripsi;
 using namespace puripsi::notinstalled;
+using namespace puripsi::operators;
 
 int main(int argc, const char **argv) {
 	psi::logging::initialize();
@@ -127,10 +128,10 @@ int main(int argc, const char **argv) {
 			Decomp.distribute_uv_data(uv_data, my_uv_data);
 
 			// Generate measurement operators from the available uv_data
-			std::vector<std::shared_ptr<const psi::LinearTransform<psi::Vector<psi::t_complex>>>> Phi(Decomp.my_frequencies()[0].number_of_time_blocks);
-			std::vector<std::shared_ptr<const psi::LinearTransform<psi::Vector<psi::t_complex>>>> Phi2(Decomp.my_frequencies()[0].number_of_time_blocks);
+			std::vector<std::shared_ptr<psi::LinearTransform<psi::Vector<psi::t_complex>>>> Phi(Decomp.my_frequencies()[0].number_of_time_blocks);
+			std::vector<std::shared_ptr<psi::LinearTransform<psi::Vector<psi::t_complex>>>> Phi2(Decomp.my_frequencies()[0].number_of_time_blocks);
 
-			std::vector<std::shared_ptr<const puripsi::MeasurementOperator>> Phitemp(Decomp.my_frequencies()[0].number_of_time_blocks);
+			std::vector<std::shared_ptr<MeasurementOperator<Vector<t_complex>, t_complex>>> Phitemp(Decomp.my_frequencies()[0].number_of_time_blocks);
 
 			std::vector<psi::Vector<t_real>> Ui(Decomp.my_frequencies()[0].number_of_time_blocks);
 
@@ -140,11 +141,15 @@ int main(int argc, const char **argv) {
 				puripsi::preconditioner<t_real>(Ui[l], my_uv_data[0][l].u, my_uv_data[0][l].v, ftsizev, ftsizeu);
 
 				//Phi[l] = measurement_operator;
-				Phi[l] = std::make_shared<const MeasurementOperator>(my_uv_data[0][l], J, J, "kb", imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "none", 0, false, 1, "none", false, nshiftx, nshifty);
-				Phi2[l] = std::make_shared<const MeasurementOperator>(my_uv_data[0][l], Ui[l], J, J, "kb", imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "none", 0, false, 1, "none", false, nshiftx, nshifty);
-
-				Phitemp[l] = std::make_shared<const MeasurementOperator>(my_uv_data[0][l], J, J, "kb", imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "none", 0, false, 1, "none", false, nshiftx, nshifty);
-			}
+				Phi[l] = std::make_shared<MeasurementOperator<Vector<t_complex>, t_complex>>(
+						my_uv_data[0][l], Ui[l], imsizey, imsizex, pixel_size, pixel_size, over_sample, 100,
+				        0.0001, kernels::kernel::kb, nshifty, nshiftx, J, J, false);
+				Phi[l] = std::make_shared<MeasurementOperator<Vector<t_complex>, t_complex>>(
+						my_uv_data[0][l], imsizey, imsizex, pixel_size, pixel_size, over_sample, 100,
+				        0.0001, kernels::kernel::kb, nshifty, nshiftx, J, J, false);
+				Phitemp[l] = std::make_shared<MeasurementOperator<Vector<t_complex>, t_complex>>(
+						my_uv_data[0][l], Ui[l], imsizey, imsizex, pixel_size, pixel_size, over_sample, 100,
+				        0.0001, kernels::kernel::kb, nshifty, nshiftx, J, J, false);			}
 			// Compute global operator norm (adapt power method to the time blocking setting)
 			auto const pm = psi::algorithm::PowerMethodBlocking<psi::t_complex>().tolerance(1e-6).decomp(Decomp);
 			auto const result = pm.AtA(Phi2, psi::Vector<psi::t_complex>::Random(imsizey*imsizex));

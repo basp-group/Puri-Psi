@@ -30,16 +30,17 @@
 #include "puripsi/types.h"
 #include "puripsi/utilities.h"
 #include "puripsi/logging.h"
-#include "puripsi/MeasurementOperator.h"
+#include "puripsi/operators.h"
 #include "puripsi/preconditioner.h"
 #include "puripsi/astrodecomposition.h"
 
 using namespace H5;
 using namespace puripsi;
+using namespace operators;
 
 typedef struct complex_type{
-    double real;
-    double imag;
+	double real;
+	double imag;
 } complex_type;
 
 using namespace puripsi;
@@ -64,16 +65,23 @@ int main(int argc, const char **argv) {
 	const string kernel = "kb";
 	t_real pixel_size = 1;
 
-    // Visibility file (from Matlab)
-    std::string visname = argc >= 1 ? argv[0] : "y_N=256_L=15_p=1_snr=40.h5"; // "/mnt/d/codes/matlab/hyper-sara/data/y_N=256_L=15_p=1_snr=40.h5"; //
-	std::string modelName = argc >= 2 ? argv[1] : "W28_N=256_L=15.fits"; // "/mnt/d/codes/matlab/hyper-sara/data/W28_N=256_L=15.fits"; //
-    std::string temp_load_visibilities = argc >= 3 ? argv[2] : "true";
-    visname = argc >= 4 ? argv[3] : visname;
+	// Visibility file (from Matlab)
+	std::string visname = argc >= 1 ? argv[0] : "/mnt/d/codes/matlab/hyper-sara/data/y_N=256_L=15_p=1_snr=40.h5"; //"y_N=256_L=15_p=1_snr=40.h5"; // "/mnt/d/codes/matlab/hyper-sara/data/y_N=256_L=15_p=1_snr=40.h5"; //
+	std::string modelName = argc >= 2 ? argv[1] : "/mnt/d/codes/matlab/hyper-sara/data/W28_N=256_L=15.fits"; //"W28_N=256_L=15.fits"; // "/mnt/d/codes/matlab/hyper-sara/data/W28_N=256_L=15.fits"; //
+	std::string temp_load_visibilities = argc >= 3 ? argv[2] : "true";
+	visname = argc >= 4 ? argv[3] : visname;
 	std::string name = argc >= 5 ? argv[4] : "puripsi_output";
 	imsizex = argc >= 6 ? static_cast<t_int>(std::stod(static_cast<std::string>(argv[5]))) : imsizex;
 	imsizey = argc >= 7 ? static_cast<t_int>(std::stod(static_cast<std::string>(argv[6]))) : imsizey;
 	std::string temp_only_dirty = argc >= 8 ? argv[7] : "false";
 	std::string temp_restoring = argc >= 9 ? argv[8] : "false";
+
+	// std::string visname = "/mnt/d/codes/matlab/hyper-sara/data/y_N=256_L=15_p=1_snr=40.h5"; //"y_N=256_L=15_p=1_snr=40.h5"; // "/mnt/d/codes/matlab/hyper-sara/data/y_N=256_L=15_p=1_snr=40.h5"; //
+	// std::string modelName = "/mnt/d/codes/matlab/hyper-sara/data/W28_N=256_L=15.fits"; //"W28_N=256_L=15.fits"; // "/mnt/d/codes/matlab/hyper-sara/data/W28_N=256_L=15.fits"; //
+	// std::string temp_load_visibilities = "true";
+	// std::string name = "puripsi_output";
+	// std::string temp_only_dirty = "false";
+	// std::string temp_restoring = "false";
 
 	t_int image_size = imsizey*imsizex;
 
@@ -91,7 +99,7 @@ int main(int argc, const char **argv) {
 	bool preconditioning = true;
 	bool restoring =  false;
 	bool wavelet_parallelisation = true;
-    bool load_visibilities = false;
+	bool load_visibilities = false;
 
 	t_int band_number;
 	t_int row_number;
@@ -101,7 +109,7 @@ int main(int argc, const char **argv) {
 		std::cout << "Usage:\n"
 				"$ "
 				<< argv[0] << " [uv] [model] [load] [output] [imsizex] [imsizey] [only_dirty] [restoring]\n\n"
-                "- uv: name of input visibility file\n\n"
+				"- uv: name of input visibility file\n\n"
 				"- model: name of the model file\n\n"
 				"- load: loading integer (0 or 1) or string (true/True/false/False) specifying whether the code loads the noisy visibilities from a .h5 file and does not generate them"
 				"- output: name of output file\n\n"
@@ -112,7 +120,7 @@ int main(int argc, const char **argv) {
 		exit(0);
 	}
 
-    if(temp_load_visibilities == "1" || temp_load_visibilities == "true" || temp_load_visibilities == "True"){
+	if(temp_load_visibilities == "1" || temp_load_visibilities == "true" || temp_load_visibilities == "True"){
 		load_visibilities = true;
 	}else if(temp_load_visibilities == "0" || temp_load_visibilities == "false" || temp_load_visibilities == "False"){
 		load_visibilities = false;
@@ -171,24 +179,24 @@ int main(int argc, const char **argv) {
 		auto const nlevels = sara.size();
 		auto const min_delta = 1e-5;
 
-        // Set number of channels and data blocks from .h5 file
-        //! use collective read operation? (see how to do this)
-        if(load_visibilities){
-            if(Decomp.global_comm().is_root()){
-                H5File file( visname, H5F_ACC_RDONLY );
-                // extract number of blocks and channels from the size of the "epsilon" dataset
-                DataSet dataset = file.openDataSet( "epsilon" );
-                DataSpace dataspace = dataset.getSpace();
-                int rank = dataspace.getSimpleExtentNdims();
-                hsize_t dims_epsilon[rank];
-                int ndims = dataspace.getSimpleExtentDims( dims_epsilon, NULL);
+		// Set number of channels and data blocks from .h5 file
+		//! use collective read operation? (see how to do this)
+		if(load_visibilities){
+			if(Decomp.global_comm().is_root()){
+				H5File file( visname, H5F_ACC_RDONLY );
+				// extract number of blocks and channels from the size of the "epsilon" dataset
+				DataSet dataset = file.openDataSet( "epsilon" );
+				DataSpace dataspace = dataset.getSpace();
+				int rank = dataspace.getSimpleExtentNdims();
+				hsize_t dims_epsilon[rank];
+				int ndims = dataspace.getSimpleExtentDims( dims_epsilon, NULL);
 				PURIPSI_HIGH_LOG("l2_ball_epsilon rank: {}, dimensions: {}x{}", rank, (unsigned long)(dims_epsilon[0]), dims_epsilon[1]);
-                band_number = dims_epsilon[1]; // 60
-                n_blocks = dims_epsilon[0];    // 4
-            }
+				band_number = dims_epsilon[1]; // 60
+				n_blocks = dims_epsilon[0];    // 4
+			}
 
-            n_blocks = Decomp.global_comm().broadcast(n_blocks, Decomp.global_comm().root_id());
-        }
+			n_blocks = Decomp.global_comm().broadcast(n_blocks, Decomp.global_comm().root_id());
+		}
 
 		Image<t_complex> local_X0;
 
@@ -199,12 +207,12 @@ int main(int argc, const char **argv) {
 
 			if(Decomp.global_comm().is_root()){
 				global_X0 = pfitsio::read2d(modelName);   // model cube should be row-major [L, N], X0[N, L] after reading
-                if(load_visibilities and (global_X0.cols() != band_number)){
-                    PURIPSI_ERROR("Number of channels in the image cube is not the same as in the visibility file");
-                }
-                else{
-				    band_number = global_X0.cols();
-                }
+				if(load_visibilities and (global_X0.cols() != band_number)){
+					PURIPSI_ERROR("Number of channels in the image cube is not the same as in the visibility file");
+				}
+				else{
+					band_number = global_X0.cols();
+				}
 				row_number = global_X0.rows();
 				PURIPSI_HIGH_LOG("Number of channels is {} ", band_number);
 				PURIPSI_HIGH_LOG("Image size from file is {} ", row_number);
@@ -220,7 +228,7 @@ int main(int argc, const char **argv) {
 				PURIPSI_ERROR("Image size is not the same as in the model file");
 			}
 
-            //! modify from here (read number of data blocks from file, idem for number of bands)
+			//! modify from here (read number of data blocks from file, idem for number of bands)
 			std::vector<t_int> time_blocks = std::vector<t_int>(band_number);
 			for(int b=0; b<band_number; b++){
 				time_blocks[b] = n_blocks;
@@ -282,7 +290,7 @@ int main(int argc, const char **argv) {
 		/* For the issue of storage, instead of reading data directly from an MS, hyperspectral data are generated from
 		 * a realistic monochromatic uv file and a model hyperspectral image */
 		// 1.wide-band frequency vector
-        psi::Vector<t_real> freq = psi::Vector<t_real>::LinSpaced(band_number, 1e9, 2e9);
+		psi::Vector<t_real> freq = psi::Vector<t_real>::LinSpaced(band_number, 1e9, 2e9);
 
 		std::vector<std::vector<utilities::vis_params>> uv_data(Decomp.my_number_of_frequencies());
 
@@ -290,7 +298,7 @@ int main(int argc, const char **argv) {
 
 			std::vector<std::vector<psi::Image<psi::t_real>>> global_uv_model(band_number);
 			if(Decomp.global_comm().is_root()){
-				
+
 				// 2.wide-band uv generated from a monochromatic realistic uv-coverage
 				PSI_HIGH_LOG("Reading uv data");         
 				H5File file( visname, H5F_ACC_RDONLY );
@@ -326,7 +334,7 @@ int main(int argc, const char **argv) {
 				uv_model[f] = std::vector<psi::Image<t_real>>(Decomp.my_frequencies()[f].number_of_time_blocks);
 			}
 			// distribute global_uv_model into uv_model
-			Decomp.template distribute_uv_data<std::vector<std::vector<psi::Image<t_real>>>, psi::Image<t_real>>(global_uv_model, uv_model); //! problem transmission here!! (format)
+			Decomp.template distribute_uv_data<std::vector<std::vector<psi::Image<t_real>>>, psi::Image<t_real>>(global_uv_model, uv_model);
 
 			for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
 				uv_data[f].reserve(Decomp.my_frequencies()[f].number_of_time_blocks);
@@ -361,9 +369,6 @@ int main(int argc, const char **argv) {
 			} 
 		}	
 
-		// //! AJ Temporary until we calculate here
-		// pixel_size = 0.64;
-
 		// 3.Compute the preconditioning matrix
 		std::vector<std::vector<psi::Vector<t_real>>> Ui(Decomp.my_number_of_frequencies());
 		for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
@@ -374,60 +379,64 @@ int main(int argc, const char **argv) {
 			}
 		}
 
+		// 4.Generate measurement operators from the available uv_data
+		std::vector<std::vector<std::shared_ptr<psi::LinearTransform<psi::Vector<psi::t_complex>>>>> Phi(Decomp.my_number_of_frequencies());
+		for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
+			Phi[f].reserve(Decomp.my_frequencies()[f].number_of_time_blocks);
+			for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){   // assume the data are order per blocks per channel
+				Phi[f].emplace_back(std::make_shared<MeasurementOperator<Vector<t_complex>, t_complex>>(
+						uv_data[f][t], Ui[f][t], imsizey, imsizex, pixel_size, pixel_size, over_sample, 100,
+						0.0001, kernels::kernel::kb, nshifty, nshiftx, J, J, false));
+			}
+		}
 
 		t_real nu2;
 		if(not restoring){
 			if(load_visibilities){
 				if(Decomp.global_comm().is_root()){
-				H5File file( visname, H5F_ACC_RDONLY );
-				DataSet dataset = file.openDataSet( "operator_norm" );
-				dataset.read(&nu2, PredType::NATIVE_DOUBLE);
-				dataset.close();
-				file.close();
-				PURIPSI_HIGH_LOG("nu2 is {} ", nu2);
+					H5File file( visname, H5F_ACC_RDONLY );
+					DataSet dataset = file.openDataSet( "operator_norm" );
+					dataset.read(&nu2, PredType::NATIVE_DOUBLE);
+					dataset.close();
+					file.close();
+					PURIPSI_HIGH_LOG("nu2 is {} ", nu2);
 				}
 			} else {
-				std::vector<std::vector<std::shared_ptr<const psi::LinearTransform<psi::Vector<psi::t_complex>>>>> Phi2(Decomp.my_number_of_frequencies());
-				for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
-					Phi2[f].reserve(Decomp.my_frequencies()[f].number_of_time_blocks);
-					for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){   // assume the data are order per blocks per channel
-						Phi2[f].emplace_back(std::make_shared<const MeasurementOperator>(uv_data[f][t], Ui[f][t], J, J, kernel, imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "none", 0, false, 1, "none", false, nshiftx, nshifty));
-					}
-				}
 
 				// Compute global operator norm
 				auto const pm = psi::algorithm::PowerMethodWideband<psi::t_complex>().tolerance(1e-6).decomp(Decomp);
-				auto const result = pm.AtA(Phi2, psi::Matrix<psi::t_complex>::Random(imsizey*imsizex, Decomp.my_number_of_frequencies()));
+				auto const result = pm.AtA(Phi, psi::Matrix<psi::t_complex>::Random(imsizey*imsizex, Decomp.my_number_of_frequencies()));
 				nu2 = result.magnitude.real();
 				//	nu2 = 1638468.8841572138;
-
-				// Manually delete the Phi2 measurement operator to reduce memory here (it doesn't seem to be free'd quick enough to let the second set of measurement
-				// operators get built successfully below in large image size cases.
-				for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
-					for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){   // assume the data are order per blocks per channel
-						Phi2[f][t].reset();
-					}
-				}
 			}
 			nu2 = Decomp.global_comm().broadcast(nu2, Decomp.global_comm().root_id());
 		}
 
-		// 4.Generate measurement operators from the available uv_data
-		std::vector<std::vector<std::shared_ptr<const psi::LinearTransform<psi::Vector<psi::t_complex>>>>> Phi(Decomp.my_number_of_frequencies());
-		for(int f=0; f< Decomp.my_number_of_frequencies(); ++f){
-			Phi[f].reserve(Decomp.my_frequencies()[f].number_of_time_blocks);
-			for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){   // assume the data are order per blocks per channel
-				Phi[f].emplace_back(std::make_shared<const MeasurementOperator>(uv_data[f][t], J, J, kernel, imsizex, imsizey, 100, over_sample, pixel_size, pixel_size, "none", 0, false, 1, "none", false, nshiftx, nshifty));
+		// Deactivate measurement operator preconditioning as it's only required for the nu2 calculation
+		for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
+			for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){
+				(*Phi[f][t]).disable_preconditioning();
 			}
 		}
 
-        // 5.Generate the ground truth measurements y0, or load visibilities
+
+		/*	std::vector<std::vector<std::shared_ptr<const psi::LinearTransform<psi::Vector<psi::t_complex>>>>> Phi(Decomp.my_number_of_frequencies());
+		for(int f=0; f< Decomp.my_number_of_frequencies(); ++f){
+			Phi[f].reserve(Decomp.my_frequencies()[f].number_of_time_blocks);
+			for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){   // assume the data are order per blocks per channel
+				Phi[f].emplace_back(std::make_shared<const MeasurementOperator<Vector<t_complex>, t_complex>>(
+					uv_data[f][t], imsizey, imsizex, pixel_size, pixel_size, over_sample, 100,
+			        0.0001, kernels::kernel::kb, nshifty, nshiftx, J, J, false));
+			}
+		}*/
+
+		// 5.Generate the ground truth measurements y0, or load visibilities
 		std::vector<std::vector<psi::Vector<t_complex>>> target(Decomp.my_number_of_frequencies());
-        psi::Vector<psi::Vector<t_real>> l2ball_epsilon(Decomp.my_number_of_frequencies());
+		psi::Vector<psi::Vector<t_real>> l2ball_epsilon(Decomp.my_number_of_frequencies());
 
 		//! use collective read operation?
-        if(load_visibilities){
-			
+		if(load_visibilities){
+
 			CompType complex_data_type(sizeof(complex_type));
 			complex_data_type.insertMember( "real", 0, PredType::NATIVE_DOUBLE);
 			complex_data_type.insertMember( "imag", sizeof(double), PredType::NATIVE_DOUBLE);
@@ -442,7 +451,7 @@ int main(int argc, const char **argv) {
 			if(Decomp.global_comm().is_root()){
 
 				H5File file( visname, H5F_ACC_RDONLY );
-				
+
 				// extract visibilities target[f][b]
 				for(hsize_t f=0; f<band_number; f++){            
 					global_target[f].reserve(n_blocks);
@@ -468,7 +477,7 @@ int main(int argc, const char **argv) {
 
 				for(hsize_t f = 0; f < band_number; f++){
 					global_l2ball_epsilon[f] = psi::Vector<psi::t_real>::Zero(n_blocks);
-					
+
 					hsize_t col_dims[1] = {(hsize_t)n_blocks};
 					DataSpace memspace(1, col_dims);
 					hsize_t offset_out[2] = {0, f};       // hyperslab offset in memory
@@ -481,54 +490,53 @@ int main(int argc, const char **argv) {
 				dataset.close();
 
 				PURIPSI_HIGH_LOG("Loaded target and epsilon");
-				
+
 			}
 			// Distributed global_l2ball_epsilon
 			Decomp.template distribute_epsilons_wideband_blocking<psi::Vector<psi::Vector<t_real>>>(l2ball_epsilon, global_l2ball_epsilon);
 			// Distribute global_target
 			Decomp.template distribute_target_data<std::vector<std::vector<psi::Vector<t_complex>>>, psi::Vector<t_complex>>(global_target, target);
 
-        }
-        else{
-            std::vector<std::vector<psi::Vector<t_complex>>> y0(Decomp.my_number_of_frequencies());
-            t_real normy0 = 0.;
-            t_int Nm = 0; // total number of measurements
-            for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
-                y0[f].reserve(Decomp.my_frequencies()[f].number_of_time_blocks);
-                for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){   // assume the data are order per blocks per channel
-                    auto tmp = (*Phi[f][t]) * local_X0.col(f);
-                    y0[f].emplace_back(tmp);
-                    normy0 += y0[f][t].squaredNorm();
-                    Nm += y0[f][t].size();
-                }
-            }
+		}else{
+			std::vector<std::vector<psi::Vector<t_complex>>> y0(Decomp.my_number_of_frequencies());
+			t_real normy0 = 0.;
+			t_int Nm = 0; // total number of measurements
+			for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
+				y0[f].reserve(Decomp.my_frequencies()[f].number_of_time_blocks);
+				for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){   // assume the data are order per blocks per channel
+					auto tmp = (*Phi[f][t]) * local_X0.col(f);
+					y0[f].emplace_back(tmp);
+					normy0 += y0[f][t].squaredNorm();
+					Nm += y0[f][t].size();
+				}
+			}
 
-            if(Decomp.global_comm().is_root()){
-                PURIPSI_HIGH_LOG("Constructed y0");
+			if(Decomp.global_comm().is_root()){
+				PURIPSI_HIGH_LOG("Constructed y0");
 				PURIPSI_HIGH_LOG("y0[{}][{}] = {}", 0, 0, y0[0][0]);
-            }
+			}
 
-            // TODO: Does this need to be globally reduced?
-            auto sigma_noise = std::sqrt(normy0) / std::sqrt(Nm) * std::pow(10.0, -(input_snr / 20.0));
+			// TODO: Does this need to be globally reduced?
+			auto sigma_noise = std::sqrt(normy0) / std::sqrt(Nm) * std::pow(10.0, -(input_snr / 20.0));
 
-            // 6.Add noise to the measurements
-            for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
-                target[f].reserve(Decomp.my_frequencies()[f].number_of_time_blocks);
-                for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){   // assume the data are order per blocks per channel
-                    // The *true* in the add noise below ensures that the same seed for the random number generator is always used. This should
-                    // make benchmarking more consistent but should *never* be used for production simulations.
-                    uv_data[f][t].vis = utilities::add_noise(y0[f][t], 0., sigma_noise, true);
-                    target[f].emplace_back(uv_data[f][t].vis);
-                }
-            }
+			// 6.Add noise to the measurements
+			for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
+				target[f].reserve(Decomp.my_frequencies()[f].number_of_time_blocks);
+				for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){   // assume the data are order per blocks per channel
+					// The *true* in the add noise below ensures that the same seed for the random number generator is always used. This should
+					// make benchmarking more consistent but should *never* be used for production simulations.
+					uv_data[f][t].vis = utilities::add_noise(y0[f][t], 0., sigma_noise, true);
+					target[f].emplace_back(uv_data[f][t].vis);
+				}
+			}
 
-            if(Decomp.global_comm().is_root()){
-                PURIPSI_HIGH_LOG("Constructed target");
-            }
+			if(Decomp.global_comm().is_root()){
+				PURIPSI_HIGH_LOG("Constructed target");
+			}
 
-            for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
-                l2ball_epsilon[f] = psi::Vector<t_real>::Zero(Decomp.my_frequencies()[f].number_of_time_blocks);
-            }
+			for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
+				l2ball_epsilon[f] = psi::Vector<t_real>::Zero(Decomp.my_frequencies()[f].number_of_time_blocks);
+			}
 
 			// Compute global epsilon bound (from Abdullah's code)
 			auto global_epsilon = std::sqrt(Nm + 2*std::sqrt(2*Nm)) * sigma_noise;
@@ -538,7 +546,7 @@ int main(int argc, const char **argv) {
 					l2ball_epsilon[f](t) = std::sqrt(static_cast<t_real>(target[f][t].size())/static_cast<t_real>(Nm)) * global_epsilon;
 				}
 			}
-        }
+		}
 
 		if(Decomp.global_comm().is_root()){
 			PURIPSI_HIGH_LOG("Calculated epsilon");
@@ -582,7 +590,7 @@ int main(int argc, const char **argv) {
 		}
 		for(int f=0; f<Decomp.my_number_of_frequencies(); ++f){
 			for(int t=0; t<Decomp.my_frequencies()[f].number_of_time_blocks; ++t){
-				dirty[f] = dirty[f] +  (Phi[f][t]->adjoint() * uv_data[f][t].vis);
+				dirty[f] = dirty[f] +  ((*Phi[f][t]).adjoint() * uv_data[f][t].vis);
 			}
 			Decomp.my_frequencies()[f].freq_comm.distributed_sum(dirty[f], Decomp.my_frequencies()[f].freq_comm.root_id());
 		}
@@ -601,7 +609,7 @@ int main(int argc, const char **argv) {
 			psi::mpi::Scalapack scalapack = psi::mpi::Scalapack(true);
 			scalapack.setupBlacs(Decomp, std::min((int)std::min(imsizey*imsizex, band_number),(int)std::min((int)60,  (int)Decomp.global_comm().size())), imsizey*imsizex, Decomp.global_number_of_frequencies()); // triggers warning/error message when setup not run already
 
-	                if(Decomp.global_comm().is_root()){
+			if(Decomp.global_comm().is_root()){
 				PURIPSI_HIGH_LOG("Using {} processes for the SVD",std::min((int)std::min(imsizey*imsizex, band_number),(int)std::min((int)60,  (int)Decomp.global_comm().size())));
 			}
 
@@ -739,34 +747,34 @@ int main(int argc, const char **argv) {
 			}
 
 			auto ppd = psi::algorithm::PrimalDualWidebandBlocking<t_complex>(target, imsizey*imsizex, l2ball_epsilon, Phi, Ui)
-																					.itermax(2000)
-																					.itermin(300)
-																					.mu(mu)
-																					.tau(tau)
-																					.kappa1(kappa1)
-																					.kappa2(kappa2)
-																					.kappa3(kappa3)
-																					.Psi(Psi)
-																					.Psi_Root(Psi_Root)
-																					.levels(local_nlevels)
-																					.global_levels(nlevels)
-																					.n_channels(Decomp.global_number_of_frequencies())
-																					.l21_proximal_weights(psi::Vector<t_real>::Ones(imsizex*imsizey*Decomp.my_number_of_root_wavelets()))
-																					.nuclear_proximal_weights(psi::Vector<t_real>::Ones(Decomp.global_number_of_frequencies()))
-																					.positivity_constraint(true)
-																					.relative_variation(5e-4)
-																					.residual_convergence(1.001)
-																					.update_epsilon(false)
-																					.relative_variation_x(5e-4)
-																					.lambdas(eps_lambdas)
-																					.P(100)
-																					.decomp(Decomp)
-																					.adaptive_epsilon_start(adaptive_epsilon_start)
-																					.itermax_fb(20)
-																					.preconditioning(true)
-																					.relative_variation_fb(1e-8)
-																					.objective_check_frequency(1)
-																					.scalapack(scalapack);
+																							.itermax(2000)
+																							.itermin(300)
+																							.mu(mu)
+																							.tau(tau)
+																							.kappa1(kappa1)
+																							.kappa2(kappa2)
+																							.kappa3(kappa3)
+																							.Psi(Psi)
+																							.Psi_Root(Psi_Root)
+																							.levels(local_nlevels)
+																							.global_levels(nlevels)
+																							.n_channels(Decomp.global_number_of_frequencies())
+																							.l21_proximal_weights(psi::Vector<t_real>::Ones(imsizex*imsizey*Decomp.my_number_of_root_wavelets()))
+																							.nuclear_proximal_weights(psi::Vector<t_real>::Ones(Decomp.global_number_of_frequencies()))
+																							.positivity_constraint(true)
+																							.relative_variation(5e-4)
+																							.residual_convergence(1.001)
+																							.update_epsilon(false)
+																							.relative_variation_x(5e-4)
+																							.lambdas(eps_lambdas)
+																							.P(100)
+																							.decomp(Decomp)
+																							.adaptive_epsilon_start(adaptive_epsilon_start)
+																							.itermax_fb(20)
+																							.preconditioning(true)
+																							.relative_variation_fb(1e-8)
+																							.objective_check_frequency(1)
+																							.scalapack(scalapack);
 
 			// Sets weight after each pd iteration.
 			//PURIPSI_HIGH_LOG("Creating reweighting-scheme functor");
@@ -795,7 +803,7 @@ int main(int argc, const char **argv) {
 
 				// Write estimated image to a .fits file
 				//assert(diagnostic.x.size() == band_number*imsizey*imsizex);
-				//Image<t_complex> image_save = Image<t_complex>::Map(diagnostic.x.data(), imsizey*imsizex, band_number);
+				//Image<t_complex> image_save = Image<t_complex>::Map(diagnostic.algo.x.data(), imsizey*imsizex, band_number);
 				//pfitsio::write2d(image_save.real(), outfile_fits);
 				for(int f=0; f<Decomp.global_number_of_frequencies(); ++f){
 					Image<t_complex> out_image = Image<t_complex>::Map(diagnostic.algo.x.col(f).data(), imsizex, imsizey);
@@ -805,7 +813,7 @@ int main(int argc, const char **argv) {
 			}
 		}
 
-        // MPI_Info_free(&info);
+		// MPI_Info_free(&info);
 		psi::mpi::finalize();
 
 	}

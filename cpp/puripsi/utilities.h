@@ -5,7 +5,6 @@
 #include <fstream>
 #include <string>
 #include <type_traits>
-#include "puripsi/FFTOperator.h"
 #include "puripsi/types.h"
 #include "puripsi/logging.h"
 

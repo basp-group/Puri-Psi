@@ -21,7 +21,6 @@
 #include <psi/forward_backward_nnls.h>
 #include <psi/relative_variation.h>
 #include <psi/positive_quadrant.h>
-#include <psi/reweighted_wideband.h>
 #include <psi/sampling.h>
 #include <psi/types.h>
 #include <psi/utilities.h>

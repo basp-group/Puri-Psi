@@ -48,9 +48,9 @@ int main(int nargs, char const **args) {
   uv_data.units = utilities::vis_units::radians;
 
   PURIPSI_HIGH_LOG("Number of measurements: {}", uv_data.u.size());
-  auto measurements_transform = measurementoperator::init_degrid_operator_2d<Vector<t_complex>>(
+  auto measurements_transform = std::make_shared<psi::LinearTransform<psi::Vector<psi::t_complex>>>(puripsi::operators::MeasurementOperator<Vector<t_complex>, t_complex>(
       uv_data.u, uv_data.v, uv_data.w, uv_data.weights, M31.cols(), M31.rows(), over_sample, 100,
-      1e-4, kernels::kernel_from_string.at(kernel), J, J);
+      1e-4, kernels::kernel_from_string.at(kernel), J, J));
   uv_data.vis = *measurements_transform * Vector<t_complex>::Map(M31.data(), M31.size());
   utilities::write_visibility(uv_data, vis_file);
 }

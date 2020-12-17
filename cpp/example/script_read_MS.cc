@@ -29,7 +29,6 @@
 #include <psi/power_method_blocking.h>
 #include <psi/primal_dual_time_blocking.h>
 
-#include "puripsi/MeasurementOperator.h"
 #include "puripsi/casacore.h"
 #include "puripsi/time_blocking.h"
 #include "puripsi/directories.h"

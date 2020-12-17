@@ -67,9 +67,9 @@ TEST_CASE("Operators") {
       projection_kernels::w_projection_kernel_approx(1, 1, imsizex, imsizey, oversample_ratio);
   SECTION("Gridding") {
     psi::OperatorFunction<Vector<t_complex>> directG, indirectG;
-    std::tie(directG, indirectG) = operators::init_gridding_matrix_2d<Vector<t_complex>>(
-        uv_vis.u, uv_vis.v, uv_vis.w, Vector<t_complex>::Constant(M, 1.), imsizey, imsizex,
-        oversample_ratio, kbv, kbu, kernelw, Ju, Jv);
+    auto measure = puripsi::operators::MeasurementOperator<Vector<t_complex>, t_complex>();
+    std::tie(directG, indirectG) = measure.init_gridding_matrix_2d(
+        uv_vis.u, uv_vis.v, uv_vis.w, Vector<t_complex>::Constant(M, 1.), kbv, kbu, kernelw);
     const Vector<t_complex> direct_input = Vector<t_complex>::Random(ftsizev * ftsizeu);
     Vector<t_complex> direct_output;
     directG(direct_output,
@@ -95,8 +95,9 @@ TEST_CASE("Operators") {
                                  1e-5));
   }
   SECTION("Zero Padding") {
+	auto measure_op = puripsi::operators::MeasurementOperator<Vector<t_complex>, t_complex>();
     const Image<t_real> S
-        = details::init_correction2d(oversample_ratio, imsizey, imsizex, ftkbu, ftkbv);
+        = measure_op.init_correction2d(oversample_ratio, imsizey, imsizex, ftkbu, ftkbv);
     CHECK(imsizex == S.cols());
     CHECK(imsizey == S.rows());
     INFO(S(0) / operators_test::expected_S.at(0));
@@ -105,7 +106,7 @@ TEST_CASE("Operators") {
                        1e-6));
     psi::OperatorFunction<Vector<t_complex>> directZ, indirectZ;
     std::tie(directZ, indirectZ)
-        = operators::init_zero_padding_2d<Vector<t_complex>>(S, oversample_ratio);
+        = measure_op.init_zero_padding_2d();
     const Vector<t_complex> direct_input = Vector<t_complex>::Random(imsizex * imsizey);
     Vector<t_complex> direct_output;
     directZ(direct_output, direct_input);
@@ -139,9 +140,8 @@ TEST_CASE("Operators") {
     const Vector<t_real> v = Vector<t_real>::Random(M_measures);
     const Vector<t_real> w = Vector<t_real>::Random(M_measures);
     const Vector<t_complex> weights = Vector<t_complex>::Random(M_measures);
-    const auto measure_op = measurementoperator::init_degrid_operator_2d<Vector<t_complex>>(
-        u, v, w, weights, imsizey, imsizex, oversample_ratio, power_iters, power_tol, kernel, Ju,
-        Jv);
+    auto measure_op = std::make_shared<psi::LinearTransform<psi::Vector<psi::t_complex>>>(puripsi::operators::MeasurementOperator<Vector<t_complex>, t_complex>(
+        u, v, w, weights, imsizey, imsizex, oversample_ratio, power_iters, power_tol, kernel, Ju, Jv));
     const Vector<t_complex> direct_input = Vector<t_complex>::Random(imsizex * imsizey);
     const Vector<t_complex> direct_output = *measure_op * direct_input;
     CHECK(direct_output.size() == M);
@@ -157,9 +157,8 @@ TEST_CASE("Operators") {
       CHECK(std::abs(op_norm - op_norm2) < power_tol);
     }
     SECTION("Norm Accuracy") {
-      const auto measure_op2 = measurementoperator::init_degrid_operator_2d<Vector<t_complex>>(
-          u, v, w, weights, imsizey, imsizex, oversample_ratio, power_iters, power_tol, kernel, Ju,
-          Jv);
+      const auto measure_op2 = std::make_shared<psi::LinearTransform<psi::Vector<psi::t_complex>>>(puripsi::operators::MeasurementOperator<Vector<t_complex>, t_complex>(
+          u, v, w, weights, imsizey, imsizex, oversample_ratio, power_iters, power_tol, kernel, Ju, Jv));
       const Vector<t_complex> input = Vector<t_complex>::Random(imsizey * imsizex);
       Vector<t_complex> buff1 = input;
       Vector<t_complex> buff2 = input;
@@ -175,16 +174,16 @@ TEST_CASE("Operators") {
 
 
   SECTION("Create convolution operator") {
-    const auto measure_op = measurementoperator::init_degrid_operator_2d<Vector<t_complex>>(
+     auto measure_op = std::make_shared<psi::LinearTransform<psi::Vector<psi::t_complex>>>(puripsi::operators::MeasurementOperator<Vector<t_complex>, t_complex>(
         uv_vis.u, uv_vis.v, uv_vis.w, uv_vis.weights, imsizey, imsizex, oversample_ratio,
-        power_iters, power_tol, kernel, Ju, Jv);
+        power_iters, power_tol, kernel, Ju, Jv));
     const auto phiTphi
         = operators::init_psf_convolve_2d<Vector<t_complex>>(measure_op, imsizey, imsizex);
     const auto id = [](Vector<t_complex> &out, const Vector<t_complex> &in) { out = in; };
     const Vector<t_complex> direct_input = Vector<t_complex>::Random(imsizex * imsizey);
     auto const phiTphi_op = psi::LinearTransform<Vector<t_complex>>({phiTphi, id});
     SECTION("Power Method") {
-      auto op_norm = details::power_method<Vector<t_complex>>(
+      auto op_norm = puripsi::operators::power_method<Vector<t_complex>>(
           phiTphi_op, power_iters, power_tol, Vector<t_complex>::Random(imsizex * imsizey));
       CHECK(std::abs(op_norm - 1.) < power_tol);
     }
