@@ -13,7 +13,7 @@ if(NOT GBENCHMARK_FOUND)
 
   include(FindPackageHandleStandardArgs)
   FIND_PACKAGE_HANDLE_STANDARD_ARGS(
-      GBENCHMARK
+      GBenchmark
       REQUIRED_VARS GBENCHMARK_LIBRARY GBENCHMARK_INCLUDE_DIR
   )
 endif()
