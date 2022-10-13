@@ -59,20 +59,33 @@
 
 				<a name="introduction"></a> <h2>Introduction</h2>
 
-				<p><strong>Puri-Psi</strong> is an open-source code developed within the <a href="https://www.hw.ac.uk/schools/engineering-physical-sciences/institutes/sensors-signals-systems/basp.htm">BASP group (Biomedical and Astronomical Signal Processing)</a> headed by Prof. Wiaux that provides functionality to address radio interferometric imaging problems using state-of-the-art optimisation algorithms and deep learning. 
+				<p><strong>Puri-Psi</strong> is an open-source code developed within the
+					<a href="https://www.hw.ac.uk/schools/engineering-physical-sciences/institutes/sensors-signals-systems/basp.htm">
+						BASP group (Biomedical and Astronomical Signal Processing)</a> 
+					headed by Prof. Wiaux that provides functionality to address radio interferometric imaging problems 
+					using state-of-the-art optimisation algorithms and deep learning. 
 				</p>
 
-				<p>The name <strong>Puri-Psi</strong> builds from former software <a href="http://basp-group.github.io/purify/">Purify</a> by Prof. Wiaux and collaborators, with the extension -Psi standing for &quot;Parallel Scalable Imaging&quot;.
+				<p>The name <strong>Puri-Psi</strong> builds from former software <a href="http://basp-group.github.io/purify/">Purify</a>
+					by Prof. Wiaux and collaborators, with the extension -Psi standing for &quot;Parallel Scalable Imaging&quot;.
 				</p>
 
-				<p><strong>Puri-Psi</strong> is currently available (under the license described <a href="#license">below</a>) as a collection of independent <a href="#matlab">MATLAB toolboxes</a>, as well as <a href="#cpp">C++</a> codes, all described below and available on Github.
+				<p><strong>Puri-Psi</strong> is currently available (under the license described <a href="#license">below</a>)
+					as a collection of independent <a href="#matlab">MATLAB toolboxes</a>, as well as <a href="#cpp">C++</a> codes,
+					all described below and available on Github.
 				</p>
 
 
 				<a name="matlab"></a><h2>Matlab</h2>
 
-				<p>A collection of independent Matlab toolboxes is available below, covering the following functionalities: scalable monochromatic imaging (<strong>SARA</strong> and <strong>AIRI</strong>), scalable wide-band imaging (<strong>HyperSARA</strong> and <strong>Faceted HyperSARA</strong>), scalable polarised imaging (<strong>Polarised SARA</strong>), joint calibration and imaging (<strong>Polca SARA</strong>), and scalable uncertainty quantification (<strong>BUQO</strong>).	
-				</p>				
+				<p>A collection of independent Matlab toolboxes is available below, covering the following functionalities: 
+					scalable monochromatic imaging (<strong>SARA</strong>), 
+					scalable wide-band imaging (<strong>HyperSARA</strong> and <strong>Faceted HyperSARA</strong>), 
+					polarised imaging (<strong>Polarised SARA</strong>), joint calibration and imaging (<strong>Polca SARA</strong>), 
+					and scalable uncertainty quantification (<strong>BUQO</strong>).	
+				</p>	
+				<p>A first scalable AI-based imaging framework for wide-field monochromatic intensity imaging, at the interface of AI and optimisation theory (<strong>AIRI</strong> and <strong>uSARA</strong>) is also available. 
+				</p>
 				
 				<h3>SARA - Scalable monochromatic imaging</h3>
 				<!-- [<a href="#sara_ref" id="sara_codes">refs.</a>] -->
@@ -87,7 +100,7 @@
 				</p>
 
 
-				<h3>HyperSARA - Scalable wide-band imaging</h3>
+				<h3>HyperSARA - Scalable wideband imaging</h3>
 				<!-- [<a href="#hyper_ref" id="hyper_codes">refs.</a>] -->
 
 				<p>
@@ -131,10 +144,15 @@
 				
 			        <h3>AIRI - AI regularisation for radio interferometry </h3>
 				<!-- [<p>First AI-based method for radio-interferometric imaging</p>]-->
-
+                                <p>
+					<ul>
+						<li><a>The framework builds on a recent “plug-and-play” scheme, underpinned by handcrafted sparse denoisers from optimisation theory ((<strong>Unconstrained SARA</strong>) and learned denoisers encapusaluted via deep neural networks (<strong>AIRI</strong>).
+							The matlab code will be available soon.</a></li>
+					</ul>
+				</p>
 				<a name="cpp"></a><h2>C++</h2>
 
-				<p>A C++ code for both scalable monochromatic imaging (<strong>SARA</strong>) and scalable wide-band imaging (<strong>HyperSARA</strong>) is available <a href="https://github.com/basp-group/Puri-Psi">here</a>.
+				<p>A C++ code for both scalable monochromatic imaging (<strong>SARA</strong>) and scalable wideband imaging (<strong>HyperSARA</strong>) is available <a href="https://github.com/basp-group/Puri-Psi">here</a>.
 				</p>
 
 
@@ -176,7 +194,7 @@
 				</blockquote>
 
 
-				<h4>HyperSARA - Scalable wide-band imaging</h4>
+				<h4>HyperSARA - Scalable wideband imaging</h4>
 				<!-- [<a href="#hyper_codes" id="hyper_ref">codes</a>] -->
 
 				<blockquote class="highlight"> A. Abdulaziz, A. Dabbech, and Y. Wiaux, <a href="https://arxiv.org/abs/1806.04596">Wideband Super-resolution Imaging in Radio Interferometry via Low Rankness and Joint Average Sparsity Models (HyperSARA)</a>, <i>Mon. Not. Roy. Astron. Soc.</i>, 489(1):1230-1248, Oct. 2019.
