@@ -124,7 +124,7 @@ position: sticky;
     background-color: rgb(240, 240, 240);
 }
 
-.highlight a.button {
+.highlight .button {
     position: absolute;
     bottom: 0;
     right: 0;
