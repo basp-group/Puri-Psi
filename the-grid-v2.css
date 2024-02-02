@@ -116,17 +116,15 @@ position: sticky;
     margin-left: 300px;
 }
 
-.highlight:hover {background-color: rgb(240,240,240);}
-
-/* Additional style elements */
-li {margin-left: 20px; margin-bottom: 10px;}
-
-
 .highlight {
     position: relative;
-  }
+}
 
-  .highlight a.button {
+.highlight:hover {
+    background-color: rgb(240, 240, 240);
+}
+
+.highlight a.button {
     position: absolute;
     bottom: 0;
     right: 0;
@@ -134,7 +132,12 @@ li {margin-left: 20px; margin-bottom: 10px;}
     background-color: #007bff;
     color: #fff;
     text-decoration: none;
-  }
+}
+
+/* Additional style elements */
+li {margin-left: 20px; margin-bottom: 10px;}
+
+
 
 /* #navbar {
     overflow: hidden;
