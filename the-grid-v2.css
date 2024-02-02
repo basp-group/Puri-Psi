@@ -134,6 +134,10 @@ position: sticky;
     text-decoration: none;
 }
 
+.button:hover {
+    background-color: lightskyblue;
+}
+
 /* Additional style elements */
 li {margin-left: 20px; margin-bottom: 10px;}
 
