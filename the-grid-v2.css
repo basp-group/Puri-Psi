@@ -152,7 +152,7 @@ position: sticky;
     }
 
  .logo-text img {
-            opacity: 0.7; /* Set the opacity value (0 is fully transparent, 1 is fully opaque) */
+            opacity: 0.9; /* Set the opacity value (0 is fully transparent, 1 is fully opaque) */
             position: absolute; /* Set the position to absolute */
             z-index: -1; /* Move it to the background */
         }
