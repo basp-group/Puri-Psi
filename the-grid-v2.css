@@ -150,6 +150,12 @@ position: sticky;
     .button-text {
       margin-right: 5px; /* Adjust margin for spacing between text and logo */
     }
+
+ .logo-text img {
+            opacity: 0.7; /* Set the opacity value (0 is fully transparent, 1 is fully opaque) */
+            position: absolute; /* Set the position to absolute */
+            z-index: -1; /* Move it to the background */
+        }
 /*.logo-button:hover {*/
 /*    background-color: gra;*/
 /*}*/
