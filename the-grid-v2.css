@@ -138,6 +138,21 @@ position: sticky;
     background-color: lightskyblue;
 }
 
+.logo-button {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      display: flex; /* Use flex to align items horizontally */
+      align-items: center; /* Align items vertically */
+      cursor: pointer;
+    }
+
+    .button-text {
+      margin-right: 5px; /* Adjust margin for spacing between text and logo */
+    }
+/*.logo-button:hover {*/
+/*    background-color: gra;*/
+/*}*/
 /* Additional style elements */
 li {margin-left: 20px; margin-bottom: 10px;}
 
