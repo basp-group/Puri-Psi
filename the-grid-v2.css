@@ -116,10 +116,31 @@ position: sticky;
     margin-left: 300px;
 }
 
-.highlight:hover {background-color: rgb(240,240,240);}
+.highlight {
+    position: relative;
+}
+
+/*.highlight:hover {*/
+/*    background-color: rgb(240, 240, 240);*/
+/*}*/
+
+.highlight .button {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: #fff;
+    text-decoration: none;
+}
+
+.button:hover {
+    background-color: lightskyblue;
+}
 
 /* Additional style elements */
 li {margin-left: 20px; margin-bottom: 10px;}
+
 
 
 /* #navbar {

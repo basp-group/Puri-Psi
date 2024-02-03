@@ -1,296 +1,337 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-	<meta name="description" content="Your description goes here" />
-	<meta name="keywords" content="BASP group, radio interferometry, parallel, sparse imaging" />
-	<meta name="author" content="BASP group" />
-	<link rel="stylesheet" type="text/css" href="the-grid-v2.css" title="Psi" media="all" />
-	<!-- <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-	<script type="text/javascript" src="jquery.sticky.js"></script>
-	<script>
-	  $(window).load(function(){
-		$("#sticker").sticky({ topSpacing: 5})
-		$("#sticker").stick_in_parent();
-	  });
-	</script> -->
-	<title>Puri-Psi open-source library</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="description" content="Your description goes here" />
+<meta name="keywords" content="BASP group, radio interferometry, parallel, sparse imaging" />
+<meta name="author" content="BASP group" />
+<link rel="stylesheet" type="text/css" href="the-grid-v2.css" title="Psi" media="all" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<!-- <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+<script type="text/javascript" src="jquery.sticky.js"></script>
+<script>
+ $(window).load(function(){
+$("#sticker").sticky({ topSpacing: 5})
+$("#sticker").stick_in_parent();
+ });
+</script> -->
+<title>Puri-Psi open-source library</title>
 </head>
 
 <body>
 <div id="layout">
 
-	<!-- <div id="header" class="row">
-		<div class="col c3, stuck_c3">
-			<h1><a href="index.html">Puri-Psi</a></h1> -->
-			<!-- <p class="slogan larger">Parallel proximal Sparse Imaging.</p> -->
-			<!-- <div id="headerimage">
-			<p><a href="index.html"><img src="images/header.png" alt="The Grid template" /></a></p>
-			</div> -->
-		<!-- </div>
-	</div> -->
+<!-- <div id="header" class="row">
+<div class="col c3, stuck_c3">
+<h1><a href="index.html">Puri-Psi</a></h1> -->
+<!-- <p class="slogan larger">Parallel proximal Sparse Imaging.</p> -->
+<!-- <div id="headerimage">
+<p><a href="index.html"><img src="images/header.png" alt="The Grid template" /></a></p>
+</div> -->
+<!-- </div>
+</div> -->
 
-	<!-- <div class="row">
-		<div id="headerimage" class="col c12">
-			<p><a href="index.html"><img src="images/header.png" alt="The Grid template" /></a></p>
-		</div>
-	</div> -->
+<!-- <div class="row">
+<div id="headerimage" class="col c12">
+<p><a href="index.html"><img src="images/header.png" alt="The Grid template" /></a></p>
+</div>
+</div> -->
 
-	<div class="row">
-		<div id="sidebar", class="col c3, stuck_c3"> 
-		<!-- <div id="sidebar"> -->
-			<!-- <div id="sticker"> -->
-				<h1><a href="index.html">Puri-Psi</a></h1>
-				<ul class="menu">
-					<li><a href="#introduction">Introduction</a></li>
-					<li><a href="#matlab">Matlab</a></li>
-					<li><a href="#cpp">C++</a></li>
-					<li><a href="#python">Python</a></li>
-					<li><a href="#referencing">Referencing</a></li>
-					<li><a href="#license">License</a></li>
-					<li><a href="#authors">Authors</a></li>
-				</ul>
-				<a href= "https://basp.site.hw.ac.uk/"><img src="images/logo_BASP_transp.png" alt="BASP group logo" style="width: 50%";/></a>
-			</div>
-		</div>
-		<!-- </div> -->
+<div class="row">
+<div id="sidebar", class="col c3, stuck_c3">
+<!-- <div id="sidebar"> -->
+<!-- <div id="sticker"> -->
+<h1><a href="index.html">Puri-Psi</a></h1>
+<ul class="menu">
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#python">Python</a></li>
+<li><a href="#matlab">Matlab</a></li>
+<!-- <li><a href="#cpp">C++</a></li>-->
+<!-- <li><a href="#referencing">Referencing</a></li> -->
+<li><a href="#license">License</a></li>
+<li><a href="#authors">Authors</a></li>
+</ul>
+<a href= "https://basp.site.hw.ac.uk/"><img src="images/logo_BASP_transp.png" alt="BASP group logo" style="width: 50%";/></a>
+</div>
+</div>
+<!-- </div> -->
 
-		<div id="content">
-			<div class="row, col c9, not-stuck">
+<div id="content">
+<div class="row, col c9, not-stuck">
 
-				<a name="introduction"></a> <h2>Introduction</h2>
+<a name="introduction"></a> <h2>Introduction</h2>
 
-				<p><strong>Puri-Psi</strong> is an open-source code developed within the
-					<a href="https://basp.site.hw.ac.uk/">
-						BASP group (Biomedical and Astronomical Signal Processing)</a>
-					headed by Prof. Wiaux that provides functionality to address radio interferometric imaging problems
-					using state-of-the-art optimisation algorithms and deep learning.
-				</p>
+<p><strong>Puri-Psi</strong> is an open-source code developed within the
+<a href="https://basp.site.hw.ac.uk/">
+Biomedical and Astronomical Signal Processing Laboratory (BASP)</a>
+headed by Prof. Wiaux. It provides functionality to address computational imaging problems with specific application to radio-interferometric imaging in astronomy.
+It relies on state-of-the-art algorithms at the interface of optimisation and deep learning theories.
+</p>
 
-				<p>The name <strong>Puri-Psi</strong> builds from former software <a href="http://basp-group.github.io/purify/">Purify</a>
-					by Prof. Wiaux and collaborators, with the extension -Psi standing for &quot;Parallel Scalable Imaging&quot;.
-				</p>
+<p>The name <strong>Puri-Psi</strong> builds from former software <a href="http://basp-group.github.io/purify/">Purify</a>
+by Prof. Wiaux and collaborators, with the extension -Psi standing for &quot;Parallel Scalable Imaging&quot;.
+</p>
 
-				<p><strong>Puri-Psi</strong> is currently available (under the license described <a href="#license">below</a>)
-					as a collection of independent <a href="#matlab">MATLAB toolboxes</a>, as well as <a href="#cpp">C++</a> codes,
-					all described below and available on Github.
-				</p>
+<p><strong>Puri-Psi</strong> is currently available as a collection of independent <a href="#python">PYTHON </a> and <a href="#matlab">MATLAB</a> codes.
+<!-- &lt;!&ndash; as well as <a href="#cpp">C++</a> codes&ndash;&gt; covering the following functionalities:-->
+<!-- scalable monochromatic imaging (<strong>SARA</strong>), scalable wide-band imaging (<strong>HyperSARA</strong> and <strong>Faceted HyperSARA</strong>),-->
+<!-- polarised imaging (<strong>Polarised SARA</strong>), joint calibration and imaging (<strong>Polca SARA</strong>), and scalable uncertainty quantification (<strong>BUQO</strong>). A scalable framework for wide-field monochromatic intensity imaging-->
+<!-- is also available, which encompasses the pure optimisation algorithm (<strong>uSARA</strong>), the plug-and-play algorithm (<strong>AIRI</strong>), and the learned Matching Pursuit algorithm (<strong>R2D2</strong>). -->
+</p>
 
+<p> If you use <strong>Puri-Psi</strong>, please reference this site (<a href="http://basp-group.github.io/Puri-Psi/">http://basp-group.github.io/Puri-Psi/</a>) and related publications.
+</p>
 
-				<a name="matlab"></a><h2>Matlab</h2>
+<a name="python"></a><h2>Python</h2>
+<h3>R2D2 - <strong>R</strong>esidual-to-<strong>R</strong>esidual <strong>D</strong>NN series for high-<strong>D</strong>ynamic range imaging</h3>
+<!-- R2D2 algorithm scripts will be availble <a href="https://github.com/basp-group/R2D2">here</a> upon acceptance of the <a href="">paper</a>.-->
+<p>
+<ul>
 
-				<p>A collection of independent Matlab toolboxes is available below, covering the following functionalities:
-					scalable monochromatic imaging (<strong>SARA</strong>),
-					scalable wide-band imaging (<strong>HyperSARA</strong> and <strong>Faceted HyperSARA</strong>),
-					polarised imaging (<strong>Polarised SARA</strong>), joint calibration and imaging (<strong>Polca SARA</strong>),
-					and scalable uncertainty quantification (<strong>BUQO</strong>). A scalable framework for wide-field monochromatic intensity imaging
-					is also available, which encompasses a pure optimisation algorithm (<strong>uSARA</strong>),
-					as well as the first AI-based method in the field, in the form of a plug-and-play algorithm propelled by Deep Neural Network denoisers (<strong>AIRI</strong>).
-				</p>
+	
+	
+<blockquote class="highlight">
+  A. Aghabiglou, C. S. Chu, A. Dabbech, Y. Wiaux,
+  <strong>The R2D2 deep neural network series for ultra-fast high-dynamic range imaging in radio astronomy</strong>,
+  <i>submitted to Astrophys. J.</i>, 2024.
+  <br>
+  <a href="https://researchportal.hw.ac.uk/en/publications/ultra-fast-residual-to-residual-dnn-series-for-high-dynamic-range">researchportal.hw.ac.uk:94082117</a>
 
-				<h3>SARA - Scalable monochromatic imaging</h3>
-				<!-- [<a href="#sara_ref" id="sara_codes">refs.</a>] -->
+	<a href="https://basp-group.github.io/R2D2/" <button style="position: absolute; bottom: 0; right: 20px; font-size:36px"><i class="fa fa-github"></i></button></a>
+		
+</blockquote>
 
-				<p>
-					<ul>
-						<li><a href="http://basp-group.github.io/SARA-primaldual/">Scalable splitting algorithms for big data interferometric imaging</a></li>
-						<li><a href="http://basp-group.github.io/SARA-PPD/">Accelerated splitting algorithm for radio-interferometric imaging</a></li>
-						<li><a href="https://basp-group.github.io/SARA-dimensionality-reduction/">Fourier dimensionality reduction for big data interferometric imaging</a></li>
-						<li><a href="https://basp-group.github.io/SARA-adaptive-PPD/">Adaptive preconditioned primal-dual for radio-interferometry</a></li>
-					</ul>
-				</p>
+<blockquote class="highlight"> A. Aghabiglou, C. S. Chu, A. Jackson, A. Dabbech, Y. Wiaux, <strong>Ultra-fast high-dynamic range imaging of Cygnus A with the R2D2 deep neural network series</strong>, <i>submitted to Astrophys. J. Lett.</i>, 2023. <br>
+<a href="https://arxiv.org/abs/2309.03291">ArXiv:2309.03291</a>
+	<a href="https://basp-group.github.io/R2D2/" class="button">Code and webpage</a>
+</blockquote>
 
+<blockquote class="highlight"> A. Aghabiglou, M. Terris, A. Jackson, Y. Wiaux, <strong>Deep network series for large-scale high-dynamic range imaging</strong>, <i>in Proc. IEEE ICASSP 2023, pp. 1–5</i>, 2023. <br>
+<a href="https://arxiv.org/abs/2210.16060">ArXiv:2210.16060</a>| <a href="https://doi.org/10.1109/ICASSP49357.2023.10094843">DOI:10.1109/ICASSP49357.2023.10094843</a>
+</blockquote>
+<!-- <li><a href="https://basp-group.github.io/R2D2/">The R2D2 deep neural network series for ultra-fast high-dynamic range imaging in radio astronomy</a></li> -->
+</ul>
+</p>
 
-				<h3>HyperSARA - Scalable wideband imaging</h3>
-				<!-- [<a href="#hyper_ref" id="hyper_codes">refs.</a>] -->
+<a name="matlab"></a><h2>Matlab</h2>
 
-				<p>
-					<ul>
-						<li><a href="http://basp-group.github.io/Hyper-SARA/">Wideband Super-resolution Imaging in Radio Interferometry via Low Rankness and Joint Average Sparsity Models (HyperSARA)</a></li>
-						<li><a href="https://basp-group.github.io/Faceted-HyperSARA/">Parallel faceted imaging in radio interferometry via proximal splitting (Faceted HyperSARA)</a></li>
-					</ul>
-				</p>
+<h3>AIRI - <strong>AI</strong> for <strong>R</strong>egularisation in <strong>I</strong>maging </h3>
+<p>
+<ul>
+<!-- <li> Plug-and-play algorithm for monochromatic imaging based on a Forward-Backward optimisation algorithm. MATLAB code to appear soon.</li>  -->
+<blockquote class="highlight"> A. Wilber, A. Dabbech, M. Terris, A. Jackson, and Y. Wiaux, <strong>Scalable precision wide-field imaging in radio interferometry: II. AIRI validated on ASKAP data </strong>, <i>Mon. Not. Roy. Astron. Soc.</i>, 522(4):5576–5587, 2023. <br> 				<a href="http://arxiv.org/abs/2302.14149">ArXiv::2302.14149</a>
+	| <a href="https://doi.org/10.1093/mnras/stad1353">DOI:10.1093/mnras/stad1353</a>
+</blockquote>
 
+<blockquote class="highlight"> M. Terris, A. Dabbech, C. Tang, and Y. Wiaux, <strong>Image reconstruction algorithms in radio interferometry: from handcrafted to learned regularization denoisers</strong>, <i>Mon. Not. Roy. Astron. Soc.</i>,  518(1):604–622, 2023. <br>
+<a href="http://arxiv.org/abs/2202.12959">ArXiv:2202.12959</a>| <a href="https://doi.org/10.1093/mnras/stac2672">DOI:10.1093/mnras/stac2672</a>
+</blockquote>
 
-				<h3>Polarised SARA - Scalable polarised imaging</h3>
-				<!-- [<a href="#pol_ref" id="pol_codes">refs.</a>] -->
+<blockquote class="highlight"> A. Dabbech, M. Terris, A. Jackson, M. Ramatsoku, O. Smirnov, and Y. Wiaux, <strong>First AI for deep super-resolution wide-field imaging in radio astronomy: unveiling structure in ESO 137-006</strong>, <i>Astrophys. J. Lett.</i>, 939:L4, 2022. <br>
+<a href="http://arxiv.org/abs/2207.11336">ArXiv:2207.11336</a>| <a href="https://doi.org/10.3847/2041-8213/ac98af">DOI:10.3847/2041-8213/ac98af</a>
+</blockquote>
+</ul>
+</p>
 
-				<p>
-					<ul>
-						<li><a href="http://basp-group.github.io/Polarised-SARA/">Sparse interferometric Stokes imaging under polarisation constraint (Polarised SARA)</a></li>
-					</ul>
-				</p>
-
-				<h3>Joint calibration and imaging</h3>
-				<!-- [<a href="#calib_ref" id="calib_codes">refs.</a>] -->
-
-				<p>
-					<ul>
-						<li><a href="http://basp-group.github.io/SARA-CALIB/">Non-convex optimization for self-calibration of direction-dependent effects in radio-interferometric imaging</a></li>
-						<li><a href="http://basp-group.github.io/SARA-CALIB-time-regularised/">Time-Regularized Blind Deconvolution Approach for Radio Interferometry</a></li>
-						<li><a href="http://basp-group.github.io/Polca-SARA/">Self direction-dependent calibration for full polarization radio-interferometric sparse imaging (Polca SARA)</a></li>
-						<li><a href="http://basp-group.github.io/SARA-CALIB-realdata/"> Monochromatic joint DDE calibration and imaging applied to Cygnus A observations from the VLA. </a></li>
-					</ul>
-				</p>
-
-				<h3>BUQO - Scalable uncertainty quantification</h3>
-				<!-- [<a href="#buqo_ref" id="buqo_codes">refs.</a>] -->
-
-				<p>
-					<ul>
-						<li><a href="http://basp-group.github.io/BUQO/">Scalable Bayesian uncertainty quantification in imaging inverse problems via convex optimization</a></li>
-					</ul>
-				</p>
-
-
-			        <h3>AIRI - AI regularisation for radio interferometry </h3>
-				<!-- [<p>First AI-based method for radio-interferometric imaging</p>]-->
-                                <p>
-					<ul>
-						<li>Scalable framework for wide-field monochromatic intensity imaging, encompassing a pure optimisation algorithm (<strong>uSARA</strong>),
-					as well as the first AI-based method in the field, in the form of a plug-and-play algorithm propelled by Deep Neural Network denoisers (<strong>AIRI</strong>).
-					MATLAB code to appear soon on the BASP Github.</li>
-                                        </ul>
-				</p>
-				<a name="cpp"></a><h2>C++</h2>
-
-				<p>A C++ code for both scalable monochromatic imaging (<strong>SARA</strong>) and scalable wideband imaging (<strong>HyperSARA</strong>) is available <a href="https://github.com/basp-group/Puri-Psi">here</a>.
-				</p>
-
-				<a name="python"></a><h2>Python</h2>
-				R2D2 python based algorithm will be availble <a href="https://github.com/basp-group/R2D2">here</a>.
-				<p>
-					<ul>
-						<li><a href="">Scalable splitting algorithms for big data interferometric imaging</a></li>
-					</ul>
-				</p>
-
-				<a name="referencing"></a><h2>Referencing</h2>
-
-				<p> If you use <strong>Puri-Psi</strong> for work that results in publication, please reference this site (<a href="http://basp-group.github.io/Puri-Psi/">http://basp-group.github.io/Puri-Psi/</a>) and our related academic papers:
-				</p>
-
-				<h3>Radio interferometric imaging</h3>
-                                
-				<h4>SARA - Scalable monochromatic imaging</h4>
-				<!-- [<a href="#sara_codes" id="sara_ref">codes</a>] -->
-
-				<blockquote class="highlight"> A. Onose, R. E. Carrillo, A. Repetti, J. D. McEwen, J.-P. Thiran,
-				J.-C. Pesquet, and Y. Wiaux, <a href="http://arxiv.org/abs/1601.04026">Scalable
-				splitting algorithms for big-data interferometric imaging in the SKA
-				era</a>, <i>Mon. Not. Roy. Astron. Soc.</i>, 462(4):4314-4335, 2016. <br>
-				<a href="http://arxiv.org/abs/1601.04026">ArXiv:1601.04026</a>
-				| <a href="http://dx.doi.org/10.1093/mnras/stw1859">DOI:10.1093/mnras/stw1859</a>
-				</blockquote>
-
-				<blockquote class="highlight"> A. Onose, A. Dabbech and Y. Wiaux, <a href="https://arxiv.org/abs/1701.01748">An accelerated splitting algorithm for radio-interferometric imaging: when natural and uniform weighting meet</a>, <i>Mon. Not. Roy. Astron. Soc.</i>, 469(1):938-949, 2017. <br>
-				<a href="https://arxiv.org/abs/1701.01748">ArXiv:1701.01748</a> | <a href="http://dx.doi.org/10.1093/mnras/stx755">DOI:10.1093/mnras/stx755</a>
-				</blockquote>
-
-				<blockquote class="highlight"> S. V. Kartik, R. E. Carrillo, J.-P. Thiran and Y. Wiaux, <a href="https://arxiv.org/abs/1609.02097">A Fourier dimensionality reduction model for big data interferometric imaging</a>, <i>Mon. Not. Roy. Astron. Soc.</i>, 480(2):2382-2400, 2017. <br>
-				<a href="https://arxiv.org/abs/1609.02097">ArXiv:1609.02097</a> | <a href="http://dx.doi.org/10.1093/mnras/stx531">DOI:10.1093/mnras/stx531</a>
-				</blockquote>
-
-				<blockquote class="highlight"> A. Dabbech, L. Wolz, L. Pratley, J. D. McEwen and Y. Wiaux, <a href="https://arxiv.org/abs/1702.05009">The w-effect in interferometric imaging: from a fast sparse measurement operator to superresolution</a>, <i>Mon. Not. Roy. Astron. Soc.</i>, 471(4):4300-4313, 2017. <br>
-				<a href="https://arxiv.org/abs/1702.05009">ArXiv:1702.05009</a> | <a href="http://dx.doi.org/10.1093/mnras/stx1775">DOI:10.1093/mnras/stx1775</a>
-				</blockquote>
-
-				<blockquote class="highlight"> A. Dabbech, A. Onose, A. Abdulaziz, R. A. Perley, O. M. Smirnov, Y. Wiaux, <a href="https://arxiv.org/abs/1710.08810">Cygnus A super-resolved via convex optimization from VLA data</a>, <i>Mon. Not. Roy. Astron. Soc.</i>, 476(3):2853-2866, 2018. <br>
-				<a href="https://arxiv.org/abs/1710.08810">ArXiv:1710.08810</a> | <a href="http://dx.doi.org/10.1093/mnras/sty372">DOI:10.1093/mnras/sty372</a>
-				</blockquote>
-
-				<blockquote class="highlight"> M. Terris, A. Abdulaziz,	A. Dabbech,	M. Jiang, A. Repetti, J.-C. Pesquet, Y. Wiaux, <a>Deep Post-Processing for Sparse Image Deconvolution</a>, <i>In proceedings of Signal Processing with Adaptive Sparse Structured Representations (SPARS) workshop</i>, Toulouse, France, 1-4 July 2019.<br>
-				</blockquote>
+<h3>uSARA - unconstrained “Sparsity Averaging Reweighted Analysis” (SARA) </h3>
+<p>
+<ul>
+<!-- <li> Forward-Backward optimisation algorithm for monochromatic imaging. MATLAB code to appear soon.</li> -->
+<blockquote class="highlight"> A. Wilber, A. Dabbech, A. Jackson, and Y. Wiaux, <strong>Scalable precision wide-field imaging in radio interferometry: I. uSARA validated on ASKAP data</strong>, <i>Mon. Not. Roy. Astron. Soc.</i>, 522(4):5558–5575, 2023. <br>
+	<a href="http://arxiv.org/abs/2302.14148">ArXiv:2302.14148</a>
+	| <a href="https://doi.org/10.1093/mnras/stad1351">DOI:10.1093/mnras/stad1351</a>
+</blockquote>
+<blockquote class="highlight"> M. Terris, A. Dabbech, C. Tang, and Y. Wiaux, <strong>Image reconstruction algorithms in radio interferometry: from handcrafted to learned regularization denoisers</strong>, <i>Mon. Not. Roy. Astron. Soc.</i>, 518(1):604–622, 2023. <br>
+	<a href="http://arxiv.org/abs/2202.12959">ArXiv:2202.12959</a>
+	| <a href="https://doi.org/10.1093/mnras/stac2672">DOI:10.1093/mnras/stac2672</a>
+</blockquote>
+<blockquote class="highlight"> A. Dabbech, M. Terris, A. Jackson, M. Ramatsoku, O. Smirnov, and Y. Wiaux, <strong>First AI for deep super-resolution wide-field imaging in radio astronomy: unveiling structure in ESO 137-006</strong>, <i>Astrophys. J. Lett.</i>, 939:L4, 2022. <br>
+	<a href="http://arxiv.org/abs/2207.11336">ArXiv:2207.11336</a>
+	| <a href="https://doi.org/10.3847/2041-8213/ac98af">DOI:10.3847/2041-8213/ac98af</a>
+</blockquote>
+</ul>
 
 
-				<h4>HyperSARA - Scalable wideband imaging</h4>
-				<!-- [<a href="#hyper_codes" id="hyper_ref">codes</a>] -->
+</p>
+<h3>Faceted HyperSARA - Faceted Hyperspectral “Sparsity Averaging Reweighted Analysis” (SARA)</h3>
+<!-- [<a href="#hyper_ref" id="hyper_codes">refs.</a>] -->
+<p>
+<ul>
+<!-- <li><a href="https://basp-group.github.io/Faceted-HyperSARA/">Parallel faceted imaging in radio interferometry via proximal splitting (Faceted HyperSARA)</a></li> -->
+<!-- <li><a href="http://basp-group.github.io/Hyper-SARA/">Wideband Super-resolution Imaging in Radio Interferometry via Low Rankness and Joint Average Sparsity Models (HyperSARA)</a></li> -->
+<blockquote class="highlight"> P.-A. Thouvenin, A. Dabbech, M. Jiang, A. Abdulaziz, J.-P. Thiran, A. Jackson and Y. Wiaux, <strong>Parallel faceted imaging in radio interferometry via proximal splitting (Faceted HyperSARA) – II. Code and real data proof of concept</strong>, <i>Mon. Not. Roy. Astron. Soc.</i>, 521(1):20-24, 2023. <br>
+	<a href="http://arxiv.org/abs/2209.07604">ArXiv:2209.07604</a>
+	| <a href="https://doi.org/10.1093/mnras/stac3175">DOI:10.1093/mnras/stac3175</a>
+	<a href="https://basp-group.github.io/Faceted-HyperSARA/" class="button">Code and webpage</a>
+</blockquote>
 
-				<blockquote class="highlight"> A. Abdulaziz, A. Dabbech, and Y. Wiaux, <a href="https://arxiv.org/abs/1806.04596">Wideband Super-resolution Imaging in Radio Interferometry via Low Rankness and Joint Average Sparsity Models (HyperSARA)</a>, <i>Mon. Not. Roy. Astron. Soc.</i>, 489(1):1230-1248, Oct. 2019.
-				<a href="https://arxiv.org/abs/1806.04596">ArXiv:1806.04596</a> | <a href="https://doi.org/10.1093/mnras/stz2117">DOI:10.1093/mnras/stz2117</a>
-				</blockquote>
+<blockquote class="highlight"> P.-A. Thouvenin, A. Abdulaziz, A. Dabbech, A. Repetti, and Y. Wiaux, <strong>Parallel faceted imaging in radio interferometry via proximal splitting (Faceted HyperSARA): I. Algorithm and simulations</strong>, <i>Mon. Not. Roy. Astron. Soc.</i>, 521(1):1-19, 2023. <br>
+	<a href="http://arxiv.org/abs/2003.07358">ArXiv:2003.07358</a>
+	| <a href="https://doi.org/10.1093/mnras/stac1521">DOI:10.1093/mnras/stac1521</a>
+	<a href="https://basp-group.github.io/Faceted-HyperSARA/" class="button">Code and webpage</a>
 
-				<blockquote class="highlight"> P.-A. Thouvenin, A. Abdulaziz, M. Jiang, A. Repetti, and Y. Wiaux, <a href="https://pureapps2.hw.ac.uk/ws/portalfiles/portal/24894655/ThouveninSPARS2019.pdf">A Faceted Prior for Scalable Wideband Computational Imaging</a>, <i>In proceedings of Signal Processing with Adaptive Sparse Structured Representations (SPARS) workshop</i>, Toulouse, France, 1-4 July 2019.<br>
-				</blockquote>
+</blockquote>
 
-				<blockquote class="highlight"> P.-A. Thouvenin, A. Abdulaziz, M. Jiang, A. Repetti, A. Dabbech, and Y. Wiaux, <a href="https://pureapps2.hw.ac.uk/ws/portalfiles/portal/25116977/camsap2019_submitted.pdf">A Faceted Prior for Scalable Wideband Imaging: Application to Radio Astronomy</a>, <i>IEEE International Workshop on Computational Advances in Multi-Sensor Adaptive Processing (CAMSAP)</i>, Guadeloupe, West Indies, 15-18 Dec., 2019.<br>
-				</blockquote>				
+<blockquote class="highlight"> A. Abdulaziz, A. Dabbech and Y. Wiaux, <strong>Wideband Super-resolution Imaging in Radio Interferometry via Low Rankness and Joint Average Sparsity Models (HyperSARA)</strong>, <i>Mon. Not. Roy. Astron. Soc.</i>, 489(1):1230–1248, 2023. <br>
+	<a href="http://arxiv.org/abs/1806.04596">ArXiv:1806.04596</a>
+	| <a href="https://doi.org/10.1093/mnras/stz2117">DOI:10.1093/mnras/stz2117</a>
+	<a href="http://basp-group.github.io/Hyper-SARA/" class="button">Code and webpage</a>
+</blockquote>
 
-				<blockquote class="highlight"> P.-A. Thouvenin, A. Abdulaziz, A. Dabbech, A. Repetti, and Y. Wiaux, <a href="https://arxiv.org/abs/2003.07358">Parallel faceted imaging in radio interferometry via proximal splitting (Faceted HyperSARA): I. Algorithm and simulations</a>, accepted for publication in <i>Mon. Not. Roy. Astron. Soc.</i>, 2022.<br>
-				<!-- <a href="https://arxiv.org/abs/2003.07358">ArXiv:2003.07358</a> | <a>DOI:...</a> -->
-				</blockquote>
+</ul>
+</p>
 
-				<blockquote class="highlight"> P.-A. Thouvenin, A. Dabbech, M. Jiang, A. Abdulaziz, J.-P. Thiran, A. Jackson, and Y. Wiaux, <a href="https://arxiv.org/abs/2209.07604">Parallel faceted imaging in radio interferometry via proximal splitting (Faceted HyperSARA): II. Code and real data proof of concept</a>, submitted to  <i>Mon. Not. Roy. Astron. Soc.</i>, 2022.<br>
-				<!-- <a href="https://arxiv.org/abs/2209.07604">ArXiv:2209.07604</a> | <a>DOI:...</a> -->
-				</blockquote>
+<h3>BUQO - <strong>B</strong>ayesian <strong>U</strong>ncertainty <strong>Q</strong>uantification via <strong>O</strong>ptimisation</h3>
+<!-- [<a href="#buqo_ref" id="buqo_codes">refs.</a>] -->
+<p>
+<ul>
+<!-- <li><a href="http://basp-group.github.io/BUQO/">Scalable Bayesian uncertainty quantification approach for imaging inverse problems, propelled by convex optimization.</a></li> -->
+<blockquote class="highlight"> A. Abdulaziz, A. Repetti Y. Wiaux, <strong>Hyperspectral Uncertainty Quantification by Optimization</strong>, <i>in Proc. SPARS Workshop</i>, pp. 1-4, Toulouse, France, July 2019.<br>
+<a href="https://researchportal.hw.ac.uk/en/publications/hyperspectral-uncertainty-quantification-by-optimization">researchportal.hw.ac.uk:25005570</a>
 
-				<h4>Polarised SARA - Scalable polarised imaging</h4>				
-				<!-- [<a href="#pol_codes" id="pol_ref">codes</a>] -->
+</blockquote>
 
-				<blockquote class="highlight"> J. Birdi, A. Repetti, and Y. Wiaux, <a href="https://arxiv.org/abs/1801.02417">Sparse interferometric Stokes imaging under polarization constraint (Polarized SARA)</a>, <i>Mon. Not. Roy. Astron. Soc.</i>, 478(4):4442-4463, 2018. <br>
-				<a href="https://arxiv.org/abs/1801.02417">ArXiv:1801.02417</a> | <a href="https://doi.org/10.1093/mnras/sty1182">DOI: 10.1093/mnras/sty1182</a>
-				</blockquote> 
+<blockquote class="highlight"> A. Repetti, M. Pereyra, and Y. Wiaux, <strong>Scalable Bayesian uncertainty quantification in imaging inverse problems via convex optimization</strong>, <i>SIAM J. Imaging Sci.</i>, 12(1):87-118, 2019. <br>
+<a href="https://arxiv.org/abs/1803.00889">ArXiv:1803.00889</a> | <a href="https://doi.org/10.1137/18M1173629">DOI: 10.1137/18M1173629</a>
+<a href="http://basp-group.github.io/BUQO/" class="button">Code and webpage</a>
+</blockquote>
+<!-- href="https://www.eurasip.org/Proceedings/Eusipco/Eusipco2018/papers/1570437956.pdf -->
+<blockquote class="highlight"> A. Repetti, M. Pereyra, and Y. Wiaux, <strong>Uncertainty Quantification in Imaging: When Convex Optimization Meets Bayesian Analysis</strong>, <i>in Proc. EUSIPCO 2018</i>, pp. 2686-2690, Roma, Italy, 3-8 Sept. 2018 <br>
+<a href="https://researchportal.hw.ac.uk/en/publications/uncertainty-quantification-in-imaging-when-convex-optimization-me">researchportal.hw.ac.uk:23009827</a>
+	| <a href="https://ieeexplore.ieee.org/document/8553227">DOI:10.23919/EUSIPCO.2018.8553227</a>
+	<a href="http://basp-group.github.io/BUQO/" class="button">Code and webpage</a>
 
-				<blockquote class="highlight"> J. Birdi, A. Repetti, and Y. Wiaux, <a href="https://ieeexplore.ieee.org/document/8448968">Scalable algorithm for polarization constrained
-				sparse interferometric Stokes imaging</a>, <i>Proc. IEEE Sensor Array and Multichannel Signal Process. Workshop (SAM)</i>, pp. 465-469, Sheffield, United Kingdom, July 2018. Invited paper<br>
-				</blockquote> 
-                                 
+</blockquote>
 
-				<h4>Joint calibration and imaging</h4>
-				<!-- [<a href="#calib_codes" id="calib_ref">codes</a>] -->
+</ul>
+</p>
 
-				<blockquote class="highlight"> A. Repetti, J. Birdi, A. Dabbech and Y. Wiaux, <a href="https://arxiv.org/abs/1701.03689">Non-convex optimization for self-calibration of direction-dependent effects in radio interferometric imaging</a>, <i>Mon. Not. Roy. Astron. Soc.</i>, 470(4):3981-4006, 2017. <br>
-				<a href="https://arxiv.org/abs/1701.03689">ArXiv:1701.03689</a> | <a href="http://dx.doi.org/10.1093/mnras/stx1267">DOI:10.1093/mnras/stx1267</a>
-				</blockquote>
+<h3>SARA - “<strong>S</strong>parsity <strong>A</strong>veraging <strong>R</strong>eweighted <strong>A</strong>nalysis”</h3>
+<!-- [<a href="#sara_ref" id="sara_codes">refs.</a>] -->
 
-				<blockquote class="highlight"> A. Repetti and Y. Wiaux, <a href="https://spie.org/Publications/Proceedings/Paper/10.1117/12.2273766">A non-convex perspective on calibration and imaging in radio interferometry</a>, <i>Proceedings of the conference on Wavelets and Sparsity XVII, part of the SPIE Optical Engineering + Applications</i>, San Diego, California, United States, 6-9 August 2017.
+<p>
+<ul>
+<!-- <li><a href="http://basp-group.github.io/SARA-primaldual/">Scalable splitting algorithms for big data interferometric imaging</a></li>
+<li><a href="http://basp-group.github.io/SARA-PPD/">Accelerated splitting algorithm for radio-interferometric imaging</a></li>
+<li><a href="https://basp-group.github.io/SARA-dimensionality-reduction/">Fourier dimensionality reduction for big data interferometric imaging</a></li>
+<li><a href="https://basp-group.github.io/SARA-adaptive-PPD/">Adaptive preconditioned primal-dual for radio-interferometry</a></li> -->
+
+<!-- <blockquote class="highlight"> M. Terris, A. Abdulaziz,	A. Dabbech, M. Jiang, A. Repetti, J.-C. Pesquet, Y. Wiaux, <strong>Deep Post-Processing for Sparse Image Deconvolution</strong>, <i>in Proc. SPARS Workshop</i>, Toulouse, France, 1-4 July 2019.<br>
+<a href="https://researchportal.hw.ac.uk/en/publications/deep-post-processing-for-sparse-image-deconvolution">researchportal.hw.ac.uk:25004731</a>
+
+</blockquote> -->
+
+<blockquote class="highlight"> A. Dabbech, A. Onose, A. Abdulaziz, R. A. Perley, O. M. Smirnov, Y. Wiaux, <strong>Cygnus A super-resolved via convex optimization from VLA data</strong>, <i>Mon. Not. Roy. Astron. Soc.</i>, 476(3):2853-2866, 2018. <br>
+<a href="https://arxiv.org/abs/1710.08810">ArXiv:1710.08810</a> | <a href="http://dx.doi.org/10.1093/mnras/sty372">DOI:10.1093/mnras/sty372</a>
+<a href="https://basp-group.github.io/SARA-adaptive-PPD/" class="button">Code and webpage</a>
+</blockquote>
+
+<blockquote class="highlight"> S. V. Kartik, R. E. Carrillo, J.-P. Thiran and Y. Wiaux, <strong>A Fourier dimensionality reduction model for big data interferometric imaging</strong>, <i>Mon. Not. Roy. Astron. Soc.</i>, 468(2):2382–2400, 2017. <br>
+<a href="https://arxiv.org/abs/1609.02097">ArXiv:1609.02097</a> | <a href="http://dx.doi.org/10.1093/mnras/stx531">DOI:10.1093/mnras/stx531</a>
+<a href="https://basp-group.github.io/SARA-dimensionality-reduction/" class="button">Code and webpage</a>
+</blockquote>
+
+<blockquote class="highlight"> A. Dabbech, L. Wolz, L. Pratley, J. D. McEwen and Y. Wiaux, <strong>The w-effect in interferometric imaging: from a fast sparse measurement operator to superresolution</strong>, <i>Mon. Not. Roy. Astron. Soc.</i>, 471(4):4300-4313, 2017. <br>
+<a href="https://arxiv.org/abs/702.05009">ArXiv:1702.05009</a> | <a href="http://dx.doi.org/10.1093/mnras/stx1775">DOI:10.1093/mnras/stx1775</a>
+
+</blockquote>
+
+<blockquote class="highlight"> A. Onose, A. Dabbech and Y. Wiaux, <strong>An accelerated splitting algorithm for radio-interferometric imaging: when natural and uniform weighting meet</strong>, <i>Mon. Not. Roy. Astron. Soc.</i>, 469(1):938-949, 2017. <br>
+<a href="https://arxiv.org/abs/1701.01748">ArXiv:1701.01748</a> | <a href="http://dx.doi.org/10.1093/mnras/stx755">DOI:10.1093/mnras/stx755</a>
+<a href="http://basp-group.github.io/SARA-PPD/" class="button">Code and webpage</a>
+</blockquote>
+
+
+<blockquote class="highlight"> A. Onose, R. E. Carrillo, A. Repetti, J. D. McEwen, J.-P. Thiran, J.-C. Pesquet, and Y. Wiaux, <strong>Scalable
+splitting algorithms for big-data interferometric imaging in the SKA era</strong>, <i>Mon. Not. Roy. Astron. Soc.</i>, 462(4):4314-4335, 2016. <br>
+<a href="http://arxiv.org/abs/1601.04026">ArXiv:1601.04026</a>
+| <a href="http://dx.doi.org/10.1093/mnras/stw1859">DOI:10.1093/mnras/stw1859</a>
+<a href="http://basp-group.github.io/SARA-primaldual/" class="button">Code and webpage</a>
+</blockquote>
+
+</ul>
+</p>
+
+
+
+
+
+<h3>Polarised SARA - Polarised “Sparsity Averaging Reweighted Analysis” (SARA)</h3>
+<!-- [<a href="#pol_ref" id="pol_codes">refs.</a>] -->
+<p>
+<ul>
+<!-- <li><a href="http://basp-group.github.io/Polarised-SARA/">Sparse interferometric Stokes imaging under polarisation constraint (Polarised SARA)</a></li> -->
+<blockquote class="highlight"> J. Birdi, A. Repetti, and Y. Wiaux, <strong>Sparse interferometric Stokes imaging under polarization constraint (Polarized SARA)</strong>, <i>Mon. Not. Roy. Astron. Soc.</i>, 478(4):4442-4463, 2018. <br>
+	<a href="https://arxiv.org/abs/1801.02417">ArXiv:1801.02417</a> | <a href="https://doi.org/10.1093/mnras/sty1182">DOI: 10.1093/mnras/sty1182</a>
+	<a href="http://basp-group.github.io/Polarised-SARA/" class="button">Code and webpage</a>
+	</blockquote>
+
+<blockquote class="highlight"> J. Birdi, A. Repetti, and Y. Wiaux, <strong>Scalable algorithm for polarization constrained
+	sparse interferometric Stokes imaging</strong>, <i>in Proc. IEEE SAM Workshop </i>, pp. 465-469, Sheffield, United Kingdom, July 2018. <br>
+	<a href="https://doi.org/10.1109/SAM.2018.8448968">DOI:10.1109/SAM.2018.8448968</a>
+</blockquote>
+
+</ul>
+</p>
+
+<h3>Joint SARA - Joint calibration and imaging with “Sparsity Averaging Reweighted Analysis” (SARA)</h3>
+<!-- [<a href="#calib_ref" id="calib_codes">refs.</a>] -->
+
+<p>
+<ul>
+<!-- <li><a href="http://basp-group.github.io/SARA-CALIB/">Non-convex optimization for self-calibration of direction-dependent effects in radio-interferometric imaging</a></li>
+<li><a href="http://basp-group.github.io/SARA-CALIB-time-regularised/">Time-Regularized Blind Deconvolution Approach for Radio Interferometry</a></li>
+<li><a href="http://basp-group.github.io/Polca-SARA/">Self direction-dependent calibration for full polarization radio-interferometric sparse imaging (Polca SARA)</a></li>
+<li><a href="http://basp-group.github.io/SARA-CALIB-realdata/"> Monochromatic joint DDE calibration and imaging applied to Cygnus A observations from the VLA. </a></li> -->
+
+<blockquote class="highlight"> A. Dabbech, A. Repetti, R. Perley, O. Smirnov and Y. Wiaux, <strong>Cygnus A jointly calibrated and imaged via non-convex optimisation from JVLA data</strong>, <i>Mon. Not. Roy. Astron. Soc.</i>, 506(4):4855–4876, 2021. <br>
+			<a href="https://arxiv.org/abs/2102.00065">ArXiv:2102.00065</a>| <a href="https://doi.org/10.1093/mnras/stab1903">DOI:10.1093/mnras/stab1903</a>
+			<a href="http://basp-group.github.io/SARA-CALIB-realdata/" class="button">Code and webpage</a>
+</blockquote>
+
+<blockquote class="highlight"> J. Birdi, A. Repetti, and Y. Wiaux, <strong>Polca SARA - Full polarization, direction-dependent calibration and sparse imaging for radio interferometry</strong>, <i>Mon. Not. Roy. Astron. Soc.</i>, 492(3):3509–3528, 2019. <br>
+<a href="https://arxiv.org/abs/1904.00663">ArXiv:1904.00663</a> | <a href="https://doi.org/10.1093/mnras/stz3555">DOI:10.1093/mnras/stz3555</a>
+<a href="http://basp-group.github.io/Polca-SARA/" class="button">Code and webpage</a>
+</blockquote>
+
+<blockquote class="highlight"> P.-A. Thouvenin, A. Repetti, A. Dabbech and Y. Wiaux, <strong>Time-Regularized Blind Deconvolution Approach for Radio Interferometry</strong>, <i>in Proc. IEEE SAM Workshop </i>, pp. 475-479, Sheffield, United Kingdom, July 2018. <br>
+<a href="https://doi.org/10.1109/SAM.2018.8448891">DOI:10.1109/SAM.2018.8448891</a>
+<a href="http://basp-group.github.io/SARA-CALIB-time-regularised/" class="button">Code and webpage</a>
+</blockquote>
+
+<blockquote class="highlight"> A. Repetti and Y. Wiaux, <strong>A non-convex perspective on calibration and imaging in radio interferometry</strong>, <i>Proceedings of the conference on Wavelets and Sparsity XVII, part of the SPIE Optical Engineering + Applications</i>, San Diego, California, United States, 6-9 August 2017.
 				<br>
 				<a href="https://doi.org/10.1117/12.2273766">DOI: 10.1117/12.2273766</a>
-				</blockquote>
+				<a href="http://basp-group.github.io/SARA-CALIB/" class="button">Code and webpage</a>
+</blockquote>
 
-				<blockquote class="highlight"> P.-A. Thouvenin, A. Repetti, A. Dabbech and Y. Wiaux, <a href="https://ieeexplore.ieee.org/document/8448891">Time-Regularized Blind Deconvolution Approach for Radio Interferometry</a>, <i>Proc. IEEE Sensor Array and Multichannel Signal Process. Workshop (SAM)</i>, pp. 475-479, Sheffield, United Kingdom, July 2018. Invited paper<br>
-				</blockquote>
+<blockquote class="highlight"> A. Repetti, J. Birdi, A. Dabbech and Y. Wiaux, <strong>Non-convex optimization for self-calibration of direction-dependent effects in radio interferometric imaging</strong>, <i>Mon. Not. Roy. Astron. Soc.</i>, 470(4):3981-4006, 2017. <br>
+				<a href="https://arxiv.org/abs/1701.03689">ArXiv:1701.03689</a> | <a href="http://dx.doi.org/10.1093/mnras/stx1267">DOI:10.1093/mnras/stx1267</a>
+				<a href="http://basp-group.github.io/SARA-CALIB/" class="button">Code and webpage</a>
+</blockquote>
 
-				<blockquote class="highlight"> J. Birdi, A. Repetti, and Y. Wiaux, <a href="https://arxiv.org/abs/1801.02417">Polca SARA - Full polarization, direction-dependent calibration and sparse imaging for radio interferometry</a>, <i>Mon. Not. Roy. Astron. Soc.</i>, to appear, 2019. <br>
-				<a href="https://arxiv.org/abs/1904.00663">ArXiv:1904.00663</a> | <a href="https://doi.org/10.1093/mnras/stz3555">DOI:10.1093/mnras/stz3555</a>
-				</blockquote> 
-                                
-                                <blockquote class="highlight"> A. Dabbech, A. Repetti, R. Perley, O. Smirnov and Y. Wiaux, <a href="https://arxiv.org/abs/2102.00065">Cygnus A jointly calibrated and imaged via non-convex optimisation from JVLA data</a>, <i>Mon. Not. Roy. Astron. Soc.</i>, submitted, 2021. <br>
-				<a href="https://arxiv.org/abs/2102.00065">ArXiv:2102.00065</a> 
-				</blockquote> 
+</ul>
+</p>
 
-				<h4>BUQO - Scalable uncertainty quantification</h4>
-				<!-- [<a href="#buqo_codes" id="buqo_ref">codes</a>] -->
 
-				<blockquote class="highlight"> A. Repetti, M. Pereyra, and Y. Wiaux, <a href="https://epubs.siam.org/doi/abs/10.1137/18M1173629?af=R&">Scalable Bayesian uncertainty quantification in imaging inverse problems via convex optimization</a>, <i>SIAM Journal on Imaging Sciences</i>, vol. 12, no. 1, pp. 87-118, 2019. <br>
-				<a href="https://arxiv.org/abs/1803.00889">ArXiv:1803.00889</a> | <a href="https://doi.org/10.1137/18M1173629">DOI: 10.1137/18M1173629</a>
-				</blockquote>
 
-				<blockquote class="highlight"> A. Repetti, M. Pereyra, and Y. Wiaux, <a href="https://www.eurasip.org/Proceedings/Eusipco/Eusipco2018/papers/1570437956.pdf">Uncertainty Quantification in Imaging: When Convex Optimization Meets Bayesian Analysis</a>, <i>Proceedings of the 26th European Signal Processing Conference (EUSIPCO 2018)</i>, pp. 2686-2690, Roma, Italy, 3-8 Sept. 2018 <br>
-				</blockquote>
-				
-				<blockquote class="highlight"> A. Abdulaziz, A. Repetti Y. Wiaux, <a href="https://pureapps2.hw.ac.uk/ws/portalfiles/portal/25005570/spars2019_wideband_UQ.pdf">Hyperspectral Uncertainty Quantification by Optimization</a>, <i>In proceedings of Signal Processing with Adaptive Sparse Structured Representations (SPARS) workshop</i>, Toulouse, France, 1-4 July 2019.<br>
-				</blockquote>
-                                <h4>AIRI - Scalable wide-field monochromatic imaging at the interface of AI and optimisation </h4>
-				<!-- [<a href="#airiusara_codes" id="airiusara_ref">codes</a>] -->
 
-                                <blockquote class="highlight"> M. Terris, A. Dabbech, C. Tang, and Y. Wiaux, <a href="https://doi.org/10.1093/mnras/stac2672">Image reconstruction algorithms in radio interferometry: from handcrafted to learned regularization denoisers</a>, <i>Mon. Not. Roy. Astron. Soc.</i>, 2022. <br>
-				<a href="http://arxiv.org/abs/2202.12959">ArXiv:2202.12959</a>
-				| <a href="https://doi.org/10.1093/mnras/stac2672">DOI:10.1093/mnras/stac2672</a>
-				</blockquote>
 
-				<blockquote class="highlight"> A. Dabbech, M. Terris, A. Jackson, M. Ramatsoku, O. Smirnov, and Y. Wiaux, <a href="http://arxiv.org/abs/2207.11336">First AI for deep super-resolution wide-field imaging in radio astronomy: unveiling structure in ESO 137-006</a>, accepted for publication in <i>Astrophys. J. Lett.</i>, 2022. <br>
-				<a href="http://arxiv.org/abs/2207.11336">ArXiv:2207.11336</a>
-				</blockquote>
+<!-- <a name="cpp"></a><h2>C++</h2>-->
 
-				<blockquote class="highlight"> A. Wilber, A. Dabbech, A. Jackson, and Y. Wiaux, <a href="https://researchportal.hw.ac.uk/en/publications/scalable-precision-wide-field-imaging-in-radio-interferometry-i-u">Scalable precision wide-field imaging in radio interferometry: I. uSARA validated on ASKAP data</a>, in preparation <i>Mon. Not. Roy. Astron. Soc.</i>, 2022. <br>
-				</blockquote>
+<!-- <p>A C++ code for both scalable monochromatic imaging (<strong>SARA</strong>) and scalable wideband imaging (<strong>HyperSARA</strong>) is available <a href="https://github.com/basp-group/Puri-Psi">here</a>.-->
+<!-- </p>-->
 
-				<blockquote class="highlight"> A. Wilber, A. Dabbech, M. Terris, A. Jackson, and Y. Wiaux, <a href="https://researchportal.hw.ac.uk/en/publications/scalable-precision-wide-field-imaging-in-radio-interferometry-ii-">Scalable precision wide-field imaging in radio interferometry: II. AIRI validated on ASKAP data </a>, in preparation <i>Mon. Not. Roy. Astron. Soc.</i>, 2022. <br>
-				</blockquote>
 
-				<blockquote class="highlight"> A. Dabbech, A. Jackson, and Y. Wiaux, <a href="https://researchportal.hw.ac.uk/en/publications/fully-parallelised-and-automated-wide-field-imager-for-radio-inte">Fully parallelised and automated wide-field imager for radio interferometry</a>, in preparation <i>Mon. Not. Roy. Astron. Soc.</i>, 2022. <br>
-				</blockquote>
+
+				<!-- <a name="referencing"></a><h2>Referencing</h2> -->
+
+<!-- 				<p> If you use <strong>Puri-Psi</strong> for work that results in publication, please reference this site (<a href="http://basp-group.github.io/Puri-Psi/">http://basp-group.github.io/Puri-Psi/</a>) and our related academic papers:
+				</p> -->
+
+				<!-- <h3>Radio interferometric imaging</h3> -->
+
+
 
 				<a name="license"></a><h2>License</h2>
 				<blockquote>
@@ -318,7 +359,7 @@
 				</p>
 				</blockquote>
 
-				
+
 				<a name="authors"></a><h2>Authors</h2>
 
 				<p> <strong>Puri-Psi</strong> results from the research conducted within the <a href="https://basp.site.hw.ac.uk/">BASP group (Biomedical and Astronomical Signal Processing)</a> under the direction of Prof. Yves Wiaux.
