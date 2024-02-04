@@ -95,12 +95,12 @@ If you use BASPLib, please cite both this webpage and relevant publications (see
 	<p>R2D2 takes a hybrid structure between a Plug-and-Play (PnP) algorithm and a learned version of the well-know "Matching Pursuit" algorithm. Its reconstruction is
 	formed as a series of residual images, iteratively estimated as outputs of Deep Neural Networks (DNNs) taking the previous iteration’s image estimate and associated
 	data residual as inputs. R2D2's primary application is to solve large-scale high-resolution high-dynamic range inverse problems for synthesis imaging by
-	interferometry in radio astronomy. R2D2 provides significant acceleration of the image reconstruction process over highly iterative PnP and proximal algorithms, while maintaining imaging precision. It
+	interferometry in radio astronomy, more specifically 2D planar monochromatic intensity imaging. R2D2 provides significant acceleration of the image reconstruction process over highly iterative PnP and proximal algorithms, while maintaining imaging precision. It
 	thus opens the door to ultra-fast precision imaging. As of early 2024, the transfer of R2D2 to magnetic resonance imaging and ultrasound imaging in medicine is the
-	subject of active developments at BASP. Stay tuned!
+	subject of active developments at BASP, as well as lifting R2D2 for 2D spherical imaging. Stay tuned!
 	</p>
 
-  <a href="https://basp-group.github.io/R2D2"> Latest code. </a>
+  <a href="https://basp-group.github.io/R2D2">Active R2D2 code for synthesis imaging by interferometry in radio astronomy. </a>
 <p>
 <ul>
 
@@ -141,15 +141,16 @@ If you use BASPLib, please cite both this webpage and relevant publications (see
 
 	<p>
 	The AIRI algorithms are Plug-and-Play (PnP) algorithms propelled by learned regularization denoisers and endowed with robust convergence guarantees.
-	The original AIRI algorithm is built on a Forward-Backward optimisation algorithmic backbone enabling handling soft data-fidelity terms,
-	while cAIRI (standing for "constrained AIRI") relies on a primal-dual optimisation algorithmic backbone enabling handling hard data-fidelity
+	The (unconstrained) AIRI algorithm is built on a Forward-Backward optimisation algorithmic backbone enabling handling soft data-fidelity terms,
+	while cAIRI (standing for "constrained AIRI") relies on a Primal-Dual Forward-Backward optimisation algorithmic backbone enabling handling hard data-fidelity
 	constraints. Their primary application is to solve large-scale high-resolution high-dynamic range inverse problems for synthesis imaging by
-	interferometry in radio astronomy. AIRI and cAIRI provide improved precision and acceleration of the image reconstruction process over there pure optimisation counterparts
+	interferometry in radio astronomy, more specifically 2D planar monochromatic intensity imaging. AIRI and cAIRI provide improved precision and acceleration of the image reconstruction process over there pure optimisation counterparts
 	uSARA and SARA respectively (see uSARA and SARA tabs). As of early 2024, the transfer of AIRI algorithms to magnetic resonance imaging and ultrasound imaging
 	in medicine is the subject of active developments at BASP. Stay tuned!
 	</p>
 
-	<a href="">Latest code.</a>
+	<a href="">Active AIRI code for synthesis imaging by interferometry in radio astronomy.</a>
+	<a href="">Active cAIRI code synthesis imaging by interferometry in radio astronomy.</a>
 <p>
 <ul>
 <!-- <li> Plug-and-play algorithm for monochromatic imaging based on a Forward-Backward optimisation algorithm. MATLAB code to appear soon.</li>  -->
@@ -178,7 +179,18 @@ If you use BASPLib, please cite both this webpage and relevant publications (see
 	resonance imaging and ultrasound imaging in medicine is the subject of active developments at BASP. Stay tuned!
 	</p>
 
-	<a href="">Latest code.</a>
+	<p>
+	The SARA family is a suite of optimisation algorithms propelled by a bespoke handcrafted regularization denoiser: the proximal operator of a log-sum prior generalising the l1-norm,
+	and enforcing strong sparsity simultaneously in multiple wavelet bases. Their primary application is to solve large-scale high-resolution high-dynamic range inverse problems for synthesis imaging by
+	interferometry in radio astronomy. Firstly, the SARA algorithm itself is built on a Primal-Dual Forward-Backward optimisation algorithmic backbone enabling
+	handling hard data-fidelity constraints, and addresses 2D planar monochromatic intensity imaging. Polarised SARA provides functionality for 2D planar monochromatic polarisation imaging,
+	while Faceted HyperSARA provides functionality for 3D Euclidean wideband intensity imaging. Secondly, uSARA (standing for "unconstrained SARA") relies on a Forward-Backward optimisation
+	algorithmic backbone supporting soft data-fidelity terms. The JointSARA variant provides functionality for joint calibration and imaging. As of early 2024, the transfer of uSARA to magnetic
+	resonance imaging in medicine is the subject of active developments at BASP. Stay tuned!
+	</p>
+
+	<a href="">Active Faceted HyperSARA, HyperSARA, and SARA code for synthesis imaging by interferometry in radio astronomy.</a>
+	<a href="">Active uSARA code for synthesis imaging by interferometry in radio astronomy.</a>
 <p>
 <ul>
 <!-- <li> Forward-Backward optimisation algorithm for monochromatic imaging. MATLAB code to appear soon.</li> -->
