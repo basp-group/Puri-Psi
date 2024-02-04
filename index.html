@@ -76,12 +76,14 @@ enforcing image and calibration models, alternating with data-fidelity modules, 
 	
 <p>
 BASPLib algorithms and software are developed at Edinburgh's Biomedical and Astronomical Signal Processing Laboratory (<a href="https://basp.site.hw.ac.uk/">BASP</a>),
-headed by Prof. Wiaux. The library has emerged from previous developments by Prof. Wiaux and collaborators for radioastronomical imaging: the early optimisation code <a href="http://basp-group.github.io/purify/">Purify</a>
-(whose name echoes the CLEAN algorithm), and its <a href="http://basp-group.github.io/Puri-Psi/">Puri-Psi</a> upgrade (-Psi standing for &quot;Parallel Scalable Imaging&quot;) featuring first deep learning developments.
+headed by Prof. Wiaux. The library has emerged from previous developments by Prof. Wiaux and collaborators for radioastronomical imaging: the early optimisation code
+<a href="http://basp-group.github.io/purify/">Purify</a> (whose name echoes the CLEAN algorithm), and its <a href="http://basp-group.github.io/Puri-Psi/">Puri-Psi</a>
+upgrade (-Psi standing for &quot;Parallel Scalable Imaging&quot;) featuring first deep learning developments.
 </p>
 	
 <p>
-If you use BASPLib please cite both this webpage and relevant publications (see below). BASPLib code is provided under GNU general public licenses (please refer to the GitHub repository of individual codes for details).
+If you use BASPLib please cite both this webpage and relevant publications (see below). BASPLib code is provided under GNU general public licenses (please refer to the
+GitHub repository of individual codes for details).
 </p>
 
 	
@@ -90,10 +92,14 @@ If you use BASPLib please cite both this webpage and relevant publications (see 
     R2D2 - <strong>R</strong>esidual-to-<strong>R</strong>esidual <strong>D</strong>NN series for high-<strong>D</strong>ynamic range imaging
 	<span class="logo-text"><img src="images/R2D2.png" alt="R2D2 Logo" width="60" height="60"></span>
   </h3>
-	<p>R2D2 a deep learning algorithm designed for large-scale high-dynamic range imaging finds its initial application in the field of radio astronomy. R2D2 is a residual DNN series approach that takes a hybrid structure between a PnP algorithm and a learned version of the matching pursuit algorithm. This structure synthesizes the reconstructed image by progressively summing the outputs of all network components. The dynamic range enhances iteratively as the DNNs utilize the back-projected data residual and the estimate from the previous iteration as inputs.</p>
-<!-- R2D2 algorithm scripts will be availble <a href="https://github.com/basp-group/R2D2">here</a> upon acceptance of the <a href="">paper</a>.-->
-  <a href="https://basp-group.github.io/R2D2">Latest <strong>R2D2</strong> code for RI imaging.
-  </a>
+	<p>R2D2 takes a hybrid structure between a Plug-and-Play (PnP) algorithm and a learned version of the well-know "Matching Pursuit" algorithm. Its reconstruction is
+	formed as a series of residual images, iteratively estimated as outputs of Deep Neural Networks (DNNs) taking the previous iteration’s image estimate and associated
+	data residual as inputs. R2D2's primary application is to solve high-resolution high-dynamic range inverse problems from large data volumes in synthesis imaging by
+	interfeormetry in radio astronomy. As of early 2024, the transfer of R2D2 to magnetic resonance imaging and ultrasound imaging in medicine is the subject of active
+	developments at BASP. Stay tuned!
+	</p>
+
+  <a href="https://basp-group.github.io/R2D2"> Latest code. </a>
 <p>
 <ul>
 
