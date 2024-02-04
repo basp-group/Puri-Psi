@@ -171,13 +171,6 @@ If you use BASPLib, please cite both this webpage and relevant publications (see
 <h3>uSARA - unconstrained “Sparsity Averaging Reweighted Analysis” (SARA)
 <span class="logo-text"><img src="images/leia2.png" alt="leia Logo" width="40" height="60"></span>
 </h3>
-	<p>
-	The uSARA algorithm is an optimisation algorithm propelled by a bespoke handcrafted regularization denoiser: the proximal operator of a log-sum prior generalising the l1-norm,
-	and enforcing strong sparsity simultaneously in multiple wavelet bases. In contrast with the SARA family of algorithms (see SARA tab), it is built on a Forward-Backward optimisation
-	algorithmic backbone enabling handling soft data-fidelity terms. Thanks to its optimisation structure, it is endowed with robust convergence guarantees. Its primary application is
-	to solve large-scale high-resolution high-dynamic range inverse problems for synthesis imaging by interferometry in radio astronomy. As of early 2024, the transfer of uSARA to magnetic
-	resonance imaging and ultrasound imaging in medicine is the subject of active developments at BASP. Stay tuned!
-	</p>
 
 	<p>
 	The SARA family is a suite of optimisation algorithms propelled by a bespoke handcrafted regularization denoiser: the proximal operator of a log-sum prior generalising the l1-norm,
@@ -244,7 +237,15 @@ If you use BASPLib, please cite both this webpage and relevant publications (see
 </ul>
 </p>
 
-<h3>BUQO - <strong>B</strong>ayesian <strong>U</strong>ncertainty <strong>Q</strong>uantification via <strong>O</strong>ptimisation</h3>
+<h3>BUQO - <strong>B</strong>ayesian <strong>U</strong>ncertainty <strong>Q</strong>uantification by <strong>O</strong>ptimisation</h3>
+
+	<p>
+	The BUQO algorithm provides functioinality for the quantification of uncertainty quantification of local structures appearing in images
+	formed as MAP estimates, assuming the underpinning Bayesian model is log-concave. It finds application in establishing the confidence in
+	detected lesions in medical imaging, astrophysical sources in astronomical imaging, etc.. BUQO's high scalability in comparison to sampling
+	approaches stems from the fact that it is propelled only by optimisation algorithms.
+	</p>
+
 <a href="https://basp-group.github.io/BUQO/">Latest <strong>BUQO</strong> code.</a>
 <p>
 <ul>
