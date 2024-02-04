@@ -62,28 +62,28 @@ $("#sticker").stick_in_parent();
 <a name="introduction"></a> <h2>Introduction</h2>
 
 <p>
-BASPLib is an open-source code library on GitHub, gathering <a href="#python">PYTHON </a> and <a href="#matlab">MATLAB</a> codes to solve challenging inverse imaging problems
-in astronomy and medicine. The primary imaging modality of focus is synthesis imaging by interferometry in radio astronomy, with functionality currently being developed for
-magnetic resonance imaging and ultrasound imaging in medicine.
+BASPLib is an open-source library on GitHub, gathering Python and Matlab codes to solve challenging inverse imaging problems in astronomy and medicine. The primary
+imaging modality of focus is synthesis imaging by interferometry in radio astronomy, with functionality currently being developed for magnetic resonance imaging and
+ultrasound imaging in medicine.
 </p>
 
 <p>
 The BASPLib software suite gathers implementations of the most advanced computational imaging algorithms at the interface of optimisation and deep learning theories.
-The proposed algorithms can be seen as intermediate steps in the quest for the "ultimate intelligent imaging algorithm" yet to be devised, which would provide the joint
-precision, robustness, efficiency, and scalability required by modern applications. A key feature on this past is algorithm modularity, with regularisation modules,
-enforcing image and calibration models, alternating with data-fidelity modules, enforcing consistency with the observed data.
+The proposed algorithms can be seen as intermediate steps in the quest for an ultimate "intelligent" imaging algorithm (yet to be devised) providing the joint
+precision, robustness, efficiency, and scalability required by modern applications. A key feature on this past is algorithm modularity, with regularisation modules
+(enforcing image and calibration models) alternating with data-fidelity modules (enforcing consistency with the observed data).
 </p>
 	
 <p>
 BASPLib algorithms and software are developed at Edinburgh's Biomedical and Astronomical Signal Processing Laboratory (<a href="https://basp.site.hw.ac.uk/">BASP</a>),
-headed by Prof. Wiaux. The library has emerged from previous developments by Prof. Wiaux and collaborators for radioastronomical imaging: the early optimisation code
+headed by Prof. Wiaux. The library has emerged from previous developments by Prof. Wiaux and collaborators for radioastronomical imaging, namely the early optimisation code
 <a href="http://basp-group.github.io/purify/">Purify</a> (whose name echoes the CLEAN algorithm), and its <a href="http://basp-group.github.io/Puri-Psi/">Puri-Psi</a>
 upgrade (-Psi standing for &quot;Parallel Scalable Imaging&quot;) featuring first deep learning developments.
 </p>
 	
 <p>
-If you use BASPLib please cite both this webpage and relevant publications (see below). BASPLib code is provided under GNU general public licenses (please refer to the
-GitHub repository of individual codes for details).
+If you use BASPLib, please cite both this webpage and relevant publications (see algorithm-specific pages). BASPLib code is provided under GNU general public licenses
+(please refer to the GitHub repository of individual algorithms for details).
 </p>
 
 	
@@ -94,9 +94,10 @@ GitHub repository of individual codes for details).
   </h3>
 	<p>R2D2 takes a hybrid structure between a Plug-and-Play (PnP) algorithm and a learned version of the well-know "Matching Pursuit" algorithm. Its reconstruction is
 	formed as a series of residual images, iteratively estimated as outputs of Deep Neural Networks (DNNs) taking the previous iteration’s image estimate and associated
-	data residual as inputs. R2D2's primary application is to solve high-resolution high-dynamic range inverse problems from large data volumes in synthesis imaging by
-	interfeormetry in radio astronomy. As of early 2024, the transfer of R2D2 to magnetic resonance imaging and ultrasound imaging in medicine is the subject of active
-	developments at BASP. Stay tuned!
+	data residual as inputs. R2D2's primary application is to solve large-scale high-resolution high-dynamic range inverse problems for synthesis imaging by
+	interferometry in radio astronomy. R2D2 provides significant acceleration of the image reconstruction process over highly iterative PnP and proximal algorithms, while maintaining imaging precision. It
+	thus opens the door to ultra-fast precision imaging. As of early 2024, the transfer of R2D2 to magnetic resonance imaging and ultrasound imaging in medicine is the
+	subject of active developments at BASP. Stay tuned!
 	</p>
 
   <a href="https://basp-group.github.io/R2D2"> Latest code. </a>
@@ -138,7 +139,17 @@ GitHub repository of individual codes for details).
 <span class="logo-text"><img src="images/Chewbacca.png" alt="Chewbacca Logo" width="60" height="65"></span>
 </h3>
 
-	<a href="">Latest <strong>AIRI</strong> code for RI imaging.</a>
+	<p>
+	The AIRI algorithms are Plug-and-Play (PnP) algorithms propelled by learned regularization denoisers and endowed with robust convergence guarantees.
+	The original AIRI algorithm is built on a Forward-Backward optimisation algorithmic backbone enabling handling soft data-fidelity terms,
+	while cAIRI (standing for "constrained AIRI") relies on a primal-dual optimisation algorithmic backbone enabling handling hard data-fidelity
+	constraints. Their primary application is to solve large-scale high-resolution high-dynamic range inverse problems for synthesis imaging by
+	interferometry in radio astronomy. AIRI and cAIRI provide improved precision and acceleration of the image reconstruction process over there pure optimisation counterparts
+	uSARA and SARA respectively (see uSARA and SARA tabs). As of early 2024, the transfer of AIRI algorithms to magnetic resonance imaging and ultrasound imaging
+	in medicine is the subject of active developments at BASP. Stay tuned!
+	</p>
+
+	<a href="">Latest code.</a>
 <p>
 <ul>
 <!-- <li> Plug-and-play algorithm for monochromatic imaging based on a Forward-Backward optimisation algorithm. MATLAB code to appear soon.</li>  -->
@@ -159,7 +170,15 @@ GitHub repository of individual codes for details).
 <h3>uSARA - unconstrained “Sparsity Averaging Reweighted Analysis” (SARA)
 <span class="logo-text"><img src="images/leia2.png" alt="leia Logo" width="40" height="60"></span>
 </h3>
-	<a href="">Latest <strong>uSARA</strong> code for RI imaging.</a>
+	<p>
+	The uSARA algorithm is an optimisation algorithm propelled by a bespoke handcrafted regularization denoiser: the proximal operator of a log-sum prior generalising the l1-norm,
+	and enforcing strong sparsity simultaneously in multiple wavelet bases. In contrast with the SARA family of algorithms (see SARA tab), it is built on a Forward-Backward optimisation
+	algorithmic backbone enabling handling soft data-fidelity terms. Thanks to its optimisation structure, it is endowed with robust convergence guarantees. Its primary application is
+	to solve large-scale high-resolution high-dynamic range inverse problems for synthesis imaging by interferometry in radio astronomy. As of early 2024, the transfer of uSARA to magnetic
+	resonance imaging and ultrasound imaging in medicine is the subject of active developments at BASP. Stay tuned!
+	</p>
+
+	<a href="">Latest code.</a>
 <p>
 <ul>
 <!-- <li> Forward-Backward optimisation algorithm for monochromatic imaging. MATLAB code to appear soon.</li> -->
