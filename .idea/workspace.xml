@@ -6,8 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="521149db-3cc9-4f95-b424-a6a73aaffca1" name="Changes" comment="update">
       <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/license.txt" beforeDir="false" afterPath="$PROJECT_DIR$/license.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/styles.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -82,7 +80,7 @@
       <option name="presentableId" value="Default" />
       <updated>1706961880229</updated>
       <workItem from="1706961881281" duration="19465000" />
-      <workItem from="1707409101765" duration="3622000" />
+      <workItem from="1707409101765" duration="3957000" />
     </task>
     <servers />
   </component>
