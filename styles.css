@@ -1,0 +1,582 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0; /* Add a background color to the body */
+}
+
+/* Navigation Bar Styles */
+header {
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative; /* Ensure the navigation bar stays on top */
+    z-index: 2; /* Set a higher z-index to bring the navigation bar forward */
+}
+
+
+.content-section {
+    display: flex;
+    background-color: #fff; /* White background */
+}
+
+.left-column, .middle-column, .right-column {
+    height: auto; /* Adjust height automatically */
+}
+
+
+.left-column {
+    flex: 0 0 20%; /* 15% width */
+}
+
+
+
+.middle-column {
+    flex: 0 0 60%; /* 70% width */
+    /*padding: 20px;*/
+    margin-top: 40px;
+    margin-right: 40px;
+    justify-content: left;
+    text-align: justify;
+}
+.middle-column_left {
+    flex: 0 0 40%; /* 70% width */
+    /*padding: 20px;*/
+    margin-top: 40px;
+    margin-right: 40px;
+    justify-content: left;
+    text-align: justify;
+}
+
+.middle-column_right {
+    flex: 0 0 20%; /* 70% width */
+    /*padding: 20px;*/
+    margin-top: 40px;
+    margin-right: 40px;
+    justify-content: left;
+    text-align: justify;
+}
+
+.middle-column_right img {
+    width: 100%;
+    margin-top: 80px;
+    opacity: 0.2;
+    border: none;
+    z-index: 0;
+    /*box-shadow: 0 0 20px 10px rgba(0, 0, 0, 0.5); !* Adjust the spread and color as needed *!*/
+}
+
+.right-column {
+    flex: 0 0 15%; /* 15% width */
+}
+
+
+
+/* Media query for smaller screens */
+@media only screen and (max-width: 768px) {
+    .content-section {
+        flex-direction: column; /* Stack columns vertically on smaller screens */
+    }
+
+    .left-column, .middle-column, .right-column {
+        flex: 1; /* Take up full width */
+        width: 100%; /* Ensure full width */
+    }
+}
+
+
+.middle-column h2 {
+    background: linear-gradient(90deg, saddlebrown, sandybrown); /* Orange to light orange gradient */
+    -webkit-background-clip: text;
+    color: transparent;
+    display: inline;
+    font-size: 40px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+.middle-column h3 {
+    background: linear-gradient(90deg, saddlebrown, sandybrown); /* Orange to light orange gradient */
+    -webkit-background-clip: text;
+    color: transparent;
+    display: inline;
+    font-size: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+.middle-column_left h2 {
+    background: linear-gradient(90deg, saddlebrown, sandybrown); /* Orange to light orange gradient */
+    -webkit-background-clip: text;
+    color: transparent;
+    display: inline;
+    font-size: 40px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.middle-column_left h3 {
+    background: linear-gradient(90deg, saddlebrown, sandybrown); /* Orange to light orange gradient */
+    -webkit-background-clip: text;
+    color: transparent;
+    display: inline;
+    font-size: 18px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+
+
+
+
+/*.content p {*/
+/*    margin: 0;*/
+/*}*/
+
+/*Navigation bar styles*/
+.left-side {
+    display: flex;
+    align-items: center;
+}
+
+.left-side img {
+    width: 100px; /* Adjust the width as needed */
+    height: auto; /* Maintain aspect ratio */
+}
+
+nav {
+    display: flex;
+    margin-left: 20px; /* Add margin to separate logo and navigation links */
+}
+
+nav a {
+    /*font-family: 'Times New Roman', serif; !* Change font to Times New Roman *!*/
+    font-weight: bold; /* Make text bold */
+    color: gray; /* Text color */
+    text-decoration: none;
+    padding: 10px 20px;
+    margin: 0 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+nav a:hover {
+    background-color: lightgray;
+    color: white; /* Change text color on hover */
+}
+
+.popup-icon {
+    position: relative;
+}
+
+.popup {
+    display: none;
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 3; /* Set a higher z-index to bring the popup forward */
+}
+.popup::before {
+    content: '';
+    position: absolute;
+    bottom: 100%; /* Position the pointer above the tooltip */
+    left: 50%;
+    margin-left: -5px; /* Adjust as needed */
+    border-width: 5px;
+    border-style: solid;
+    border-color:  transparent transparent lightgray transparent; /* Change the order of colors to adjust the pointer direction */
+}
+
+.popup-icon:hover .popup {
+    display: block;
+}
+
+nav a:hover,
+.popup-icon:hover {
+    background-color: lightgray;
+    color: white; /* Change text color on hover */
+}
+.popup img {
+    width: 40px;
+    height: 40px;
+}
+
+
+.right-side {
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    margin-right: 40px; /* Add margin between search and GitHub icons */
+    cursor: pointer; /* Add cursor pointer for better UX */
+}
+
+.github-icon {
+    margin-right: 10px; /* Add margin between GitHub icon and search icon */
+    cursor: pointer;
+    position: relative; /* Position relative for positioning the tooltip */
+}
+
+.tooltip {
+    display: none;
+    position: absolute;
+    bottom: -30px; /* Adjusted position to move the tooltip down */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: gray;
+    color: white;
+    padding: 5px;
+    border-radius: 3px;
+    font-size: 12px;
+    white-space: nowrap; /* Prevent text from wrapping */
+}
+
+.tooltip::before {
+    content: '';
+    position: absolute;
+    bottom: 100%; /* Position the pointer above the tooltip */
+    left: 50%;
+    margin-left: -5px; /* Adjust as needed */
+    border-width: 5px;
+    border-style: solid;
+    border-color:  transparent transparent gray transparent; /* Change the order of colors to adjust the pointer direction */
+}
+
+
+.search-bar {
+    display: flex;
+    align-items: center;
+}
+
+.search-bar input {
+    padding: 10px;
+    margin-right: 5px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s, background-color 0.3s;
+}
+
+.search-bar input:focus {
+    outline: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.search-bar button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #555;
+    color: white;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.search-bar button:hover {
+    background-color: #333;
+}
+
+.contact-icon {
+    margin-right: 10px; /* Add margin between contact and search icons */
+    cursor: pointer;
+    position: relative; /* Position relative for positioning the tooltip */
+}
+
+.contact-icon {
+    margin-right: 10px; /* Add margin between contact and search icons */
+    cursor: pointer;
+    position: relative; /* Position relative for positioning the tooltip */
+}
+
+.contact-icon img {
+    width: 50px; /* Adjust the width as needed */
+    height: 50px; /* Adjust the height as needed */
+}
+
+
+/*.left-content {*/
+/*    max-width: 800px;*/
+/*    margin: 0 auto;*/
+/*}*/
+
+/*h2 {*/
+/*    font-size: 2.5em;*/
+/*    !*color: #333; !* Dark text color *!*!*/
+/*    !*border-bottom: 2px solid #333; !* Underline effect *!*!*/
+/*    !*padding-bottom: 10px; !* Space between heading and content *!*!*/
+/*}*/
+
+p {
+    font-size: 1em;
+    line-height: 1.6;
+    color: #555; /* Slightly darker text color */
+    margin-bottom: 15px; /* Space between paragraphs */
+}
+
+a {
+    color: #007bff; /* Link color */
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a:hover {
+    text-decoration: underline; /* Underline effect on hover */
+}
+
+/*xxxxxxxxxxxxxxxxxxxxxxx Subsection styles xxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
+.left-section, .middle-section, .right-section {
+    height: auto; /* Adjust height automatically */
+}
+.left-section {
+    flex: 0 0 15%; /* 15% width */
+}
+
+.middle-section {
+    flex: 0 0 55%; /* 70% width */
+    /*padding: 40px;*/
+    margin-top: 40px;
+    margin-right: 30px;
+    justify-content: left;
+    text-align: justify;
+    z-index: 2;
+}
+.middle-section h2 {
+    background: linear-gradient(90deg, saddlebrown, sandybrown); /* Orange to light orange gradient */
+    -webkit-background-clip: text;
+    color: transparent;
+    display: inline;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+.right-section {
+    flex: 0 0 25%; /* 15% width */
+}
+
+.right-section img {
+    width: 100%;
+    margin-top: 40px;
+    opacity: 0.2;
+    border: none;
+    z-index: 0;
+    box-shadow: 0 0 20px 10px rgba(0, 0, 0, 0.5); /* Adjust the spread and color as needed */
+}
+
+
+
+.link-box {
+    text-align: center; /* Align text to center */
+    background: linear-gradient(90deg, saddlebrown, sandybrown); /* Apply color gradient */
+    color: white; /* Change text color to white */
+    display: inline-block;
+    padding: 15px 25px;
+    font-size: 20px;
+    font-family: 'Segoe UI';
+    border-radius: 20px; /* Add border radius for rounded corners */
+    text-decoration: none; /* Remove underline */
+    position: relative; /* Set position relative for the white line */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Button shadow */
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+
+.link-box_main {
+    text-align: center; /* Align text to center */
+    background: linear-gradient(90deg, saddlebrown, sandybrown); /* Apply color gradient */
+    color: white; /* Change text color to white */
+    display: inline-flex;
+    justify-content: center; /* Align horizontally */
+    align-items: center; /* Align vertically */
+    width: 125px;
+    height: 70px;
+    padding: 15px 25px;
+    font-size: 25px;
+    font-family: 'Segoe UI';
+    border-radius: 30px;
+    text-decoration: none;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.link-box_main a {
+    color: white;
+    text-decoration: none;
+    text-align: center;
+}
+
+.link-box_main:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+    text-decoration-color: white;
+}
+
+.link-box a {
+color: white;text-align: center;
+}
+
+
+.link-box:hover {
+    transform: scale(1.05); /* Increase button size on hover */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5); /* Increase shadow on hover */
+}
+
+
+
+
+
+
+.white-line {
+    display: block;
+    width: 100%;
+    height: 1px; /* Set height for the white line */
+    background-color: white; /* Set color for the white line */
+    margin-bottom: -15px; /* Add margin bottom for spacing */
+    margin-top: 6px;
+}
+
+.white-line_main {
+    display: block;
+    margin: auto;
+    width: 100%;
+    height: 1px; /* Set height for the white line */
+    background-color: white; /* Set color for the white line */
+    margin-bottom:-5px; /* Add margin bottom for spacing */
+}
+
+
+
+.sub_algo-container {
+   display: flex;
+    /*flex-wrap: wrap;*/
+    gap: 20px;
+}
+
+.sub_algo-box {
+    display: inline-block;
+    background-color: #f0f0f0;
+    height: 40px;
+    border: 1px solid #ccc;
+    align-items: center; /* Center vertically */
+    justify-content: center;
+    border-radius: 10px;
+    padding: 10px;
+    margin-right: 10px; /* Adjust margin as needed for spacing between boxes */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.sub_algo-box:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+}
+
+.image-container {
+   display: flex;
+    justify-content: center;
+    /*flex-wrap: wrap;*/
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.image-container img {
+    /*max-width: 100%;*/
+    /*height: auto;*/
+    margin: 0; /* Remove any margins */
+    padding: 0; /* Remove any padding */
+    box-shadow: 0 10px 10px rgba(0, 0, 0, 0.5);
+}
+
+.box-3d {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 40px;
+  perspective: 1000px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Button shadow */
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+
+.box-3d:hover {
+    transform: scale(1.05); /* Increase button size on hover */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5); /* Increase shadow on hover */
+}
+
+.circle {
+  position: absolute;
+  width: 76px;
+  height: 76px;
+  background-color: #fff;
+  border: 2px solid #ccc;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#circle1 {
+  top: 15px;
+  left: 10px;
+}
+
+#circle2 {
+  top: 15px;
+  right: 10px;
+}
+
+#circle3 {
+  bottom: 16px;
+  left: 50px;
+}
+
+.text {
+  font-size: 16px;
+  color: #555555;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Add a shadow */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Add a decorative font */
+}
+
+
+.fancy-heading {
+    font-family: 'Segoe UI'; /* Add a decorative font */
+    font-size: 40px; /* Adjust font size */
+    color: #555555; /* Set font color */
+    text-align: left; /* Align text to left */
+    position: relative; /* Set position relative for the pseudo-element */
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);;
+}
+
+.fancy-heading::after {
+    content: ''; /* Add content */
+    display: block; /* Display as block element */
+    width: 100%; /* Set width of the line */
+    height: 5px; /* Set height of the line */
+    background-color: darkgray; /* Set color of the line */
+    position: absolute; /* Position absolutely */
+    bottom: -10px; /* Position the line below the text */
+    left: 0; /* Position the line at the left edge */
+     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.horizontal-line {
+    width: 100%; /* Set width to span the entire container */
+    height: 1px; /* Set height for the line */
+    background-color: #ccc; /* Set color for the line */
+    margin: 20px 0; /* Add margin for spacing */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.github-logo {
+    vertical-align: middle; /* Align the image vertically */
+    align-items: center;
+    /*margin-top: 5px; !* Add margin to the left of the image *!*/
+}
+
+.paper-title {color: black}
+
+
