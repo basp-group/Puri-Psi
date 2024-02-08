@@ -6,7 +6,7 @@ function redirectToNewPage() {
 
 // Function to start the countdown and redirect
 function startCountdown() {
-    var countdown = 30; // Countdown time in seconds
+    var countdown = 5; // Countdown time in seconds
     var countdownInterval = setInterval(function() {
         document.getElementById('countdown').innerText = countdown + ' sec.';
         countdown--;
